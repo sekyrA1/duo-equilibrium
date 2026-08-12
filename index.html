@@ -32,6 +32,11 @@
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
+  .scroll-progress {
+    position: fixed; inset: 0 auto auto 0; width: 0; height: 4px;
+    z-index: 200; background: linear-gradient(90deg, var(--accent), #f05b62);
+    box-shadow: 0 2px 10px rgba(187, 23, 34, .35);
+  }
 
   /* Decorative Ambient Lights */
   body::before, body::after {
@@ -128,6 +133,8 @@
     grid-template-columns: 1fr;
     gap: 48px;
     align-items: center;
+    transform: translateY(calc(var(--hero-shift, 0px) * -.15));
+    transition: transform .08s linear;
   }
   .hero-wrap > div:first-child { max-width: 760px; }
   .hero-badge {
@@ -192,6 +199,13 @@
     display: inline-flex; align-items: center; gap: 8px;
   }
   .btn-secondary:hover { background: rgba(255, 255, 255, .85); border-color: rgba(255, 255, 255, .95); transform: translateY(-2px); }
+  .btn-whatsapp {
+    padding: 14px 24px; background: #138a48; color: #fff; border-radius: 12px;
+    text-decoration: none; font-weight: 700; font-size: .95rem; display: inline-flex;
+    align-items: center; gap: 9px; transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    box-shadow: 0 10px 22px rgba(19, 138, 72, .22);
+  }
+  .btn-whatsapp:hover { background: #0e713b; transform: translateY(-2px); box-shadow: 0 14px 30px rgba(19, 138, 72, .32); }
 
   .hero-stats {
     display: grid;
@@ -317,13 +331,23 @@
   .section-diferenciais .diff-card { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); }
   .section-diferenciais .diff-num { color: #ff717b; }
   .section-depoimentos { background: linear-gradient(145deg, rgba(250,244,244,.92), rgba(255,255,255,.9)); border-top: 4px solid var(--accent); border-bottom: 1px solid rgba(187,23,34,.12); }
-  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 24px; }
+  .models-carousel { position: relative; max-width: 1152px; margin: 0 auto; }
+  .carousel-viewport { overflow: hidden; padding: 8px 4px 24px; margin: -8px -4px 0; }
+  .carousel-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 24px) / 2); gap: 24px; transition: transform .55s cubic-bezier(.2,.8,.2,1); }
+  .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 18px; }
+  .carousel-arrow { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; border: 1px solid rgba(187,23,34,.18); background: #fff; color: var(--accent); font-size: 1.25rem; transition: .2s ease; }
+  .carousel-arrow:hover { background: var(--accent); color: #fff; transform: translateY(-2px); }
+  .carousel-dots { display: flex; gap: 7px; }
+  .carousel-dot { border: 0; width: 8px; height: 8px; padding: 0; border-radius: 99px; background: rgba(16,20,60,.2); cursor: pointer; transition: .25s ease; }
+  .carousel-dot.active { width: 28px; background: var(--accent); }
+  .carousel-dot-third { display: none; }
 
   .model-card {
     background: linear-gradient(145deg, rgba(255,255,255,.68), rgba(255,255,255,.32));
     border: 1px solid var(--glass-border);
     border-radius: 20px;
-    padding: 26px;
+    overflow: hidden;
+    padding: 0;
     box-shadow: var(--shadow);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -333,6 +357,12 @@
     transition: transform .25s ease, box-shadow .25s ease;
   }
   .model-card:hover { transform: translateY(-4px); box-shadow: 0 24px 50px rgba(44, 55, 108, .18); }
+  .model-image-wrap { height: 360px; overflow: hidden; background: #f7f3ef; }
+  .model-image { width: 100%; height: 100%; display: block; object-fit: contain; padding: 8px; transition: transform .6s ease; }
+  .model-card:hover .model-image { transform: scale(1.05); }
+  .model-card > div:not(.model-image-wrap) { padding: 24px 26px 26px; display: flex; flex: 1; flex-direction: column; }
+  .model-card .model-foot { margin-top: auto; padding: 16px 0 0; }
+  .model-content { padding: 24px 26px 26px; display: flex; flex: 1; flex-direction: column; }
 
   .model-icon {
     width: 52px; height: 52px; border-radius: 14px;
@@ -346,9 +376,10 @@
   .model-specs li { font-size: .8rem; color: var(--ink-soft); display: flex; align-items: center; gap: 8px; font-weight: 500; }
   .model-specs li::before { content: '✓'; color: var(--accent); font-weight: 800; }
 
-  .model-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.5); }
+  .model-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; padding-top: 16px; border-top: 1px solid rgba(16,20,60,.09); }
   .model-price { font-size: .75rem; color: var(--muted); }
-  .model-price b { display: block; font-size: 1.15rem; color: var(--ink); font-weight: 800; }
+  .model-price b { display: block; font-size: 1.3rem; color: var(--ink); font-weight: 800; margin-top: 2px; }
+  .installments { color: #138a48; font-size: .74rem; font-weight: 700; margin-top: 4px; }
   .btn-card {
     padding: 8px 14px;
     background: rgba(255,255,255,.55);
@@ -434,6 +465,21 @@
   }
   footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
 
+  /* ---------- SCROLL MOTION ---------- */
+  .reveal { opacity: 0; transform: translateY(32px) scale(.98); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+  .reveal.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+  .reveal[data-delay="1"] { transition-delay: .1s; }
+  .reveal[data-delay="2"] { transition-delay: .2s; }
+  .reveal[data-delay="3"] { transition-delay: .3s; }
+  .section-wrap { position: relative; }
+  .section-wrap::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; background: linear-gradient(110deg, transparent, rgba(255,255,255,.08), transparent); transform: translateX(-100%); }
+  .section-wrap.is-visible::after { animation: sectionSweep 1s ease .1s both; }
+  @keyframes sectionSweep { to { opacity: 1; transform: translateX(100%); } }
+  .whatsapp-float { position: fixed; right: 24px; bottom: 24px; z-index: 90; width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%; background: #16a05a; color: #fff; text-decoration: none; font-size: 1.55rem; box-shadow: 0 14px 30px rgba(8,92,47,.3); transition: transform .2s ease, background .2s ease; }
+  .whatsapp-float:hover { transform: translateY(-4px) scale(1.04); background: #0e713b; }
+  .whatsapp-float::after { content: 'Fale conosco'; position: absolute; right: 68px; width: max-content; padding: 8px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: .74rem; font-weight: 700; opacity: 0; transform: translateX(6px); pointer-events: none; transition: .2s ease; }
+  .whatsapp-float:hover::after { opacity: 1; transform: translateX(0); }
+
   /* ---------- RESPONSIVE ---------- */
   @media (max-width: 900px) {
     .hero-wrap { grid-template-columns: 1fr; gap: 36px; text-align: center; padding-top: 36px; }
@@ -447,10 +493,19 @@
     .hero-title { font-size: 2rem; }
     .cta-inner { padding: 36px 20px; }
     .cta-inner h2 { font-size: 1.7rem; }
+    .section-wrap { padding-left: 20px; padding-right: 20px; }
+    .carousel-track { grid-auto-columns: 100%; }
+    .carousel-dot-third { display: block; }
+    .model-image-wrap { height: 300px; }
+    .model-foot { align-items: flex-start; flex-direction: column; }
+    .whatsapp-float { right: 16px; bottom: 16px; }
+    .whatsapp-float::after { display: none; }
   }
 </style>
 </head>
 <body>
+
+<div class="scroll-progress" aria-hidden="true"></div>
 
 <!-- TOPBAR -->
 <header class="topbar">
@@ -489,8 +544,8 @@
         <a href="#modelos" class="btn-primary">
           Conheça os modelos <span>→</span>
         </a>
-        <a href="#modelos" class="btn-secondary">
-          Explorar Coleção
+        <a href="https://wa.me/5521971433650?text=Olá%2C%20quero%20conhecer%20os%20mochos%20Duo%20Equilibrium." class="btn-whatsapp" target="_blank" rel="noopener">
+          &#128172; Falar no WhatsApp
         </a>
       </div>
 
@@ -520,9 +575,12 @@
       <p>Desenvolvidos para proporcionar suporte postural contínuo e elegância aos mais exigentes ambientes de trabalho.</p>
     </div>
 
-    <div class="cards-grid">
+    <div class="models-carousel reveal" aria-label="Modelos de mochos">
+      <div class="carousel-viewport">
+        <div class="carousel-track">
       <!-- Card 1 -->
       <article class="model-card">
+        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-clinico-pro.png" alt="Mocho Clínico Pro azul com encosto"></div>
         <div>
           <div class="model-icon">🩺</div>
           <h3 class="model-title">Mocho Clínico Pro</h3>
@@ -534,13 +592,14 @@
           </ul>
         </div>
         <div class="model-foot">
-          <div class="model-price">A partir de<b>R$ 164,90</b></div>
-          <span class="btn-card">Sob consulta</span>
+          <div class="model-price">A partir de<b>R$ 164,90</b><div class="installments">3x de R$ 54,97 sem juros</div></div>
+          <a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Clínico%20Pro.">Pedir no WhatsApp</a>
         </div>
       </article>
 
       <!-- Card 2 -->
       <article class="model-card">
+        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-studio-executivo.png" alt="Mocho Studio Executivo grafite"></div>
         <div>
           <div class="model-icon">✨</div>
           <h3 class="model-title">Mocho Studio Executivo</h3>
@@ -552,13 +611,14 @@
           </ul>
         </div>
         <div class="model-foot">
-          <div class="model-price">A partir de<b>R$ 179,90</b></div>
-          <span class="btn-card">Sob consulta</span>
+          <div class="model-price">A partir de<b>R$ 179,90</b><div class="installments">3x de R$ 59,97 sem juros</div></div>
+          <a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Studio%20Executivo.">Pedir no WhatsApp</a>
         </div>
       </article>
 
       <!-- Card 3 -->
       <article class="model-card">
+        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-compact-minimal.png" alt="Mocho Compact Minimal em madeira"></div>
         <div>
           <div class="model-icon">🌿</div>
           <h3 class="model-title">Mocho Compact Minimal</h3>
@@ -570,10 +630,17 @@
           </ul>
         </div>
         <div class="model-foot">
-          <div class="model-price">A partir de<b>R$ 89,90</b></div>
-          <span class="btn-card">Sob consulta</span>
+          <div class="model-price">A partir de<b>R$ 89,90</b><div class="installments">3x de R$ 29,97 sem juros</div></div>
+          <a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Compact%20Minimal.">Pedir no WhatsApp</a>
         </div>
       </article>
+        </div>
+      </div>
+      <div class="carousel-controls">
+        <button class="carousel-arrow" type="button" data-carousel="prev" aria-label="Modelo anterior">&#8592;</button>
+        <div class="carousel-dots" aria-label="Selecionar modelo"><button class="carousel-dot active" type="button" aria-label="Modelo 1"></button><button class="carousel-dot" type="button" aria-label="Modelo 2"></button><button class="carousel-dot carousel-dot-third" type="button" aria-label="Modelo 3"></button></div>
+        <button class="carousel-arrow" type="button" data-carousel="next" aria-label="Próximo modelo">&#8594;</button>
+      </div>
     </div>
   </section>
 
@@ -658,6 +725,8 @@
 
 </main>
 
+<a class="whatsapp-float" href="https://wa.me/5521971433650?text=Olá%2C%20vim%20pelo%20site%20e%20quero%20falar%20sobre%20um%20mocho." target="_blank" rel="noopener" aria-label="Falar com a Duo Equilibrium pelo WhatsApp">&#128172;</a>
+
 <footer>
   <p style="margin-top:8px; opacity:.7;">© 2026 duoequilibrium. Todos os direitos reservados. | <a href="pedidos.html">Gerador de Pedidos</a></p>
 </footer>
@@ -694,6 +763,46 @@ document.addEventListener('DOMContentLoaded', () => {
     if (atual) ativar(atual);
   });
   ativar(nav.querySelector('.nav-tab.active'));
+
+  const reveals = document.querySelectorAll('.reveal, .section-wrap');
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('is-visible');
+    });
+  }, { threshold: .12, rootMargin: '0px 0px -8% 0px' });
+  reveals.forEach((element, index) => {
+    if (element.classList.contains('reveal')) element.dataset.delay = String(index % 4);
+    revealObserver.observe(element);
+  });
+
+  const progress = document.querySelector('.scroll-progress');
+  const updateScrollMotion = () => {
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const current = window.scrollY;
+    progress.style.width = `${maxScroll > 0 ? (current / maxScroll) * 100 : 0}%`;
+    document.documentElement.style.setProperty('--hero-shift', `${Math.min(current, 420)}px`);
+  };
+  window.addEventListener('scroll', updateScrollMotion, { passive: true });
+  updateScrollMotion();
+
+  const track = document.querySelector('.carousel-track');
+  const cards = [...document.querySelectorAll('.carousel-track .model-card')];
+  const dots = [...document.querySelectorAll('.carousel-dot')];
+  let carouselIndex = 0;
+  function cardsPerView() { return window.innerWidth <= 560 ? 1 : 2; }
+  function showSlide(nextIndex) {
+    const maxIndex = Math.max(0, cards.length - cardsPerView());
+    carouselIndex = Math.max(0, Math.min(nextIndex, maxIndex));
+    const cardWidth = cards[0].getBoundingClientRect().width;
+    const gap = 24;
+    track.style.transform = `translateX(-${carouselIndex * (cardWidth + gap)}px)`;
+    dots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === carouselIndex));
+  }
+  document.querySelector('[data-carousel="prev"]').addEventListener('click', () => showSlide(carouselIndex - 1));
+  document.querySelector('[data-carousel="next"]').addEventListener('click', () => showSlide(carouselIndex + 1));
+  dots.forEach((dot, index) => dot.addEventListener('click', () => showSlide(index)));
+  window.addEventListener('resize', () => showSlide(carouselIndex));
+  showSlide(0);
 });
 </script>
 
