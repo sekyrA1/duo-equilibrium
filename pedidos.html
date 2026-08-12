@@ -202,16 +202,29 @@
   .historico-valor { margin-top: 10px; color: var(--ink); font-size: .86rem; font-weight: 800; }
   .historico-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 11px; }
   .historico-acoes .btn { padding: 8px 9px; justify-content: center; font-size: .73rem; }
-  .history-dialog { width: min(480px, calc(100vw - 32px)); border: 0; border-radius: 18px; padding: 0; color: var(--ink); background: #f8f9ff; box-shadow: 0 28px 70px rgba(16,20,60,.32); }
-  .history-dialog::backdrop { background: rgba(16,20,60,.45); backdrop-filter: blur(4px); }
-  .history-dialog-content { padding: 24px; }
-  .history-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-  .history-dialog-header h2 { font-size: 1.2rem; }
-  .history-dialog-close { width: 34px; height: 34px; padding: 0; font-size: 1.1rem; }
-  .history-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
-  .history-detail { padding: 11px; border-radius: 10px; background: #fff; border: 1px solid rgba(16,20,60,.08); }
-  .history-detail small { display: block; color: var(--muted); font-size: .62rem; font-weight: 800; text-transform: uppercase; }
-  .history-detail strong { display: block; margin-top: 5px; font-size: .82rem; }
+  .history-dialog { position: fixed; inset: 0; width: min(820px, calc(100vw - 36px)); max-height: min(720px, calc(100vh - 36px)); margin: auto; border: 1px solid rgba(169,179,242,.2); border-radius: 24px; padding: 0; overflow: hidden; color: var(--ink); background: #111431; box-shadow: 0 34px 100px rgba(0,0,0,.58); }
+  .history-dialog::backdrop { background: rgba(3,5,18,.66); backdrop-filter: blur(10px) saturate(.82); }
+  .history-dialog-content { max-height: inherit; overflow: auto; padding: 0; }
+  .history-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 28px 30px 24px; background: radial-gradient(circle at 86% 0%, rgba(132,116,255,.22), transparent 32%), linear-gradient(115deg, rgba(197,28,42,.25), rgba(28,31,65,.12) 58%); border-bottom: 1px solid rgba(169,179,242,.14); }
+  .history-dialog-header h2 { max-width: 600px; margin-top: 5px; font-size: clamp(1.3rem, 3vw, 1.9rem); letter-spacing: -.65px; line-height: 1.1; }
+  .history-dialog-close { width: 40px; height: 40px; flex: 0 0 auto; padding: 0; border-radius: 12px; font-size: 1.25rem; }
+  .history-dialog-body { padding: 24px 30px 28px; }
+  .history-order-overview { display: grid; grid-template-columns: 1.35fr .65fr; gap: 14px; margin-bottom: 20px; }
+  .history-product { padding: 18px; border-radius: 16px; background: linear-gradient(135deg, rgba(61,55,143,.28), rgba(20,23,53,.72)); border: 1px solid rgba(169,179,242,.15); }
+  .history-product small, .history-section-title { display: block; color: #aeb5df; font-size: .66rem; font-weight: 800; letter-spacing: .9px; text-transform: uppercase; }
+  .history-product strong { display: block; margin-top: 8px; color: #fff; font-size: 1rem; }
+  .history-product span { display: inline-flex; margin-top: 10px; padding: 5px 8px; border-radius: 99px; color: #d9dcfa; background: rgba(255,255,255,.07); font-size: .72rem; }
+  .history-total { display: flex; flex-direction: column; justify-content: center; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, rgba(197,28,42,.9), #951220); box-shadow: 0 12px 25px rgba(197,28,42,.2); }
+  .history-total small { color: rgba(255,255,255,.7); font-size: .66rem; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
+  .history-total strong { margin-top: 7px; color: #fff; font-size: 1.4rem; letter-spacing: -.5px; }
+  .history-section-title { margin: 22px 0 10px; }
+  .history-detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0; }
+  .history-detail { min-height: 86px; padding: 13px; border-radius: 13px; background: rgba(6,8,23,.5); border: 1px solid rgba(169,179,242,.12); }
+  .history-detail small { display: block; color: var(--muted); font-size: .61rem; font-weight: 800; letter-spacing: .65px; text-transform: uppercase; }
+  .history-detail strong { display: block; margin-top: 8px; color: #fff; font-size: .85rem; line-height: 1.2; }
+  .history-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(169,179,242,.12); }
+  .history-dialog-actions .btn { min-width: 194px; justify-content: center; }
+  @media (max-width: 640px) { .history-dialog { width: calc(100vw - 20px); max-height: calc(100vh - 20px); border-radius: 18px; } .history-dialog-header, .history-dialog-body { padding-left: 18px; padding-right: 18px; } .history-order-overview, .history-detail-grid { grid-template-columns: 1fr 1fr; } .history-dialog-actions .btn { min-width: 0; flex: 1; } }
 
   .grid { display: grid; gap: 12px; }
   .cols-2 { grid-template-columns: 1fr 1fr; }
@@ -698,8 +711,17 @@
       <div><div class="dashboard-kicker">Pedido registrado</div><h2 id="historyDialogTitle">Pedido</h2></div>
       <button class="btn btn-ghost history-dialog-close" id="historyDialogClose" type="button" aria-label="Fechar">×</button>
     </div>
-    <div class="history-detail-grid" id="historyDialogDetails"></div>
-    <button class="btn btn-accent btn-add" id="historyDialogPdf" type="button">Baixar PDF do pedido</button>
+    <div class="history-dialog-body">
+      <div class="history-order-overview" id="historyDialogOverview"></div>
+      <div class="history-section-title">Dados do pedido</div>
+      <div class="history-detail-grid" id="historyDialogDetails"></div>
+      <div class="history-section-title">Configuração de fábrica</div>
+      <div class="history-detail-grid" id="historyDialogFabricacao"></div>
+      <div class="history-dialog-actions">
+        <button class="btn btn-ghost" id="historyDialogBack" type="button">Fechar</button>
+        <button class="btn btn-accent" id="historyDialogPdf" type="button">Baixar PDF do pedido</button>
+      </div>
+    </div>
   </div>
 </dialog>
 
@@ -1610,10 +1632,10 @@ function exportarCsv() {
    HISTÓRICO SIMULADO — PONTO DE INTEGRAÇÃO PARA O BACK-END
    ============================================================ */
 const HISTORICO_PEDIDOS = [
-  { id: 'PED-2026-041', cliente: 'Clínica Sorriso Prime', data: '08/08/2026', produto: 'Mocho Sela Soft Plus', valor: 1290, status: 'Em produção', espuma: '5 cm', pistao: 'M', sela: 'Sim', linha: 'Soft Plus', itens: 2 },
-  { id: 'PED-2026-040', cliente: 'Studio Helena Aesthetics', data: '06/08/2026', produto: 'Mocho Estética Balance', valor: 849.9, status: 'Confirmado', espuma: '3 cm', pistao: 'P', sela: 'Não', linha: 'Soft', itens: 1 },
-  { id: 'PED-2026-039', cliente: 'Dr. Rafael Nogueira', data: '04/08/2026', produto: 'Mocho Clínico Pro', valor: 1549.8, status: 'Em produção', espuma: '5 cm', pistao: 'M', sela: 'Sim', linha: 'Soft Plus', itens: 2 },
-  { id: 'PED-2026-038', cliente: 'Odonto Vida Centro', data: '01/08/2026', produto: 'Mocho Compact Minimal', valor: 699.9, status: 'Confirmado', espuma: '3 cm', pistao: 'P', sela: 'Não', linha: 'Padrão', itens: 1 }
+  { id: 'PED-2026-041', cliente: 'Clínica Sorriso Prime', nome: 'Dra. Marina Costa', telefone: '(21) 98841-2964', email: 'marina@sorrisoprime.com.br', data: '08/08/2026', produto: 'Mocho Sela Soft Plus', valor: 1290, status: 'Em produção', espuma: '5 cm', pistao: 'M', sela: 'Sim', linha: 'Soft Plus', itens: 2 },
+  { id: 'PED-2026-040', cliente: 'Studio Helena Aesthetics', nome: 'Helena Pires', telefone: '(21) 97612-4408', email: 'contato@studiohelena.com.br', data: '06/08/2026', produto: 'Mocho Estética Balance', valor: 849.9, status: 'Confirmado', espuma: '3 cm', pistao: 'P', sela: 'Não', linha: 'Soft', itens: 1 },
+  { id: 'PED-2026-039', cliente: 'Dr. Rafael Nogueira', nome: 'Dr. Rafael Nogueira', telefone: '(21) 99120-8173', email: 'rafael@odontonogueira.com.br', data: '04/08/2026', produto: 'Mocho Clínico Pro', valor: 1549.8, status: 'Em produção', espuma: '5 cm', pistao: 'M', sela: 'Sim', linha: 'Soft Plus', itens: 2 },
+  { id: 'PED-2026-038', cliente: 'Odonto Vida Centro', nome: 'Carla Menezes', telefone: '(21) 98274-1160', email: 'compras@odontovida.com.br', data: '01/08/2026', produto: 'Mocho Compact Minimal', valor: 699.9, status: 'Confirmado', espuma: '3 cm', pistao: 'P', sela: 'Não', linha: 'Padrão', itens: 1 }
 ];
 
 let pedidoHistoricoAtual = null;
@@ -1674,9 +1696,15 @@ function abrirHistorico(id) {
   if (!pedido) return;
   pedidoHistoricoAtual = pedido;
   document.getElementById('historyDialogTitle').textContent = `${pedido.id} · ${pedido.cliente}`;
+  const emProducao = pedido.status === 'Em produção';
+  document.getElementById('historyDialogOverview').innerHTML = `
+    <div class="history-product"><small>Produto registrado</small><strong>${pedido.produto}</strong><span class="status-pedido${emProducao ? ' producao' : ''}">${pedido.status}</span></div>
+    <div class="history-total"><small>Valor total</small><strong>${fmt(pedido.valor)}</strong></div>`;
   document.getElementById('historyDialogDetails').innerHTML = [
-    ['Status', pedido.status], ['Data', pedido.data], ['Produto', pedido.produto], ['Total', fmt(pedido.valor)],
-    ['Espuma', pedido.espuma], ['Pistão', pedido.pistao], ['Modelo sela', pedido.sela], ['Linha', pedido.linha]
+    ['Código', pedido.id], ['Empresa / clínica', pedido.cliente], ['Nome', pedido.nome], ['Telefone', pedido.telefone], ['E-mail', pedido.email], ['Data', pedido.data], ['Itens', `${pedido.itens} ${pedido.itens === 1 ? 'item' : 'itens'}`]
+  ].map(([rotulo, valor]) => `<div class="history-detail"><small>${rotulo}</small><strong>${valor}</strong></div>`).join('');
+  document.getElementById('historyDialogFabricacao').innerHTML = [
+    ['Espuma', pedido.espuma], ['Pistão', pedido.pistao], ['Modelo sela', pedido.sela], ['Linha de espuma', pedido.linha]
   ].map(([rotulo, valor]) => `<div class="history-detail"><small>${rotulo}</small><strong>${valor}</strong></div>`).join('');
   document.getElementById('historyDialog').showModal();
 }
@@ -1753,6 +1781,7 @@ document.addEventListener('DOMContentLoaded', () => {
   iniciarNavegacaoDashboard();
   const dialogHistorico = document.getElementById('historyDialog');
   document.getElementById('historyDialogClose').addEventListener('click', () => dialogHistorico.close());
+  document.getElementById('historyDialogBack').addEventListener('click', () => dialogHistorico.close());
   document.getElementById('historyDialogPdf').addEventListener('click', () => {
     if (pedidoHistoricoAtual) baixarPdfHistorico(pedidoHistoricoAtual.id);
   });
