@@ -380,14 +380,20 @@
   @keyframes cardSlideBackward { 0% { opacity: .38; transform: perspective(1100px) translate3d(-38px, 12px, -35px) rotateY(7deg); } 100% { opacity: 1; transform: perspective(1100px) translateZ(22px) rotateY(1.6deg); } }
   @keyframes imageSlideFocus { 0% { transform: scale(1.1); filter: brightness(.8) saturate(.7); } 100% { transform: scale(1); filter: brightness(1) saturate(1); } }
   @keyframes cardContentRise { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
-  .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; }
-  .carousel-arrow { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; cursor: pointer; border: 1px solid rgba(187,23,34,.18); background: rgba(255,255,255,.78); color: var(--accent); font-size: 1.25rem; box-shadow: 0 8px 22px rgba(16,20,60,.08); transition: .25s ease; }
-  .carousel-arrow:hover:not(:disabled) { background: var(--accent); color: #fff; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(187,23,34,.24); }
+  .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; }
+  .carousel-arrow { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; border: 1px solid rgba(18,34,99,.18); background: #fff; color: var(--ink); font-size: 1.15rem; box-shadow: 0 8px 22px rgba(16,20,60,.1); transition: .25s ease; }
+  .carousel-arrow:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 24px rgba(187,23,34,.24); }
   .carousel-arrow:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
-  .carousel-status { min-width: 164px; display: flex; align-items: center; gap: 10px; padding: 0 8px; color: var(--muted); font-size: .78rem; font-weight: 700; letter-spacing: .08em; }
+  .carousel-status { --progress: 16.66%; min-width: 228px; display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 16px; border: 1px solid rgba(16,20,60,.1); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.74); box-shadow: 0 10px 24px rgba(16,20,60,.08); font-size: .76rem; font-weight: 750; letter-spacing: .06em; }
+  .carousel-counter { display: flex; gap: 4px; align-items: baseline; white-space: nowrap; }
   .carousel-status strong { color: var(--accent); font-size: .95rem; }
-  .carousel-progress { flex: 1; height: 4px; overflow: hidden; border-radius: 99px; background: rgba(16,20,60,.12); }
-  .carousel-progress span { display: block; width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), #ef545d); transition: width .55s cubic-bezier(.2,.8,.2,1); }
+  .carousel-piston { position: relative; flex: 1; height: 28px; min-width: 108px; }
+  .carousel-piston::before { content: ''; position: absolute; left: 7px; right: 7px; top: 13px; height: 5px; border-radius: 99px; background: #151c4c; box-shadow: inset 0 1px 1px rgba(255,255,255,.25); }
+  .carousel-piston::after { content: ''; position: absolute; left: calc(var(--progress) - 9px); top: 3px; width: 18px; height: 22px; border-radius: 7px 7px 9px 9px; background: linear-gradient(180deg, #f4f6ff 0 30%, #c51c2a 31% 64%, #161d50 65%); border: 1px solid rgba(16,20,60,.25); box-shadow: 0 4px 8px rgba(16,20,60,.2); transform: translateX(-50%); transition: left .55s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  .carousel-piston input { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: grab; }
+  .carousel-piston input:active { cursor: grabbing; }
+  .carousel-progress { position: absolute; left: 7px; top: 13px; height: 5px; overflow: hidden; border-radius: 99px; background: transparent; pointer-events: none; }
+  .carousel-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #c51c2a, #315fd8); transition: width .55s cubic-bezier(.2,.8,.2,1); }
 
   .model-card {
     background: transparent;
@@ -714,7 +720,10 @@
       </div>
       <div class="carousel-controls">
         <button class="carousel-arrow" type="button" data-carousel="prev" aria-label="Modelo anterior">&#8592;</button>
-        <div class="carousel-status" aria-live="polite"><strong id="carouselCurrent">01</strong><span>/ <span id="carouselTotal">06</span></span><div class="carousel-progress" aria-hidden="true"><span></span></div></div>
+        <div class="carousel-status" aria-live="polite">
+          <div class="carousel-counter"><strong id="carouselCurrent">01</strong><span>/ <span id="carouselTotal">06</span></span></div>
+          <div class="carousel-piston"><div class="carousel-progress" aria-hidden="true"><span></span></div><input id="carouselHandle" type="range" min="1" max="6" step="1" value="1" aria-label="Selecionar modelo do carrossel"></div>
+        </div>
         <button class="carousel-arrow" type="button" data-carousel="next" aria-label="Próximo modelo">&#8594;</button>
       </div>
     </div>
@@ -909,6 +918,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const carouselCurrent = document.getElementById('carouselCurrent');
   const carouselTotal = document.getElementById('carouselTotal');
   const carouselProgress = document.querySelector('.carousel-progress span');
+  const carouselStatus = document.querySelector('.carousel-status');
+  const carouselHandle = document.getElementById('carouselHandle');
   const carouselWrapper = document.querySelector('.carousel-swiper .swiper-wrapper');
   const cardsOriginais = [...carouselWrapper.children];
   const totalCards = cardsOriginais.length;
@@ -953,6 +964,8 @@ document.addEventListener('DOMContentLoaded', () => {
     carouselCurrent.textContent = String(atual).padStart(2, '0');
     carouselTotal.textContent = String(totalCards).padStart(2, '0');
     carouselProgress.style.width = `${(atual / totalCards) * 100}%`;
+    carouselStatus.style.setProperty('--progress', `${6 + ((atual - 1) / Math.max(1, totalCards - 1)) * 88}%`);
+    carouselHandle.value = atual;
   }
   function moverCarrossel(direcao = 1) {
     if (carousel.animating || reposicionando) return;
@@ -966,6 +979,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   previousButton.addEventListener('click', () => { moverCarrossel(-1); iniciarAutoplay(); });
   nextButton.addEventListener('click', () => { moverCarrossel(1); iniciarAutoplay(); });
+  carouselHandle.addEventListener('input', evento => {
+    const desejado = Number(evento.target.value) - 1;
+    const atual = indiceReal();
+    if (desejado === atual || carousel.animating) return;
+    carouselHost.classList.remove('is-sliding-forward', 'is-sliding-backward');
+    carouselHost.classList.add('is-sliding', desejado > atual ? 'is-sliding-forward' : 'is-sliding-backward');
+    carousel.slideTo(indiceInicial + desejado);
+    iniciarAutoplay();
+  });
   carousel.on('transitionEnd', () => {
     if (carousel.activeIndex === indiceFinal + 1) {
       reposicionando = true; carousel.slideTo(indiceInicial, 0, false); reposicionando = false;
