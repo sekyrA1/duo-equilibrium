@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>duoequilibrium — Gerador de Pedidos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+<style>
+  :root {
+    --ink: #162033;
+    --ink-soft: #34415a;
+    --muted: #66718a;
+    --glass: rgba(255, 255, 255, .46);
+    --glass-strong: rgba(255, 255, 255, .66);
+    --glass-border: rgba(255, 255, 255, .62);
+    --bg: #dfe4f2;
+    --accent: #3d4be8;
+    --accent-hover: #303ed3;
+    --accent-soft: rgba(235, 238, 255, .72);
+    --success: #157347;
+    --danger: #b42318;
+    --radius: 18px;
+    --shadow: 0 18px 45px rgba(44, 55, 108, .13), inset 0 1px 0 rgba(255,255,255,.55);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    z-index: -1;
+    border-radius: 50%;
+    filter: blur(8px);
+    pointer-events: none;
+  }
+  body::before {
+    width: min(56vw, 760px); height: min(56vw, 760px);
+    top: -280px; left: -140px;
+    background: radial-gradient(circle, rgba(157, 131, 255, .5), rgba(157, 131, 255, 0) 68%);
+  }
+  body::after {
+    width: min(62vw, 840px); height: min(62vw, 840px);
+    right: -260px; bottom: -360px;
+    background: radial-gradient(circle, rgba(93, 185, 255, .42), rgba(93, 185, 255, 0) 68%);
+  }
+
+  /* ---------- TOPO ---------- */
+  .topbar {
+    background: rgba(247, 248, 255, .65);
+    border-bottom: 1px solid rgba(255, 255, 255, .6);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(22px) saturate(1.25);
+    -webkit-backdrop-filter: blur(22px) saturate(1.25);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+  .brand-logo {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 8px 18px rgba(61, 75, 232, .25);
+    display: grid; place-items: center;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+  .brand h1 { font-size: 1.05rem; font-weight: 800; color: var(--ink); }
+  .brand p { color: var(--muted); font-size: .75rem; margin-top: 1px; }
+
+  .nav-tabs {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, .5);
+    padding: 4px;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 7px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: .84rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: all .2s ease;
+  }
+  .nav-tab:hover {
+    color: var(--ink);
+    background: rgba(255, 255, 255, .6);
+  }
+  .nav-tab.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(61, 75, 232, .25);
+  }
+
+  .topbar-badges { display: flex; gap: 6px; align-items: center; }
+  .badge {
+    font-size: .72rem;
+    color: var(--ink-soft);
+    background: rgba(255,255,255,.5);
+    border: 1px solid var(--glass-border);
+    padding: 5px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 56px; }
+
+  /* ---------- LAYOUT ---------- */
+  .layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(340px, .9fr); gap: 22px; align-items: start; }
+  .right-col { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 20px; }
+
+  .card {
+    background: linear-gradient(145deg, rgba(255,255,255,.68), rgba(255,255,255,.35));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(22px) saturate(1.15);
+    -webkit-backdrop-filter: blur(22px) saturate(1.15);
+    position: relative;
+    color: var(--ink);
+  }
+  .card-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1rem; font-weight: 750; color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: -.15px;
+  }
+  .card-title .ico {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(255,255,255,.65);
+    border: 1px solid rgba(255,255,255,.75);
+    display: grid; place-items: center; font-size: .85rem;
+  }
+  .card-sub { font-size: .84rem; color: var(--muted); margin-bottom: 22px; }
+
+  .grid { display: grid; gap: 12px; }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+  input, select, textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    font-size: .9rem;
+    background: rgba(255,255,255,.58);
+    color: var(--ink);
+    font-family: inherit;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  input:hover, select:hover, textarea:hover { border-color: rgba(255,255,255,.9); background: rgba(255,255,255,.75); }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(61,75,232,.13);
+    background: rgba(255,255,255,.9);
+  }
+  textarea { resize: vertical; min-height: 60px; }
+
+  .opt-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt-group label {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: .84rem;
+    background: rgba(255,255,255,.48);
+    border: 1px solid var(--glass-border);
+    transition: all .15s;
+    user-select: none;
+    position: relative;
+  }
+  .opt-group label:hover { background: rgba(255,255,255,.75); border-color: rgba(255,255,255,.95); transform: translateY(-1px); }
+  .opt-group input { position: absolute; opacity: 0; pointer-events: none; }
+  .opt-group input:checked + span { font-weight: 700; color: var(--ink); }
+  .opt-group label:has(input:checked) {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 7px 16px rgba(61,75,232,.25);
+  }
+  .opt-group label:has(input:checked) .preco { color: #dbeafe; }
+  .opt-group .preco { color: var(--muted); font-weight: 500; font-size: .76rem; }
+
+  .divider { height: 1px; margin: 22px 0; background: rgba(255,255,255,.48); }
+  .section-label {
+    font-size: .7rem; font-weight: 700; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: .8px;
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .section-label::after { content: ''; height: 1px; background: rgba(255,255,255,.48); flex: 1; }
+
+  /* ---------- BOTÕES ---------- */
+  .btn {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: .88rem;
+    font-weight: 600;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    text-decoration: none;
+  }
+  .btn:active { transform: scale(.985); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 8px 18px rgba(61,75,232,.28); transform: translateY(-1px); }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-accent:hover { background: var(--accent-hover); box-shadow: 0 8px 18px rgba(61,75,232,.28); transform: translateY(-1px); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { filter: brightness(1.08); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { filter: brightness(1.08); }
+  .btn-outline { background: rgba(255,255,255,.45); color: var(--ink-soft); border: 1px solid rgba(255,255,255,.65); }
+  .btn-outline:hover { border-color: rgba(255,255,255,.95); background: rgba(255,255,255,.75); color: var(--ink); }
+  .btn-ghost { background: rgba(255,255,255,.2); color: var(--ink-soft); border: 1px solid rgba(255,255,255,.5); }
+  .btn-ghost:hover { background: rgba(255,255,255,.6); color: var(--ink); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-add { width: 100%; padding: 13px; font-size: .95rem; border-radius: 12px; justify-content: center; font-weight: 700; }
+
+  /* ---------- TABELA ---------- */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.45); vertical-align: top; }
+  th { color: var(--ink-soft); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+  tbody tr:hover { background: rgba(255,255,255,.28); }
+  tfoot td { font-weight: 650; border-top: 1px solid var(--glass-border); border-bottom: none; }
+  .total-row td { font-size: .95rem; color: var(--ink); font-weight: 700; }
+  .qty { width: 60px; text-align: center; padding: 6px; }
+  .desc-item b { color: var(--ink); font-weight: 700; }
+  .tag { font-size: .74rem; color: var(--ink-soft); line-height: 1.5; }
+  .empty-state {
+    text-align: center; padding: 30px 12px; color: var(--muted);
+    font-size: .88rem; border: 1px dashed rgba(255,255,255,.74); border-radius: 14px; background: rgba(255,255,255,.22);
+  }
+  .empty-state .big { font-size: 1.6rem; display: block; margin-bottom: 10px; }
+
+  /* ---------- RESUMO ---------- */
+  .resumo-labels { font-size: .88rem; }
+  .resumo-labels .row { display: flex; justify-content: space-between; padding: 6px 0; color: var(--ink-soft); }
+  .resumo-labels .row.total {
+    margin-top: 10px; padding: 14px 0 0;
+    border-top: 1px solid rgba(255,255,255,.52);
+    font-size: 1.05rem; font-weight: 800; color: var(--ink);
+  }
+
+  /* ---------- CONFIGURADOR ---------- */
+  .configurator { padding: 0; overflow: hidden; }
+  .configurator-head {
+    min-height: 140px; padding: 26px 28px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    background: linear-gradient(120deg, rgba(255,255,255,.55), rgba(211,217,255,.4));
+    border-bottom: 1px solid rgba(255,255,255,.45);
+  }
+  .eyebrow { color: var(--accent); font-size: .68rem; font-weight: 800; letter-spacing: 1.1px; text-transform: uppercase; margin-bottom: 6px; }
+  .configurator-head h2 { font-size: 1.3rem; letter-spacing: -.5px; color: var(--ink); font-weight: 800; }
+  .configurator-head p { margin-top: 4px; color: var(--muted); font-size: .86rem; }
+  .product-mark {
+    width: 76px; height: 76px; flex: 0 0 auto; border-radius: 22px;
+    background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.75);
+    display: grid; place-items: center; position: relative; box-shadow: inset 0 1px 1px rgba(255,255,255,.8);
+  }
+  .product-mark::before { content: ''; width: 26px; height: 29px; border: 3px solid var(--accent); border-radius: 9px 9px 12px 12px; border-bottom-width: 5px; transform: translateY(-3px); }
+  .product-mark span { width: 36px; height: 3px; background: var(--accent); position: absolute; border-radius: 99px; transform: translateY(22px); }
+  .config-steps { display: flex; gap: 18px; padding: 14px 28px; border-bottom: 1px solid rgba(255,255,255,.44); color: var(--muted); font-size: .73rem; font-weight: 700; }
+  .config-steps span { display: inline-flex; align-items: center; gap: 6px; }
+  .config-steps b { color: var(--accent); font-size: .68rem; }
+  .config-panel { margin: 18px 20px 0; padding: 20px; border: 1px solid rgba(255,255,255,.52); border-radius: 14px; background: rgba(255,255,255,.22); }
+  .panel-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .panel-heading > span { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; color: var(--accent); background: rgba(255,255,255,.65); font-size: .68rem; font-weight: 800; }
+  .panel-heading h3 { font-size: .92rem; letter-spacing: -.1px; font-weight: 700; }
+  .panel-heading p { margin-top: 1px; color: var(--muted); font-size: .76rem; }
+  .config-panel-extras { margin-bottom: 0; }
+  .accessory-options { padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.44); }
+  .extra-controls { padding-top: 16px; }
+  .config-note { margin-top: 16px; }
+  .config-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin: 18px 20px 20px; }
+  .config-actions .btn-ghost { justify-content: center; white-space: nowrap; }
+
+  /* ---------- VISUALIZAÇÃO 3D ---------- */
+  .mocho-viewer {
+    position: fixed; z-index: 80; top: 96px; right: 28px; width: 430px; height: 410px;
+    min-width: 310px; min-height: 270px; overflow: hidden; resize: both; border-radius: 18px;
+    background: rgba(240,244,253,.94); border: 1px solid rgba(255,255,255,.8);
+    box-shadow: 0 24px 60px rgba(35,48,95,.28); backdrop-filter: blur(18px);
+  }
+  .mocho-viewer.hidden { display: none; }
+  .viewer-toolbar {
+    height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 0 10px 0 16px; color: var(--ink); border-bottom: 1px solid rgba(255,255,255,.75);
+    background: rgba(255,255,255,.66); cursor: move; user-select: none;
+  }
+  .viewer-toolbar strong { font-size: .78rem; letter-spacing: .1px; }
+  .viewer-toolbar span { color: var(--muted); font-size: .67rem; font-weight: 650; }
+  .viewer-close { width: 28px; height: 28px; padding: 0; justify-content: center; border-radius: 8px; }
+  .viewer-sizebar {
+    height: 38px; display: flex; align-items: center; gap: 7px; padding: 0 10px 0 14px;
+    background: rgba(255,255,255,.48); border-bottom: 1px solid rgba(255,255,255,.7); color: var(--muted);
+    font-size: .66rem; font-weight: 750; user-select: none;
+  }
+  .viewer-sizebar input { flex: 1; min-width: 46px; padding: 0; accent-color: var(--accent); }
+  .viewer-sizebar output { min-width: 42px; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .viewer-size-btn, .viewer-reset {
+    border: 1px solid rgba(255,255,255,.8); background: rgba(255,255,255,.72); color: var(--ink-soft);
+    font: inherit; font-weight: 800; cursor: pointer; border-radius: 7px;
+  }
+  .viewer-size-btn { width: 22px; height: 22px; font-size: .9rem; line-height: 1; }
+  .viewer-reset { padding: 4px 6px; font-size: .62rem; }
+  .viewer-frame {
+    height: calc(100% - 82px); position: relative; overflow: hidden;
+    background: radial-gradient(circle at 50% 28%, #f9fbff 0, #dbe3f5 52%, #c4cde2 100%);
+    border: 1px solid rgba(255,255,255,.72); box-shadow: inset 0 1px rgba(255,255,255,.9);
+    cursor: grab; touch-action: none;
+  }
+  .viewer-frame:active { cursor: grabbing; }
+  .viewer-frame canvas { width: 100%; height: 100%; display: block; }
+  .viewer-label {
+    position: absolute; top: 12px; left: 14px; z-index: 1; max-width: calc(100% - 28px);
+    padding: 7px 10px; border-radius: 999px; background: rgba(255,255,255,.72);
+    border: 1px solid rgba(255,255,255,.8); color: var(--ink-soft); font-size: .72rem; font-weight: 700;
+    backdrop-filter: blur(8px);
+  }
+  .viewer-hint { position: absolute; right: 14px; bottom: 12px; z-index: 1; color: var(--muted); font-size: .68rem; font-weight: 650; pointer-events: none; }
+  .viewer-toggle { align-self: flex-start; margin-top: 12px; padding: 8px 11px; font-size: .78rem; }
+  .range-control { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; }
+  .range-control input { grid-column: 1 / -1; padding: 0; accent-color: var(--accent); }
+  .range-value { color: var(--accent); font-size: .78rem; font-weight: 800; }
+
+  footer { text-align: center; color: var(--muted); font-size: .78rem; padding: 36px 0 12px; }
+
+  /* ---------- TOAST ---------- */
+  .toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; padding: 12px 22px; border-radius: 10px;
+    font-size: .86rem; opacity: 0; transition: all .25s; z-index: 100;
+    box-shadow: 0 8px 30px rgba(0,0,0,.2); pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ---------- RESPONSIVO ---------- */
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; }
+    .right-col { position: static; }
+    .cols-4 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .topbar { flex-direction: column; align-items: flex-start; gap: 12px; padding: 14px 18px; }
+    .nav-tabs { width: 100%; justify-content: center; }
+    .cols-2, .cols-3, .cols-4 { grid-template-columns: 1fr; }
+    .configurator-head { padding: 20px; }
+    .product-mark { width: 60px; height: 60px; border-radius: 18px; }
+    .config-steps { padding: 12px 16px; gap: 8px; justify-content: space-between; }
+    .config-steps span { font-size: .65rem; }
+    .config-panel { margin: 12px 12px 0; padding: 15px; }
+    .config-actions { grid-template-columns: 1fr; margin: 14px; }
+    .mocho-viewer { top: 76px; right: 12px; width: calc(100vw - 24px); height: 360px; min-width: 0; resize: vertical; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="brand">
+    <div class="brand-logo">de</div>
+    <div>
+      <h1>duoequilibrium</h1>
+      <p>Móveis com equilíbrio entre forma e função</p>
+    </div>
+  </a>
+
+  <nav class="nav-tabs">
+    <a href="index.html" class="nav-tab">Início</a>
+    <a href="pedidos.html" class="nav-tab active">Gerador de Pedidos</a>
+  </nav>
+
+  <div class="topbar-badges">
+    <span class="badge">PDF</span>
+    <span class="badge">XLSX</span>
+    <span class="badge">CSV</span>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="layout">
+
+    <!-- ================= COLUNA ESQUERDA ================= -->
+    <div class="left-col" style="display:flex;flex-direction:column;gap:24px;">
+
+      <!-- DADOS DO PEDIDO -->
+      <section class="card">
+        <div class="card-title"><span class="ico">⌘</span> Dados do pedido</div>
+        <p class="card-sub">Informações do cliente que constarão nos relatórios exportados.</p>
+        <div class="grid cols-2">
+          <div class="field">
+            <label for="cliente">Cliente / Razão Social</label>
+            <input id="cliente" type="text" placeholder="Nome completo ou clínica">
+          </div>
+          <div class="field">
+            <label for="telefone">Telefone / WhatsApp</label>
+            <input id="telefone" type="text" placeholder="(00) 00000-0000">
+          </div>
+          <div class="field">
+            <label for="data">Data de emissão</label>
+            <input id="data" type="date">
+          </div>
+          <div class="field">
+            <label for="pedido">Nº do pedido</label>
+            <input id="pedido" type="text" placeholder="Ex.: PED-2026-001">
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">Cadastro para pedido de fábrica</div>
+        <div class="grid cols-3">
+          <div class="field"><label for="codigoEvento">Código do evento</label><input id="codigoEvento" type="text" placeholder="Ex.: EVT-204"></div>
+          <div class="field"><label for="cpfCnpj">CPF</label><input id="cpfCnpj" type="text" placeholder="000.000.000-00"></div>
+          <div class="field"><label for="nascimento">Data de nascimento</label><input id="nascimento" type="date"></div>
+          <div class="field"><label for="cnpj">CNPJ (se aplicável)</label><input id="cnpj" type="text" placeholder="00.000.000/0000-00"></div>
+          <div class="field"><label for="email">E-mail</label><input id="email" type="email" placeholder="nome@empresa.com"></div>
+          <div class="field"><label for="profissao">Profissão</label><input id="profissao" type="text" placeholder="Ex.: Dentista"></div>
+          <div class="field"><label for="rua">Rua / Avenida</label><input id="rua" type="text" placeholder="Logradouro"></div>
+          <div class="field"><label for="numero">Número</label><input id="numero" type="text" placeholder="Nº"></div>
+          <div class="field"><label for="complemento">Complemento</label><input id="complemento" type="text" placeholder="Sala, bloco, apto."></div>
+          <div class="field"><label for="bairro">Bairro</label><input id="bairro" type="text"></div>
+          <div class="field"><label for="cidade">Cidade</label><input id="cidade" type="text"></div>
+          <div class="field"><label for="uf">UF</label><input id="uf" type="text" maxlength="2" placeholder="SP"></div>
+          <div class="field"><label for="cep">CEP</label><input id="cep" type="text" placeholder="00000-000"></div>
+          <div class="field"><label for="medidaAltura">Altura do cliente</label><input id="medidaAltura" type="text" placeholder="Ex.: 1,70 m"></div>
+          <div class="field"><label for="peso">Peso do cliente</label><input id="peso" type="text" placeholder="Ex.: 72 kg"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">Fabricação, pagamento e assinaturas</div>
+        <div class="grid cols-3">
+          <div class="field"><label for="valorRecebido">Valor recebido (R$)</label><input id="valorRecebido" type="number" min="0" step="0.01" value="0"></div>
+          <div class="field"><label for="parcelas">Nº de parcelas</label><input id="parcelas" type="number" min="1" step="1" value="1"></div>
+          <div class="field"><label for="valorParcela">Valor da parcela (R$)</label><input id="valorParcela" type="number" min="0" step="0.01" value="0"></div>
+          <div class="field"><label for="espessura">Espessura da espuma</label><select id="espessura"><option value="">Não informado</option><option>3 cm</option><option>5 cm</option></select></div>
+          <div class="field"><label for="pistao">Pistão</label><select id="pistao"><option value="">Não informado</option><option value="P">P</option><option value="M">M</option></select></div>
+          <div class="field"><label for="representante">Representante</label><input id="representante" type="text" placeholder="Nome do representante"></div>
+          <div class="field"><label for="localAssinatura">Local de assinatura</label><input id="localAssinatura" type="text" placeholder="Cidade"></div>
+          <div class="field"><label for="mSela">M. sela</label><select id="mSela"><option value="0">Não</option><option value="1">Sim</option></select></div>
+          <div class="field"><label for="linhaSoft">Linha de espuma</label><select id="linhaSoft"><option value="">Padrão</option><option value="Soft">Soft</option><option value="Soft Plus">Soft Plus</option></select></div>
+        </div>
+        <div class="field config-note"><label for="observacoesPedido">Observações gerais do pedido</label><textarea id="observacoesPedido" placeholder="Informações adicionais para a fábrica, entrega ou pagamento..."></textarea></div>
+      </section>
+
+      <!-- CONFIGURAÇÃO DO MOCHO -->
+      <section class="card configurator">
+        <div class="configurator-head">
+          <div>
+            <div class="eyebrow">Novo item personalizado</div>
+            <h2>Configure seu mocho</h2>
+            <p>Selecione dimensões, materiais, acabamentos e acessórios.</p>
+          </div>
+          <div class="product-mark" aria-hidden="true"><span></span></div>
+        </div>
+
+        <button class="btn btn-outline viewer-toggle" id="btnViewerToggle" type="button">Exibir 3D flutuante</button>
+
+        <template id="mochoViewerTemplate">
+          <div class="viewer-toolbar" id="viewerDragHandle">
+            <div><strong>Visualização 3D</strong> <span>arraste esta barra para mover</span></div>
+            <button class="btn btn-ghost viewer-close" id="btnViewerClose" type="button" aria-label="Fechar visualização 3D">×</button>
+          </div>
+          <div class="viewer-frame" id="mochoViewer" aria-label="Visualização 3D interativa do mocho">
+            <div class="viewer-label" id="viewerLabel">Madeira maciça · Madeira Natural</div>
+            <div class="viewer-hint">Arraste para girar · Role para aproximar</div>
+          </div>
+        </template>
+
+        <div class="config-steps" aria-label="Etapas de configuração">
+          <span><b>01</b> Estrutura</span>
+          <span><b>02</b> Acabamento</span>
+          <span><b>03</b> Complementos</span>
+        </div>
+
+        <div class="config-panel">
+          <div class="panel-heading"><span>01</span><div><h3>Estrutura</h3><p>Escolhas fundamentais do modelo.</p></div></div>
+          <div class="grid cols-2">
+            <div class="field"><label>Tamanho</label><div class="opt-group" id="tamanhoGroup"></div></div>
+            <div class="field"><label>Back (encosto)</label><div class="opt-group" id="backGroup"></div></div>
+            <div class="field"><label>Material do assento</label><div class="opt-group" id="materialGroup"></div></div>
+            <div class="field"><label>Tipo de base</label><div class="opt-group" id="baseGroup"></div></div>
+          </div>
+          <div class="grid cols-2 extra-controls">
+            <div class="field range-control"><label for="backAngle">Inclinação do back</label><output class="range-value" id="backAngleValue">0°</output><input id="backAngle" type="range" min="-20" max="25" value="0" step="1"></div>
+            <div class="field range-control"><label for="baseHeight">Altura expansível da base</label><output class="range-value" id="baseHeightValue">60 cm</output><input id="baseHeight" type="range" min="45" max="90" value="60" step="1"></div>
+          </div>
+        </div>
+
+        <div class="config-panel">
+          <div class="panel-heading"><span>02</span><div><h3>Acabamento</h3><p>Cores e quantidade de unidades.</p></div></div>
+          <div class="grid cols-3">
+            <div class="field"><label for="corAssento">Cor do assento</label><select id="corAssento"></select></div>
+            <div class="field"><label for="corEstrutura">Cor da estrutura</label><select id="corEstrutura"></select></div>
+            <div class="field"><label for="qtd">Quantidade</label><input id="qtd" type="number" value="1" min="1" step="1"></div>
+          </div>
+        </div>
+
+        <div class="config-panel config-panel-extras">
+          <div class="panel-heading"><span>03</span><div><h3>Complementos</h3><p>Ajustes ergonômicos e funcionais.</p></div></div>
+          <div class="field accessory-options"><label>Acessórios adicionais</label><div class="opt-group" id="acessoriosGroup"></div></div>
+          <div class="grid cols-3 extra-controls">
+            <div class="field"><label for="opcao-rodinhas">Rodízios</label><select id="opcao-rodinhas"><option value="0">Sem rodízios</option><option value="1">Com rodízios (+R$ 25,00)</option></select></div>
+            <div class="field"><label for="opcao-altura">Altura ajustável</label><select id="opcao-altura"><option value="0">Fixa</option><option value="1">Pneumática (+R$ 40,00)</option></select></div>
+            <div class="field"><label for="opcao-lombar">Apoio lombar</label><select id="opcao-lombar"><option value="0">Sem apoio lombar</option><option value="1">Com apoio lombar (+R$ 15,00)</option></select></div>
+          </div>
+          <div class="field config-note"><label for="observacoes">Observações de fabricação</label><textarea id="observacoes" placeholder="Especifique personalizações de bordado, medidas especiais ou detalhes de montagem..."></textarea></div>
+        </div>
+
+        <div class="config-actions">
+          <button class="btn btn-primary btn-add" id="btnAdd">Adicionar ao pedido <span>→</span></button>
+          <button class="btn btn-ghost" id="btnLimparConfig">Limpar escolhas</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= COLUNA DIREITA ================= -->
+    <div class="right-col">
+
+      <!-- ITENS DO PEDIDO -->
+      <section class="card">
+        <div class="card-title"><span class="ico">≡</span> Itens do pedido</div>
+        <p class="card-sub"><span id="contadorItens">0</span> itens adicionados ao pedido atual.</p>
+
+        <div class="empty-state" id="semItens">
+          <span class="big">+</span>
+          Nenhum item adicionado ainda.<br>Configure as opções ao lado e clique em "Adicionar ao pedido".
+        </div>
+
+        <div class="table-wrap" id="tabelaWrap" style="display:none;">
+          <table id="tabelaItens">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Descrição</th>
+                <th style="text-align:center;">Qtd</th>
+                <th style="text-align:right;">Unit.</th>
+                <th style="text-align:right;">Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbodyItens"></tbody>
+            <tfoot id="tfootItens"></tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- RESUMO E EXPORTAÇÃO -->
+      <section class="card">
+        <div class="card-title"><span class="ico">R$</span> Resumo e exportação</div>
+
+        <div class="grid cols-2" style="margin-bottom:14px;">
+          <div class="field">
+            <label for="desconto">Desconto (%)</label>
+            <input id="desconto" type="number" value="0" min="0" max="100" step="0.5">
+          </div>
+          <div class="field">
+            <label for="frete">Frete (R$)</label>
+            <input id="frete" type="number" value="0" min="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="resumo-labels" id="resumoLabels"></div>
+
+        <div style="margin-top:18px; display:flex; flex-direction:column; gap:10px;">
+          <button class="btn btn-accent btn-add" id="btnPdf">Exportar PDF</button>
+          <div class="btn-row">
+            <button class="btn btn-outline" id="btnXlsx" style="flex:1;justify-content:center;">XLSX (Excel)</button>
+            <button class="btn btn-outline" id="btnCsv" style="flex:1;justify-content:center;">CSV</button>
+          </div>
+          <button class="btn btn-ghost" id="btnNovo" style="justify-content:center;">Novo Pedido</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <footer>duoequilibrium · Móveis com equilíbrio entre forma e função · Sistema de Pedidos</footer>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- A janela fica fora dos cards para permanecer visível durante toda a configuração. -->
+<div class="mocho-viewer" id="mochoViewerPopup">
+  <div class="viewer-toolbar" id="viewerDragHandle">
+    <div><strong>Visualização 3D</strong> <span>arraste esta barra para mover</span></div>
+    <button class="btn btn-ghost viewer-close" id="btnViewerClose" type="button" aria-label="Fechar visualização 3D">×</button>
+  </div>
+  <div class="viewer-sizebar" aria-label="Ajuste do tamanho da janela 3D">
+    <span>Tamanho</span>
+    <button class="viewer-size-btn" id="btnViewerSmaller" type="button" aria-label="Diminuir janela">−</button>
+    <input id="viewerSize" type="range" min="320" max="700" step="10" value="430" aria-label="Largura da janela 3D">
+    <button class="viewer-size-btn" id="btnViewerLarger" type="button" aria-label="Aumentar janela">+</button>
+    <output id="viewerSizeValue">430 px</output>
+    <button class="viewer-reset" id="btnViewerReset" type="button">Redefinir</button>
+  </div>
+  <div class="viewer-frame" id="mochoViewer" aria-label="Visualização 3D interativa do mocho">
+    <div class="viewer-label" id="viewerLabel">Madeira maciça · Madeira Natural</div>
+    <div class="viewer-hint">Arraste para girar · Role para aproximar</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO DO MOCHO — PREÇOS E OPÇÕES FIXOS NO CÓDIGO
+   ============================================================ */
+const CONFIG = {
+  empresa: 'duoequilibrium',
+  slogan: 'Móveis com equilíbrio entre forma e função',
+  tamanhos: [
+    { id: 'P',  nome: 'P · 45cm', preco: 89.90 },
+    { id: 'M',  nome: 'M · 60cm', preco: 109.90 },
+    { id: 'G',  nome: 'G · 75cm', preco: 129.90 },
+    { id: 'GG', nome: 'GG · 90cm', preco: 149.90 }
+  ],
+  backs: [
+    { id: 'sem',   nome: 'Sem back', preco: 0 },
+    { id: 'fixo',  nome: 'Back fixo', preco: 30 },
+    { id: 'reclin', nome: 'Back reclinável', preco: 45 },
+    { id: 'alto',  nome: 'Back alto', preco: 55 }
+  ],
+  materiais: [
+    { id: 'madeira', nome: 'Madeira maciça', preco: 0 },
+    { id: 'couro',   nome: 'Couro sintético', preco: 20 },
+    { id: 'tecido',  nome: 'Tecido premium', preco: 15 },
+    { id: 'estofado', nome: 'Estofado completo', preco: 35 }
+  ],
+  bases: [
+    { id: 'madeira', nome: 'Base de madeira', preco: 0 },
+    { id: 'metal',   nome: 'Base metálica', preco: 25 },
+    { id: 'inox',    nome: 'Base de inox', preco: 45 },
+    { id: 'giro',    nome: 'Giro 360°', preco: 35 }
+  ],
+  acessorios: [
+    { id: 'rodizios',    nome: 'Rodízios', preco: 25 },
+    { id: 'apoio-pes',   nome: 'Apoio para pés', preco: 15 },
+    { id: 'espuma',      nome: 'Espuma extra densa', preco: 20 },
+    { id: 'revest-lava', nome: 'Revestimento lavável', preco: 18 },
+    { id: 'porta-revista', nome: 'Suporte porta-revista', preco: 22 },
+    { id: 'gancho',      nome: 'Gancho para bolsa', preco: 12 },
+    { id: 'tapete-antiderrapante', nome: 'Tapete antiderrapante', preco: 10 },
+    { id: 'personalizacao', nome: 'Gravação personalizada', preco: 30 }
+  ],
+  coresAssento: ['Marrom', 'Preto', 'Caramelo', 'Verde Musgo', 'Azul Marinho', 'Creme', 'Vermelho', 'Grafite'],
+  coresEstrutura: ['Madeira Natural', 'Preto', 'Branco', 'Cromado', 'Dourado', 'Carvalho']
+};
+
+let itens = [];
+let itemCounter = 0;
+
+/* ============================================================
+   INTERFACE DE CONFIGURAÇÃO
+   ============================================================ */
+function buildRadio(parentId, list, name) {
+  const parent = document.getElementById(parentId);
+  parent.innerHTML = '';
+  list.forEach((opt, i) => {
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.name = name;
+    input.value = opt.id;
+    if (i === 0) input.checked = true;
+    const span = document.createElement('span');
+    span.textContent = opt.nome;
+    label.appendChild(input);
+    label.appendChild(span);
+    if (opt.preco) {
+      const preco = document.createElement('span');
+      preco.className = 'preco';
+      preco.textContent = `+R$${opt.preco.toFixed(2)}`;
+      label.appendChild(preco);
+    }
+    parent.appendChild(label);
+  });
+}
+
+function buildChecks(parentId, name) {
+  const parent = document.getElementById(parentId);
+  parent.innerHTML = '';
+  CONFIG.acessorios.forEach((opt) => {
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.name = name;
+    input.value = opt.id;
+    const span = document.createElement('span');
+    span.textContent = opt.nome;
+    label.appendChild(input);
+    label.appendChild(span);
+    const preco = document.createElement('span');
+    preco.className = 'preco';
+    preco.textContent = `+R$${opt.preco.toFixed(2)}`;
+    label.appendChild(preco);
+    parent.appendChild(label);
+  });
+}
+
+function buildSelect(id, list) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  list.forEach((c) => {
+    const option = document.createElement('option');
+    option.value = c;
+    option.textContent = c;
+    el.appendChild(option);
+  });
+}
+
+function getSelected(parentId) {
+  const input = document.querySelector(`#${parentId} input:checked`);
+  return input ? input.value : null;
+}
+
+function getCheckedAcessorios() {
+  return [...document.querySelectorAll('#acessoriosGroup input:checked')].map(i => i.value);
+}
+
+function precoOpt(id, list) {
+  const item = list.find(o => o.id === id);
+  return item ? item.preco : 0;
+}
+
+function nomeOpt(id, list) {
+  const item = list.find(o => o.id === id);
+  return item ? item.nome : id;
+}
+
+/* ============================================================
+   VISUALIZADOR 3D DO MOCHO
+   ============================================================ */
+let mocho3D;
+
+function iniciarMocho3D() {
+  const host = document.getElementById('mochoViewer');
+  if (!host || !window.THREE) return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+  camera.position.set(5.7, 4.2, 7.2);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  host.appendChild(renderer.domElement);
+
+  const model = new THREE.Group();
+  model.rotation.y = -0.55;
+  scene.add(model);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x7b88a2, 2.2));
+  const key = new THREE.DirectionalLight(0xffffff, 2.8);
+  key.position.set(4, 7, 5); scene.add(key);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(3.7, 64), new THREE.MeshBasicMaterial({ color: 0xaebad0, transparent: true, opacity: .34 }));
+  ground.rotation.x = -Math.PI / 2; ground.position.y = -2.07; scene.add(ground);
+
+  const seat = new THREE.Mesh(new THREE.CylinderGeometry(1.48, 1.58, .34, 48), new THREE.MeshStandardMaterial({ roughness: .62, metalness: .03 }));
+  seat.position.y = 1.25; model.add(seat);
+  const seatEdge = new THREE.Mesh(new THREE.TorusGeometry(1.5, .07, 12, 48), new THREE.MeshStandardMaterial({ color: 0x1b2230, roughness: .48 }));
+  seatEdge.rotation.x = Math.PI / 2; seatEdge.position.y = 1.1; model.add(seatEdge);
+  const column = new THREE.Mesh(new THREE.CylinderGeometry(.18, .23, 2.25, 24), new THREE.MeshStandardMaterial({ metalness: .75, roughness: .24 }));
+  column.position.y = -.05; model.add(column);
+  const back = new THREE.Group(); model.add(back);
+  const base = new THREE.Group(); model.add(base);
+  const extras = new THREE.Group(); model.add(extras);
+  mocho3D = { scene, camera, renderer, model, seat, seatEdge, column, back, base, extras, zoom: 1, yaw: -.55, pitch: 0 };
+
+  let dragging = false, startX = 0, startY = 0;
+  host.addEventListener('pointerdown', e => { dragging = true; startX = e.clientX; startY = e.clientY; host.setPointerCapture(e.pointerId); });
+  host.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    mocho3D.yaw += (e.clientX - startX) * .012;
+    mocho3D.pitch = Math.max(-.35, Math.min(.3, mocho3D.pitch + (e.clientY - startY) * .008));
+    startX = e.clientX; startY = e.clientY;
+  });
+  host.addEventListener('pointerup', () => dragging = false);
+  host.addEventListener('wheel', e => { e.preventDefault(); mocho3D.zoom = Math.max(.8, Math.min(1.35, mocho3D.zoom - e.deltaY * .001)); }, { passive: false });
+  new ResizeObserver(() => renderMocho3D()).observe(host);
+  configurarJanelaViewer();
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!dragging) mocho3D.yaw += .0018;
+    renderMocho3D();
+  }
+  animate();
+  atualizarMocho3D();
+}
+
+function configurarJanelaViewer() {
+  const popup = document.getElementById('mochoViewerPopup');
+  const handle = document.getElementById('viewerDragHandle');
+  const abrir = document.getElementById('btnViewerToggle');
+  const fechar = document.getElementById('btnViewerClose');
+  const tamanho = document.getElementById('viewerSize');
+  const tamanhoValor = document.getElementById('viewerSizeValue');
+  const menor = document.getElementById('btnViewerSmaller');
+  const maior = document.getElementById('btnViewerLarger');
+  const redefinir = document.getElementById('btnViewerReset');
+  let movendo = false, offsetX = 0, offsetY = 0;
+
+  abrir.addEventListener('click', () => { popup.classList.remove('hidden'); renderMocho3D(); });
+  fechar.addEventListener('click', () => popup.classList.add('hidden'));
+  const aplicarTamanho = valor => {
+    const largura = Math.max(320, Math.min(700, Number(valor)));
+    popup.style.width = `${largura}px`;
+    popup.style.height = `${Math.round(largura * .95)}px`;
+    tamanho.value = largura;
+    tamanhoValor.textContent = `${largura} px`;
+    renderMocho3D();
+  };
+  tamanho.addEventListener('input', event => aplicarTamanho(event.target.value));
+  menor.addEventListener('click', () => aplicarTamanho(Number(tamanho.value) - 20));
+  maior.addEventListener('click', () => aplicarTamanho(Number(tamanho.value) + 20));
+  redefinir.addEventListener('click', () => {
+    popup.style.left = ''; popup.style.top = ''; popup.style.right = '28px';
+    aplicarTamanho(430);
+  });
+  new ResizeObserver(() => {
+    const largura = Math.round(popup.getBoundingClientRect().width);
+    tamanho.value = Math.max(320, Math.min(700, largura));
+    tamanhoValor.textContent = `${largura} px`;
+    renderMocho3D();
+  }).observe(popup);
+  handle.addEventListener('pointerdown', event => {
+    if (event.target.closest('button')) return;
+    const rect = popup.getBoundingClientRect();
+    movendo = true; offsetX = event.clientX - rect.left; offsetY = event.clientY - rect.top;
+    popup.style.left = `${rect.left}px`; popup.style.top = `${rect.top}px`; popup.style.right = 'auto';
+    handle.setPointerCapture(event.pointerId);
+  });
+  handle.addEventListener('pointermove', event => {
+    if (!movendo) return;
+    popup.style.left = `${Math.max(0, Math.min(window.innerWidth - 120, event.clientX - offsetX))}px`;
+    popup.style.top = `${Math.max(0, Math.min(window.innerHeight - 70, event.clientY - offsetY))}px`;
+  });
+  handle.addEventListener('pointerup', () => movendo = false);
+  handle.addEventListener('pointercancel', () => movendo = false);
+}
+
+function mesh(geometry, material, group, position, rotation) {
+  const part = new THREE.Mesh(geometry, material);
+  part.position.set(...position);
+  if (rotation) part.rotation.set(...rotation);
+  group.add(part); return part;
+}
+
+function limparGrupo3D(group) {
+  while (group.children.length) {
+    const part = group.children.pop();
+    part.geometry?.dispose();
+    if (Array.isArray(part.material)) part.material.forEach(m => m.dispose()); else part.material?.dispose();
+  }
+}
+
+function cor3D(nome, fallback) {
+  return ({ 'Marrom': 0x633b25, 'Preto': 0x17191f, 'Caramelo': 0xb96f3c, 'Verde Musgo': 0x445e43, 'Azul Marinho': 0x162b52, 'Creme': 0xe2d1b1, 'Vermelho': 0x9f3030, 'Grafite': 0x41454f, 'Madeira Natural': 0xa96b3e, 'Branco': 0xe8ebef, 'Cromado': 0xbcc5cf, 'Dourado': 0xa98232, 'Carvalho': 0x7c542f })[nome] || fallback;
+}
+
+function atualizarMocho3D() {
+  if (!mocho3D) return;
+  const material = getSelected('materialGroup');
+  const baseTipo = getSelected('baseGroup');
+  const backTipo = getSelected('backGroup');
+  const tamanho = getSelected('tamanhoGroup');
+  const anguloBack = Number(document.getElementById('backAngle').value);
+  const alturaBase = Number(document.getElementById('baseHeight').value);
+  const acessorios = getCheckedAcessorios();
+  const corAssento = document.getElementById('corAssento').value;
+  const corEstrutura = document.getElementById('corEstrutura').value;
+  const temRodizios = document.getElementById('opcao-rodinhas').value === '1' || acessorios.includes('rodizios');
+  const temLombar = document.getElementById('opcao-lombar').value === '1';
+  const escala = ({ P: .83, M: .95, G: 1.06, GG: 1.16 })[tamanho] || 1;
+  const elevacao = (alturaBase - 60) / 30 * .8;
+  mocho3D.seat.scale.set(escala, 1, escala);
+  mocho3D.seatEdge.scale.set(escala, 1, escala);
+  mocho3D.seat.position.y = 1.25 + elevacao;
+  mocho3D.seatEdge.position.y = 1.1 + elevacao;
+  mocho3D.column.scale.y = (2.25 + elevacao) / 2.25;
+  mocho3D.column.position.y = -.05 + elevacao / 2;
+  const acabamento = { madeira: { roughness: .78, metalness: 0 }, couro: { roughness: .32, metalness: 0 }, tecido: { roughness: .93, metalness: 0 }, estofado: { roughness: .58, metalness: .02 } }[material];
+  mocho3D.seat.material.color.setHex(cor3D(corAssento, 0x633b25));
+  Object.assign(mocho3D.seat.material, acabamento);
+  mocho3D.seatEdge.material.color.setHex(cor3D(corAssento, 0x20242e));
+  const estrutMat = new THREE.MeshStandardMaterial({ color: cor3D(corEstrutura, 0x9ea9b8), metalness: ['metal', 'inox', 'giro'].includes(baseTipo) ? .85 : .18, roughness: baseTipo === 'madeira' ? .66 : .25 });
+  mocho3D.column.material = estrutMat;
+
+  limparGrupo3D(mocho3D.back); limparGrupo3D(mocho3D.base); limparGrupo3D(mocho3D.extras);
+  if (backTipo !== 'sem') {
+    const altura = backTipo === 'alto' ? 2.05 : backTipo === 'reclin' ? 1.5 : 1.25;
+    mocho3D.back.position.set(0, 1.18 + elevacao, .8);
+    mocho3D.back.rotation.x = -THREE.MathUtils.degToRad(anguloBack);
+    const encosto = mesh(new THREE.BoxGeometry(2.15 * escala, altura, .28), mocho3D.seat.material.clone(), mocho3D.back, [0, .62 + altura / 2, .12]);
+    encosto.material.color.setHex(cor3D(corAssento, 0x633b25));
+    mesh(new THREE.CylinderGeometry(.09, .09, 1.15, 12), estrutMat, mocho3D.back, [0, .57, -.02]);
+  } else {
+    mocho3D.back.position.set(0, 0, 0);
+    mocho3D.back.rotation.set(0, 0, 0);
+  }
+  if (baseTipo === 'giro') {
+    mesh(new THREE.CylinderGeometry(1.18, 1.18, .15, 40), estrutMat, mocho3D.base, [0, -1.34, 0]);
+  } else {
+    const raio = baseTipo === 'madeira' ? 1.2 : 1.48;
+    for (let i = 0; i < 5; i++) {
+      const a = i * Math.PI * 2 / 5;
+      const haste = mesh(new THREE.BoxGeometry(.18, .14, raio), estrutMat, mocho3D.base, [Math.sin(a) * raio / 2, -1.28, Math.cos(a) * raio / 2], [0, a, 0]);
+      if (temRodizios) mesh(new THREE.SphereGeometry(.18, 16, 12), new THREE.MeshStandardMaterial({ color: 0x20242b, roughness: .55 }), mocho3D.base, [Math.sin(a) * raio, -1.52, Math.cos(a) * raio]);
+    }
+  }
+  if (temLombar) mesh(new THREE.SphereGeometry(.45, 28, 20), mocho3D.seat.material.clone(), mocho3D.extras, [0, 2.25 + elevacao, .66]);
+  if (acessorios.includes('apoio-pes')) mesh(new THREE.TorusGeometry(.55, .07, 10, 32), estrutMat, mocho3D.extras, [0, -.45 + elevacao * .55, 0], [Math.PI / 2, 0, 0]);
+  if (acessorios.includes('gancho')) mesh(new THREE.TorusGeometry(.18, .05, 10, 24, Math.PI), estrutMat, mocho3D.extras, [1.25 * escala, 1.12 + elevacao, 0], [0, 0, Math.PI / 2]);
+  document.getElementById('backAngleValue').textContent = `${anguloBack}°`;
+  document.getElementById('baseHeightValue').textContent = `${alturaBase} cm`;
+  document.getElementById('viewerLabel').textContent = `${nomeOpt(material, CONFIG.materiais)} · ${corAssento} · ${alturaBase} cm`;
+}
+
+function renderMocho3D() {
+  if (!mocho3D) return;
+  const host = document.getElementById('mochoViewer');
+  const width = host.clientWidth, height = host.clientHeight;
+  if (!width || !height) return;
+  mocho3D.renderer.setSize(width, height, false);
+  mocho3D.camera.aspect = width / height;
+  mocho3D.camera.position.set(5.7 / mocho3D.zoom, 4.2 / mocho3D.zoom, 7.2 / mocho3D.zoom);
+  mocho3D.camera.lookAt(0, .15, 0);
+  mocho3D.camera.updateProjectionMatrix();
+  mocho3D.model.rotation.set(mocho3D.pitch, mocho3D.yaw, 0);
+  mocho3D.renderer.render(mocho3D.scene, mocho3D.camera);
+}
+
+/* ============================================================
+   ITENS
+   ============================================================ */
+function calcularPrecoUnitario() {
+  const tam = getSelected('tamanhoGroup');
+  const back = getSelected('backGroup');
+  const mat = getSelected('materialGroup');
+  const base = getSelected('baseGroup');
+  const aces = getCheckedAcessorios();
+  const rodinhas = document.getElementById('opcao-rodinhas').value === '1' ? 25 : 0;
+  const altura = document.getElementById('opcao-altura').value === '1' ? 40 : 0;
+  const lombar = document.getElementById('opcao-lombar').value === '1' ? 15 : 0;
+
+  let total = 0;
+  total += precoOpt(tam, CONFIG.tamanhos);
+  total += precoOpt(back, CONFIG.backs);
+  total += precoOpt(mat, CONFIG.materiais);
+  total += precoOpt(base, CONFIG.bases);
+  aces.forEach(a => total += precoOpt(a, CONFIG.acessorios));
+  total += rodinhas + altura + lombar;
+  return total;
+}
+
+function addItem() {
+  const tam = getSelected('tamanhoGroup');
+  const back = getSelected('backGroup');
+  const mat = getSelected('materialGroup');
+  const base = getSelected('baseGroup');
+  const aces = getCheckedAcessorios();
+  const corAssento = document.getElementById('corAssento').value;
+  const corEstrutura = document.getElementById('corEstrutura').value;
+  const qtd = Math.max(1, parseInt(document.getElementById('qtd').value, 10) || 1);
+  const obs = document.getElementById('observacoes').value.trim();
+  const anguloBack = document.getElementById('backAngle').value;
+  const alturaBase = document.getElementById('baseHeight').value;
+
+  const rodinhas = document.getElementById('opcao-rodinhas').value === '1';
+  const altura = document.getElementById('opcao-altura').value === '1';
+  const lombar = document.getElementById('opcao-lombar').value === '1';
+
+  const detalhes = [
+    `Tamanho: ${nomeOpt(tam, CONFIG.tamanhos)}`,
+    `Back: ${nomeOpt(back, CONFIG.backs)}`,
+    `Material: ${nomeOpt(mat, CONFIG.materiais)}`,
+    `Base: ${nomeOpt(base, CONFIG.bases)}`,
+    `Inclinação do back: ${anguloBack}°`,
+    `Altura da base: ${alturaBase} cm`,
+    `Cor assento: ${corAssento}`,
+    `Cor estrutura: ${corEstrutura}`
+  ];
+  aces.forEach(a => detalhes.push(`Acessório: ${nomeOpt(a, CONFIG.acessorios)}`));
+  if (rodinhas) detalhes.push('Acessório: Rodízios');
+  if (altura) detalhes.push('Acessório: Altura pneumática');
+  if (lombar) detalhes.push('Acessório: Apoio lombar');
+  if (obs) detalhes.push(`Obs: ${obs}`);
+
+  const unitario = calcularPrecoUnitario();
+
+  const item = {
+    id: ++itemCounter,
+    descricao: `Mocho ${nomeOpt(tam, CONFIG.tamanhos)} — ${nomeOpt(mat, CONFIG.materiais)} (${corAssento}/${corEstrutura})`,
+    detalhes: detalhes.join('; '),
+    qtd,
+    unitario,
+    subtotal: unitario * qtd
+  };
+  itens.push(item);
+  renderTabela();
+  limparConfig();
+  toast('Item adicionado ao pedido!');
+}
+
+function removeItem(id) {
+  itens = itens.filter(i => i.id !== id);
+  renderTabela();
+  toast('Item removido.');
+}
+
+function limparConfig() {
+  ['tamanhoGroup', 'backGroup', 'materialGroup', 'baseGroup'].forEach(id => {
+    const first = document.querySelector(`#${id} input`);
+    if (first) first.checked = true;
+  });
+  document.querySelectorAll('#acessoriosGroup input').forEach(i => i.checked = false);
+  document.getElementById('qtd').value = 1;
+  document.getElementById('observacoes').value = '';
+  document.getElementById('opcao-rodinhas').value = '0';
+  document.getElementById('opcao-altura').value = '0';
+  document.getElementById('opcao-lombar').value = '0';
+  document.getElementById('corAssento').selectedIndex = 0;
+  document.getElementById('corEstrutura').selectedIndex = 0;
+  document.getElementById('backAngle').value = 0;
+  document.getElementById('baseHeight').value = 60;
+  atualizarMocho3D();
+}
+
+function fmt(v) {
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function calcTotais() {
+  const subtotal = itens.reduce((s, i) => s + i.subtotal, 0);
+  const descontoPct = parseFloat(document.getElementById('desconto').value) || 0;
+  const desconto = subtotal * (descontoPct / 100);
+  const frete = parseFloat(document.getElementById('frete').value) || 0;
+  const total = subtotal - desconto + frete;
+  return { subtotal, descontoPct, desconto, frete, total };
+}
+
+function renderTabela() {
+  const tbody = document.getElementById('tbodyItens');
+  const wrap = document.getElementById('tabelaWrap');
+  const semItens = document.getElementById('semItens');
+  const contador = document.getElementById('contadorItens');
+  const totalQtd = itens.reduce((s, i) => s + i.qtd, 0);
+  contador.textContent = totalQtd;
+
+  if (itens.length === 0) {
+    wrap.style.display = 'none';
+    semItens.style.display = 'block';
+  } else {
+    wrap.style.display = 'block';
+    semItens.style.display = 'none';
+  }
+
+  tbody.innerHTML = '';
+  itens.forEach((item, idx) => {
+    const tr = document.createElement('tr');
+    const qtyEl = `<input class="qty" type="number" min="1" value="${item.qtd}" onchange="atualizarQtd(${item.id}, this.value)">`;
+    tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td class="desc-item"><b>${item.descricao}</b><br><span class="tag">${item.detalhes}</span></td>
+      <td style="text-align:center;">${qtyEl}</td>
+      <td style="text-align:right;">${fmt(item.unitario)}</td>
+      <td style="text-align:right;">${fmt(item.subtotal)}</td>
+      <td><button class="btn btn-danger" style="padding:6px 10px;" onclick="removeItem(${item.id})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderTotais();
+}
+
+function atualizarQtd(id, value) {
+  const qtd = Math.max(1, parseInt(value, 10) || 1);
+  const item = itens.find(i => i.id === id);
+  if (item) {
+    item.qtd = qtd;
+    item.subtotal = item.unitario * qtd;
+  }
+  renderTabela();
+}
+
+function renderTotais() {
+  const { subtotal, descontoPct, desconto, frete, total } = calcTotais();
+  const tfoot = document.getElementById('tfootItens');
+  tfoot.innerHTML = `
+    <tr><td colspan="3" style="text-align:right;">Subtotal</td><td style="text-align:right;">—</td><td style="text-align:right;">${fmt(subtotal)}</td><td></td></tr>
+    <tr><td colspan="3" style="text-align:right;">Desconto (${descontoPct}%)</td><td style="text-align:right;">—</td><td style="text-align:right;">- ${fmt(desconto)}</td><td></td></tr>
+    <tr><td colspan="3" style="text-align:right;">Frete</td><td style="text-align:right;">—</td><td style="text-align:right;">+ ${fmt(frete)}</td><td></td></tr>
+    <tr class="total-row"><td colspan="3" style="text-align:right;">TOTAL</td><td style="text-align:right;">—</td><td style="text-align:right;">${fmt(total)}</td><td></td></tr>
+  `;
+  document.getElementById('resumoLabels').innerHTML = `
+    <div class="row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+    <div class="row"><span>Desconto (${descontoPct}%)</span><span>- ${fmt(desconto)}</span></div>
+    <div class="row"><span>Frete</span><span>+ ${fmt(frete)}</span></div>
+    <div class="row total"><span>TOTAL</span><span>${fmt(total)}</span></div>
+  `;
+}
+
+/* ============================================================
+   DADOS DO PEDIDO
+   ============================================================ */
+function dadosPedido() {
+  const campo = id => document.getElementById(id)?.value?.trim() || '';
+  const pedido = campo('pedido') || 'NAO INFORMADO';
+  const cliente = campo('cliente') || 'NAO INFORMADO';
+  const telefone = campo('telefone') || 'NAO INFORMADO';
+  const data = document.getElementById('data').value || new Date().toISOString().split('T')[0];
+  const { subtotal, descontoPct, desconto, frete, total } = calcTotais();
+  return {
+    pedido, cliente, telefone, data, subtotal, descontoPct, desconto, frete, total,
+    codigoEvento: campo('codigoEvento'), cpf: campo('cpfCnpj'), nascimento: campo('nascimento'), cnpj: campo('cnpj'),
+    email: campo('email'), profissao: campo('profissao'), rua: campo('rua'), numero: campo('numero'),
+    complemento: campo('complemento'), bairro: campo('bairro'), cidade: campo('cidade'), uf: campo('uf'), cep: campo('cep'),
+    medidaAltura: campo('medidaAltura'), peso: campo('peso'), valorRecebido: parseFloat(campo('valorRecebido')) || 0,
+    parcelas: Math.max(1, parseInt(campo('parcelas'), 10) || 1), valorParcela: parseFloat(campo('valorParcela')) || 0,
+    espessura: campo('espessura'), pistao: campo('pistao'), representante: campo('representante'), localAssinatura: campo('localAssinatura'),
+    mSela: document.getElementById('mSela')?.value === '1', linhaSoft: campo('linhaSoft'), observacoesPedido: campo('observacoesPedido')
+  };
+}
+
+function dataBrasileira(data) {
+  if (!data) return '';
+  const partes = data.split('-');
+  return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : data;
+}
+
+function nomeArquivo(p) {
+  return `Pedido_${p.pedido.replace(/[\\/:*?"<>|]/g, '_')}_${p.cliente.replace(/[\\/:*?"<>|]/g, '_')}`;
+}
+
+/* ============================================================
+   EXPORTAÇÃO PDF
+   ============================================================ */
+function exportarPdfFabrica() {
+  if (itens.length === 0) { toast('Adicione ao menos um item ao pedido.'); return; }
+  if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+    toast('Biblioteca PDF indisponível - verifique a conexão com a internet.');
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const p = dadosPedido();
+  const pageW = 210, margem = 12, largura = pageW - margem * 2;
+  const primeiro = itens[0];
+  const cor = (primeiro.detalhes.match(/Cor assento: (.*?)(;|$)/) || [])[1] || '';
+  const temLombar = itens.some(item => item.detalhes.includes('Apoio lombar'));
+  const valorParcela = p.valorParcela || (p.total / p.parcelas);
+
+  const texto = (valor, padrao = '') => String(valor || padrao);
+  const linha = (x1, y1, x2, y2) => doc.line(x1, y1, x2, y2);
+  const caixa = (x, y, w, h, rotulo, valor) => {
+    doc.setDrawColor(25, 31, 42); doc.setLineWidth(.35); doc.rect(x, y, w, h);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(35, 40, 48);
+    doc.text(rotulo.toUpperCase(), x + 2, y + 3.4);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.4); doc.setTextColor(18, 24, 35);
+    const valorLinhas = doc.splitTextToSize(texto(valor), w - 4).slice(0, 2);
+    doc.text(valorLinhas, x + 2, y + 8);
+  };
+  const check = (x, y, label, marcado) => {
+    doc.rect(x, y - 3.2, 4, 4);
+    if (marcado) { doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('X', x + .7, y); }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.2); doc.text(label, x + 6, y);
+  };
+
+  doc.setDrawColor(12, 16, 24); doc.setLineWidth(.8); doc.rect(margem, 10, largura, 277);
+  doc.setLineWidth(.35);
+  doc.circle(28, 25, 11); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text('de', 21.4, 28.5);
+  doc.setFontSize(13); doc.text('DUO EQUILIBRIUM', 43, 25);
+  doc.setFontSize(7.5); doc.text('SOLUÇÕES ERGONÔMICAS', 43, 31);
+  doc.setFontSize(18); doc.text('Pedido de Fábrica', 194, 25, { align: 'right' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+  doc.text('CNPJ: 12.656.204/0001-64', 194, 31, { align: 'right' });
+  doc.text('Tel.: (21) 97143-3650', 194, 35.5, { align: 'right' });
+  doc.text('E-mail: duoequilibrium@gmail.com', 194, 40, { align: 'right' });
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
+  doc.text(`Cód. do evento: ${texto(p.codigoEvento, '________________')}`, 105, 42, { align: 'center' });
+  doc.text(`Nº: ${p.pedido}`, 194, 42, { align: 'right' });
+  linha(margem, 44, pageW - margem, 44);
+
+  caixa(14, 48, 115, 12, 'CPF', p.cpf);
+  caixa(131, 48, 65, 12, 'Data de nascimento', dataBrasileira(p.nascimento));
+  caixa(14, 61, 182, 11, 'Nome do titular', p.cliente);
+  caixa(14, 73, 182, 11, 'Rua / Avenida', p.rua);
+  caixa(14, 85, 135, 11, 'Complemento', p.complemento);
+  caixa(151, 85, 45, 11, 'Número', p.numero);
+  caixa(14, 97, 182, 11, 'Cidade', p.cidade);
+  caixa(14, 109, 70, 11, 'CEP', p.cep);
+  caixa(86, 109, 20, 11, 'UF', p.uf);
+  caixa(108, 109, 88, 11, 'Bairro', p.bairro);
+  caixa(14, 121, 88, 11, 'Celular', p.telefone);
+  caixa(104, 121, 92, 11, 'Telefone', p.telefone);
+  caixa(14, 133, 182, 11, 'E-mail', p.email);
+  caixa(14, 145, 92, 11, 'Profissão', p.profissao);
+  caixa(108, 145, 88, 11, 'CNPJ', p.cnpj);
+
+  const yInfo = 159;
+  doc.rect(14, yInfo, 80, 44);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.text('INFORMAÇÕES ADICIONAIS', 18, yInfo + 6);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+  doc.text(`ALTURA: ${texto(p.medidaAltura, '________________')}`, 22, yInfo + 14);
+  doc.text(`PESO: ${texto(p.peso, '________________')}`, 22, yInfo + 22);
+  doc.text(`COR: ${texto(cor, '________________')}`, 22, yInfo + 30);
+  check(22, yInfo + 39, 'M. SELA', p.mSela);
+  check(58, yInfo + 39, 'APOIO LOMBAR', temLombar);
+
+  const linhasProduto = itens.slice(0, 5).map((item, indice) => [
+    item.descricao.length > 42 ? `${item.descricao.slice(0, 39)}...` : item.descricao,
+    indice === 0 ? fmt(p.valorRecebido) : '',
+    indice === 0 ? String(p.parcelas) : '',
+    fmt(item.subtotal)
+  ]);
+  while (linhasProduto.length < 5) linhasProduto.push(['', '', '', '']);
+  doc.autoTable({
+    startY: yInfo, margin: { left: 98, right: 14 }, tableWidth: 98,
+    head: [['PRODUTO', 'VALOR RECEBIDO', 'Nº PARCELAS', 'VALOR']], body: linhasProduto,
+    theme: 'grid', styles: { fontSize: 6.7, cellPadding: 1.5, lineColor: [25, 31, 42], lineWidth: .3, valign: 'middle' },
+    headStyles: { fillColor: [255, 255, 255], textColor: [18, 24, 35], fontStyle: 'bold', halign: 'center' },
+    columnStyles: { 0: { cellWidth: 40 }, 1: { cellWidth: 22, halign: 'center' }, 2: { cellWidth: 17, halign: 'center' }, 3: { cellWidth: 19, halign: 'right' } }
+  });
+
+  const yOpcoes = 205;
+  doc.rect(14, yOpcoes, 80, 40);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.text('CONFIGURAÇÃO DE FÁBRICA', 18, yOpcoes + 6);
+  check(19, yOpcoes + 15, 'EP: 5 cm', p.espessura === '5 cm');
+  check(49, yOpcoes + 15, 'EP: 3 cm', p.espessura === '3 cm');
+  check(19, yOpcoes + 24, 'PISTÃO P', p.pistao === 'P');
+  check(49, yOpcoes + 24, 'PISTÃO M', p.pistao === 'M');
+  check(19, yOpcoes + 34, 'SOFT', p.linhaSoft === 'Soft');
+  check(49, yOpcoes + 34, 'SOFT PLUS', p.linhaSoft === 'Soft Plus');
+
+  const obsItens = itens.map(item => item.detalhes.match(/Obs: (.*?)(; |$)/)?.[1]).filter(Boolean);
+  const observacoes = [p.observacoesPedido, ...obsItens, itens.length > 5 ? `Mais ${itens.length - 5} item(ns) no pedido.` : ''].filter(Boolean).join(' | ');
+  doc.rect(98, yOpcoes, 98, 40);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('Observações:', 102, yOpcoes + 7);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+  const linhasObs = doc.splitTextToSize(texto(observacoes, 'Sem observações adicionais.'), 88).slice(0, 5);
+  doc.text(linhasObs, 102, yOpcoes + 14);
+  linha(102, yOpcoes + 34, 190, yOpcoes + 34); linha(102, yOpcoes + 38, 190, yOpcoes + 38);
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
+  doc.text(`TOTAL DO PEDIDO: ${fmt(p.total)}`, 194, 251, { align: 'right' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+  doc.text(`Local: ${texto(p.localAssinatura, '________________________')}   ${dataBrasileira(p.data)}`, 98, 260);
+  linha(18, 275, 90, 275); linha(118, 275, 190, 275);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+  doc.text('REPRESENTANTE', 54, 280, { align: 'center' });
+  doc.text('ASS. CLIENTE', 154, 280, { align: 'center' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text(texto(p.representante), 54, 272, { align: 'center' });
+
+  doc.save(`${nomeArquivo(p)}.pdf`);
+  toast('Pedido de fábrica em PDF gerado com sucesso!');
+}
+
+function exportarPdf() {
+  return exportarPdfFabrica();
+}
+
+function exportarPdfLegadoDesativado() {
+  if (itens.length === 0) { toast('Adicione ao menos um item ao pedido.'); return; }
+  if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+    toast('Biblioteca PDF indisponível — verifique a conexão com a internet.');
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const p = dadosPedido();
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margem = 14;
+
+  doc.setFillColor(22, 32, 51);
+  doc.rect(0, 0, pageW, 34, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(15);
+  doc.text(CONFIG.empresa, margem, 15);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(190, 190, 190);
+  doc.text(CONFIG.slogan, margem, 22);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('PEDIDO DE COMPRA', pageW - margem, 15, { align: 'right' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(190, 190, 190);
+  doc.text(`Nº ${p.pedido} · ${p.data}`, pageW - margem, 22, { align: 'right' });
+
+  let y = 46;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(22, 32, 51);
+  doc.text('DADOS DO CLIENTE', margem, y);
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.4);
+  doc.line(margem, y + 2, pageW - margem, y + 2);
+  y += 9;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(40, 40, 40);
+  doc.text(`Cliente:   ${p.cliente}`, margem, y);
+  doc.text(`Telefone:   ${p.telefone}`, margem + 100, y);
+  y += 8;
+  doc.text(`Data:   ${p.data}`, margem, y);
+  doc.text(`Nº do Pedido:   ${p.pedido}`, margem + 100, y);
+  y += 10;
+
+  const body = itens.map((item, idx) => [
+    String(idx + 1),
+    item.descricao,
+    String(item.qtd),
+    fmt(item.unitario),
+    fmt(item.subtotal)
+  ]);
+  const totalLinhas = itens.reduce((s, i) => s + i.qtd, 0);
+
+  doc.autoTable({
+    startY: y,
+    head: [['#', 'Descrição', 'Qtd', 'Preço Unitário', 'Subtotal']],
+    body,
+    foot: [[
+      { content: 'TOTAL DE ITENS', colSpan: 2, styles: { halign: 'right', fontStyle: 'bold' } },
+      { content: String(totalLinhas), styles: { halign: 'center', fontStyle: 'bold' } },
+      { content: '', styles: { halign: 'right' } },
+      { content: fmt(p.subtotal), styles: { halign: 'right', fontStyle: 'bold' } }
+    ]],
+    theme: 'grid',
+    headStyles: { fillColor: [22, 32, 51], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left' },
+    bodyStyles: { fontSize: 8.5, textColor: [50, 50, 50] },
+    footStyles: { fillColor: [240, 240, 240], textColor: [22, 32, 51], fontStyle: 'bold' },
+    columnStyles: {
+      0: { cellWidth: 10, halign: 'center' },
+      2: { cellWidth: 14, halign: 'center' },
+      3: { cellWidth: 32, halign: 'right' },
+      4: { cellWidth: 32, halign: 'right' }
+    },
+    margin: { left: margem, right: margem }
+  });
+
+  let obsText = [];
+  itens.forEach(i => {
+    const m = i.detalhes.match(/Obs: (.*?)(; |$)/);
+    if (m) obsText.push(m[1]);
+  });
+
+  y = doc.lastAutoTable.finalY + 12;
+  if (obsText.length) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(22, 32, 51);
+    doc.text('OBSERVAÇÕES', margem, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(90, 90, 90);
+    doc.text(obsText.map(o => `• ${o}`), margem, y);
+    y += obsText.length * 5 + 8;
+  }
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(22, 32, 51);
+  const colValor = pageW - margem;
+  const colLabel = colValor - 70;
+
+  const linhasResumo = [
+    ['Subtotal', p.subtotal],
+    [`Desconto (${p.descontoPct}%)`, -p.desconto],
+    ['Frete', p.frete]
+  ];
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(50, 50, 50);
+  linhasResumo.forEach(([label, valor]) => {
+    doc.text(label, colLabel, y, { align: 'right' });
+    doc.text(fmt(valor), colValor, y, { align: 'right' });
+    y += 6;
+  });
+  doc.setFillColor(22, 32, 51);
+  doc.rect(colLabel - 4, y - 4.5, colValor - colLabel + 4, 9, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(255, 255, 255);
+  doc.text('TOTAL', colLabel, y, { align: 'right' });
+  doc.text(fmt(p.total), colValor, y, { align: 'right' });
+  y += 20;
+
+  doc.setDrawColor(190, 190, 190);
+  doc.setLineWidth(0.4);
+  const meio = pageW / 2;
+  doc.line(margem, y, margem + 70, y);
+  doc.line(meio, y, meio + 70, y);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(120, 120, 120);
+  doc.text('Assinatura do Cliente', margem + 12, y + 5);
+  doc.text(CONFIG.empresa, meio + 16, y + 5);
+
+  doc.setFontSize(8);
+  doc.setTextColor(150, 150, 150);
+  doc.text(`${CONFIG.empresa} · Documento gerado eletronicamente.`, pageW / 2, pageH - 8, { align: 'center' });
+
+  doc.save(`${nomeArquivo(p)}.pdf`);
+  toast('PDF gerado com sucesso!');
+}
+
+/* ============================================================
+   EXPORTAÇÃO XLSX e CSV
+   ============================================================ */
+function criarLinhasPlanilha() {
+  const p = dadosPedido();
+  const linhas = [];
+  linhas.push([CONFIG.empresa.toUpperCase()]);
+  linhas.push([]);
+  linhas.push(['Nº do Pedido', p.pedido]);
+  linhas.push(['Cliente', p.cliente]);
+  linhas.push(['Telefone', p.telefone]);
+  linhas.push(['Data', p.data]);
+  linhas.push([]);
+  linhas.push(['ITENS DO PEDIDO']);
+  linhas.push(['#', 'Descrição', 'Quantidade', 'Preço Unitário (R$)', 'Subtotal (R$)']);
+  itens.forEach((item, idx) => {
+    linhas.push([idx + 1, `${item.descricao} — ${item.detalhes}`, item.qtd, item.unitario.toFixed(2).replace('.', ','), item.subtotal.toFixed(2).replace('.', ',')]);
+  });
+  linhas.push([]);
+  linhas.push(['Subtotal', '', '', '', p.subtotal.toFixed(2).replace('.', ',')]);
+  linhas.push([`Desconto (${p.descontoPct}%)`, '', '', '', p.desconto.toFixed(2).replace('.', ',')]);
+  linhas.push(['Frete', '', '', '', p.frete.toFixed(2).replace('.', ',')]);
+  linhas.push(['TOTAL', '', '', '', p.total.toFixed(2).replace('.', ',')]);
+  return linhas;
+}
+
+function exportarXlsx() {
+  if (itens.length === 0) { toast('Adicione ao menos um item ao pedido.'); return; }
+  if (typeof XLSX === 'undefined') {
+    toast('Biblioteca Excel indisponível — verifique a conexão com a internet.');
+    return;
+  }
+  const p = dadosPedido();
+  const ws = XLSX.utils.aoa_to_sheet(criarLinhasPlanilha());
+  ws['!cols'] = [{ wch: 4 }, { wch: 60 }, { wch: 12 }, { wch: 18 }, { wch: 16 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Pedido');
+  XLSX.writeFile(wb, `${nomeArquivo(p)}.xlsx`);
+  toast('Planilha Excel gerada!');
+}
+
+function exportarCsv() {
+  if (itens.length === 0) { toast('Adicione ao menos um item ao pedido.'); return; }
+  const p = dadosPedido();
+  const csv = criarLinhasPlanilha().map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';')).join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${nomeArquivo(p)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Arquivo CSV gerado!');
+}
+
+/* ============================================================
+   NOVO PEDIDO
+   ============================================================ */
+function novoPedido() {
+  itens = [];
+  itemCounter = 0;
+  document.getElementById('cliente').value = '';
+  document.getElementById('telefone').value = '';
+  document.getElementById('pedido').value = '';
+  document.getElementById('desconto').value = 0;
+  document.getElementById('frete').value = 0;
+  document.getElementById('data').value = '';
+  ['codigoEvento', 'cpfCnpj', 'nascimento', 'cnpj', 'email', 'profissao', 'rua', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'cep', 'medidaAltura', 'peso', 'representante', 'localAssinatura', 'observacoesPedido'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('valorRecebido').value = 0;
+  document.getElementById('parcelas').value = 1;
+  document.getElementById('valorParcela').value = 0;
+  document.getElementById('espessura').value = '';
+  document.getElementById('pistao').value = '';
+  document.getElementById('mSela').value = '0';
+  document.getElementById('linhaSoft').value = '';
+  limparConfig();
+  renderTabela();
+  toast('Novo pedido iniciado.');
+}
+
+/* ============================================================
+   TOAST E INICIALIZAÇÃO
+   ============================================================ */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildRadio('tamanhoGroup', CONFIG.tamanhos, 'tamanho');
+  buildRadio('backGroup', CONFIG.backs, 'back');
+  buildRadio('materialGroup', CONFIG.materiais, 'material');
+  buildRadio('baseGroup', CONFIG.bases, 'base');
+  buildChecks('acessoriosGroup', 'acessorio');
+  buildSelect('corAssento', CONFIG.coresAssento);
+  buildSelect('corEstrutura', CONFIG.coresEstrutura);
+  document.getElementById('data').value = new Date().toISOString().split('T')[0];
+
+  iniciarMocho3D();
+  document.querySelector('.configurator').addEventListener('change', atualizarMocho3D);
+  ['backAngle', 'baseHeight'].forEach(id => document.getElementById(id).addEventListener('input', atualizarMocho3D));
+
+  document.getElementById('btnAdd').addEventListener('click', addItem);
+  document.getElementById('btnLimparConfig').addEventListener('click', limparConfig);
+  document.getElementById('btnPdf').addEventListener('click', exportarPdf);
+  document.getElementById('btnXlsx').addEventListener('click', exportarXlsx);
+  document.getElementById('btnCsv').addEventListener('click', exportarCsv);
+  document.getElementById('btnNovo').addEventListener('click', novoPedido);
+  ['desconto', 'frete'].forEach(id => document.getElementById(id).addEventListener('input', renderTotais));
+
+  renderTabela();
+});
+</script>
+</body>
+</html>

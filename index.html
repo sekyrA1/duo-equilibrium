@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>duoequilibrium — Móveis com Equilíbrio entre Forma e Função</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #162033;
+    --ink-soft: #34415a;
+    --muted: #66718a;
+    --glass: rgba(255, 255, 255, .55);
+    --glass-strong: rgba(255, 255, 255, .72);
+    --glass-border: rgba(255, 255, 255, .65);
+    --bg: #dfe4f2;
+    --accent: #3d4be8;
+    --accent-hover: #303ed3;
+    --accent-soft: rgba(61, 75, 232, .1);
+    --radius: 20px;
+    --shadow: 0 20px 50px rgba(44, 55, 108, .12), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Decorative Ambient Lights */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    z-index: -1;
+    border-radius: 50%;
+    filter: blur(8px);
+    pointer-events: none;
+  }
+  body::before {
+    width: min(60vw, 800px); height: min(60vw, 800px);
+    top: -240px; left: -180px;
+    background: radial-gradient(circle, rgba(157, 131, 255, .55), rgba(157, 131, 255, 0) 68%);
+  }
+  body::after {
+    width: min(65vw, 880px); height: min(65vw, 880px);
+    right: -280px; bottom: -300px;
+    background: radial-gradient(circle, rgba(93, 185, 255, .48), rgba(93, 185, 255, 0) 68%);
+  }
+
+  /* ---------- TOPBAR ---------- */
+  .topbar {
+    background: rgba(247, 248, 255, .68);
+    border-bottom: 1px solid rgba(255, 255, 255, .65);
+    padding: 16px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(24px) saturate(1.3);
+    -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+  .brand-logo {
+    width: 40px; height: 38px;
+    background: var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(61, 75, 232, .28);
+    display: grid; place-items: center;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .brand-text h1 { font-size: 1.1rem; font-weight: 800; color: var(--ink); letter-spacing: -.2px; }
+  .brand-text p { color: var(--muted); font-size: .75rem; margin-top: 1px; }
+
+  .nav-center { display: flex; align-items: center; gap: 6px; }
+  .nav-tabs {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, .55);
+    padding: 4px;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 7px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: .84rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: all .2s ease;
+  }
+  .nav-tab:hover { color: var(--ink); background: rgba(255, 255, 255, .7); }
+  .nav-tab.active { background: var(--accent); color: #fff; box-shadow: 0 4px 14px rgba(61, 75, 232, .28); }
+
+  .nav-actions { display: flex; align-items: center; gap: 12px; }
+  .btn-cta {
+    padding: 9px 20px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-size: .86rem;
+    font-weight: 700;
+    transition: all .2s ease;
+    box-shadow: 0 6px 18px rgba(61, 75, 232, .25);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-cta:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 10px 22px rgba(61, 75, 232, .35); }
+
+  /* ---------- HERO ---------- */
+  .hero-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, .62);
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-bottom: 20px;
+  }
+  .hero-title {
+    font-size: 3.1rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .hero-title span {
+    background: linear-gradient(135deg, var(--accent), #7a3de8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 1.08rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+    max-width: 580px;
+  }
+  .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 40px; }
+  .btn-primary {
+    padding: 14px 28px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: .95rem;
+    transition: all .2s ease;
+    box-shadow: 0 10px 25px rgba(61, 75, 232, .28);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 14px 30px rgba(61, 75, 232, .38); }
+  .btn-secondary {
+    padding: 14px 26px;
+    background: rgba(255, 255, 255, .55);
+    color: var(--ink);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 650;
+    font-size: .95rem;
+    transition: all .2s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-secondary:hover { background: rgba(255, 255, 255, .85); border-color: rgba(255, 255, 255, .95); transform: translateY(-2px); }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, .5);
+  }
+  .stat-num { font-size: 1.6rem; font-weight: 800; color: var(--ink); }
+  .stat-label { font-size: .78rem; color: var(--muted); margin-top: 2px; font-weight: 500; }
+
+  /* ---------- HERO WIDGET (INTERACTIVE PREVIEW) ---------- */
+  .hero-widget {
+    background: linear-gradient(145deg, rgba(255,255,255,.72), rgba(255,255,255,.38));
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+  }
+  .widget-head { display: flex; justify-content: space-between; align-items: center; }
+  .widget-head h3 { font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+  .widget-tag { font-size: .72rem; padding: 4px 10px; background: rgba(61,75,232,.12); color: var(--accent); border-radius: 999px; font-weight: 700; }
+
+  .stool-preview {
+    height: 180px;
+    background: radial-gradient(circle at center, rgba(255,255,255,.8), rgba(235,238,255,.4));
+    border-radius: 18px;
+    border: 1px dashed rgba(255,255,255,.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .stool-graphic {
+    position: relative;
+    width: 100px;
+    height: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s ease;
+  }
+  .stool-back {
+    width: 44px; height: 20px;
+    background: #162033;
+    border-radius: 8px 8px 4px 4px;
+    margin-bottom: 4px;
+    transition: all .3s ease;
+  }
+  .stool-seat {
+    width: 72px; height: 26px;
+    background: var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(61,75,232,.3);
+    transition: all .3s ease;
+  }
+  .stool-stem {
+    width: 8px; height: 40px;
+    background: #66718a;
+    border-radius: 2px;
+  }
+  .stool-base {
+    width: 80px; height: 6px;
+    background: #34415a;
+    border-radius: 999px;
+  }
+
+  .widget-controls { display: grid; gap: 12px; }
+  .widget-row { display: flex; justify-content: space-between; align-items: center; font-size: .84rem; }
+  .widget-row label { color: var(--muted); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; }
+  .widget-opts { display: flex; gap: 6px; }
+  .w-opt {
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,.5);
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .w-opt.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .widget-total {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 14px; border-top: 1px solid rgba(255,255,255,.5);
+  }
+  .price-num { font-size: 1.35rem; font-weight: 800; color: var(--ink); }
+  .btn-widget {
+    padding: 10px 18px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: .84rem;
+    transition: all .15s ease;
+  }
+  .btn-widget:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+  /* ---------- SECTION HEADINGS ---------- */
+  .section-head { text-align: center; max-width: 640px; margin: 0 auto 48px; }
+  .section-head .eyebrow { color: var(--accent); font-size: .78rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 8px; }
+  .section-head h2 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.6px; color: var(--ink); }
+  .section-head p { color: var(--muted); font-size: .98rem; margin-top: 10px; line-height: 1.5; }
+
+  /* ---------- MODELOS / CATALOG ---------- */
+  .section-wrap { max-width: 1200px; margin: 0 auto; padding: 60px 24px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 24px; }
+
+  .model-card {
+    background: linear-gradient(145deg, rgba(255,255,255,.68), rgba(255,255,255,.32));
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 26px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .model-card:hover { transform: translateY(-4px); box-shadow: 0 24px 50px rgba(44, 55, 108, .18); }
+
+  .model-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.8);
+    display: grid; place-items: center; font-size: 1.4rem; color: var(--accent);
+    margin-bottom: 18px; box-shadow: 0 6px 16px rgba(0,0,0,.04);
+  }
+  .model-title { font-size: 1.25rem; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+  .model-desc { font-size: .86rem; color: var(--muted); line-height: 1.5; margin-bottom: 20px; }
+  .model-specs { list-style: none; margin-bottom: 22px; display: flex; flex-direction: column; gap: 8px; }
+  .model-specs li { font-size: .8rem; color: var(--ink-soft); display: flex; align-items: center; gap: 8px; font-weight: 500; }
+  .model-specs li::before { content: '✓'; color: var(--accent); font-weight: 800; }
+
+  .model-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.5); }
+  .model-price { font-size: .75rem; color: var(--muted); }
+  .model-price b { display: block; font-size: 1.15rem; color: var(--ink); font-weight: 800; }
+  .btn-card {
+    padding: 8px 14px;
+    background: rgba(255,255,255,.55);
+    border: 1px solid var(--glass-border);
+    border-radius: 9px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: .8rem;
+    font-weight: 700;
+    transition: all .15s ease;
+  }
+  .btn-card:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* ---------- DIFERENCIAIS ---------- */
+  .diff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+  .diff-card {
+    background: rgba(255, 255, 255, .45);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 24px;
+    backdrop-filter: blur(18px);
+  }
+  .diff-num {
+    font-size: 1.8rem; font-weight: 800;
+    color: var(--accent); margin-bottom: 10px; opacity: .8;
+  }
+  .diff-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+  .diff-desc { font-size: .86rem; color: var(--muted); line-height: 1.5; }
+
+  /* ---------- TESTIMONIALS ---------- */
+  .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .testi-card {
+    background: linear-gradient(145deg, rgba(255,255,255,.6), rgba(255,255,255,.28));
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .testi-text { font-size: .88rem; color: var(--ink-soft); line-height: 1.6; font-style: italic; margin-bottom: 18px; }
+  .testi-author { display: flex; align-items: center; gap: 12px; }
+  .testi-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: grid; place-items: center; font-weight: 700; font-size: .85rem;
+  }
+  .testi-info b { font-size: .88rem; color: var(--ink); display: block; }
+  .testi-info span { font-size: .76rem; color: var(--muted); }
+
+  /* ---------- CTA BANNER ---------- */
+  .cta-banner {
+    max-width: 1200px; margin: 40px auto 80px; padding: 0 24px;
+  }
+  .cta-inner {
+    background: linear-gradient(120deg, var(--ink), #233454);
+    border-radius: 28px;
+    padding: 56px 40px;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(22, 32, 51, .25);
+  }
+  .cta-inner::before {
+    content: ''; position: absolute; top: -50%; left: -20%; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(61,75,232,.35), transparent 60%);
+    pointer-events: none;
+  }
+  .cta-inner h2 { font-size: 2.3rem; font-weight: 800; margin-bottom: 14px; position: relative; z-index: 1; }
+  .cta-inner p { font-size: 1.02rem; color: rgba(255,255,255,.75); max-width: 580px; margin: 0 auto 32px; line-height: 1.5; position: relative; z-index: 1; }
+  .cta-inner .btn-primary { position: relative; z-index: 1; padding: 16px 36px; font-size: 1rem; }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    border-top: 1px solid rgba(255,255,255,.5);
+    background: rgba(247, 248, 255, .4);
+    backdrop-filter: blur(20px);
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: .84rem;
+  }
+  footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px) {
+    .hero-wrap { grid-template-columns: 1fr; gap: 36px; text-align: center; padding-top: 36px; }
+    .hero-title { font-size: 2.5rem; }
+    .hero-sub { margin-left: auto; margin-right: auto; }
+    .hero-btns { justify-content: center; }
+    .topbar { flex-direction: column; gap: 12px; padding: 14px 20px; }
+    .nav-actions { width: 100%; justify-content: center; }
+  }
+  @media (max-width: 560px) {
+    .hero-title { font-size: 2rem; }
+    .cta-inner { padding: 36px 20px; }
+    .cta-inner h2 { font-size: 1.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a href="index.html" class="brand">
+    <div class="brand-logo">de</div>
+    <div class="brand-text">
+      <h1>duoequilibrium</h1>
+      <p>Móveis com equilíbrio entre forma e função</p>
+    </div>
+  </a>
+
+  <nav class="nav-center">
+    <div class="nav-tabs">
+      <a href="index.html" class="nav-tab active">Início</a>
+      <a href="#modelos" class="nav-tab">Modelos</a>
+      <a href="#diferenciais" class="nav-tab">Diferenciais</a>
+      <a href="pedidos.html" class="nav-tab">Gerador de Pedidos</a>
+    </div>
+  </nav>
+
+  <div class="nav-actions">
+    <a href="pedidos.html" class="btn-cta">
+      Gerar Pedido <span>→</span>
+    </a>
+  </div>
+</header>
+
+<main>
+  <!-- HERO SECTION -->
+  <section class="hero-wrap">
+    <div>
+      <div class="hero-badge">✦ Design Ergonômico & Sob Medida</div>
+      <h1 class="hero-title">O equilíbrio perfeito entre <span>postura, conforto</span> e design.</h1>
+      <p class="hero-sub">
+        Mochos ergonômicos de alta performance configuráveis para clínicas, estúdios e consultórios. 
+        Personalize materiais, acabamentos e acessórios com orçamento instantâneo.
+      </p>
+
+      <div class="hero-btns">
+        <a href="pedidos.html" class="btn-primary">
+          Ir para Gerador de Pedidos <span>→</span>
+        </a>
+        <a href="#modelos" class="btn-secondary">
+          Explorar Coleção
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">1.000+</div>
+          <div class="stat-label">Combinações sob medida</div>
+        </div>
+        <div>
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Conforto certificado</div>
+        </div>
+        <div>
+          <div class="stat-num">PDF & Excel</div>
+          <div class="stat-label">Exportação em 1 clique</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE WIDGET PREVIEW -->
+    <div class="hero-widget">
+      <div class="widget-head">
+        <h3>Simulador Rápido</h3>
+        <span class="widget-tag">Personalização em Tempo Real</span>
+      </div>
+
+      <div class="stool-preview">
+        <div class="stool-graphic">
+          <div class="stool-back" id="wBack"></div>
+          <div class="stool-seat" id="wSeat"></div>
+          <div class="stool-stem"></div>
+          <div class="stool-base" id="wBase"></div>
+        </div>
+      </div>
+
+      <div class="widget-controls">
+        <div class="widget-row">
+          <label>Tamanho</label>
+          <div class="widget-opts" id="wOptsTamanho">
+            <span class="w-opt active" data-tam="P" data-price="89.90">P (45cm)</span>
+            <span class="w-opt" data-tam="M" data-price="109.90">M (60cm)</span>
+            <span class="w-opt" data-tam="G" data-price="129.90">G (75cm)</span>
+          </div>
+        </div>
+
+        <div class="widget-row">
+          <label>Material</label>
+          <div class="widget-opts" id="wOptsMaterial">
+            <span class="w-opt active" data-mat="Madeira" data-add="0" data-color="#3d4be8">Madeira</span>
+            <span class="w-opt" data-mat="Couro" data-add="20" data-color="#162033">Couro</span>
+            <span class="w-opt" data-mat="Tecido" data-add="15" data-color="#157347">Tecido</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget-total">
+        <div>
+          <span style="font-size:.76rem; color:var(--muted); display:block;">Valor estimado unitário</span>
+          <span class="price-num" id="wPrice">R$ 89,90</span>
+        </div>
+        <a href="pedidos.html" class="btn-widget">
+          Configurar Completo →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODELOS SECTION -->
+  <section class="section-wrap" id="modelos">
+    <div class="section-head">
+      <div class="eyebrow">Coleção em Destaque</div>
+      <h2>Modelos Adaptados para sua Rotina</h2>
+      <p>Desenvolvidos para proporcionar suporte postural contínuo e elegância aos mais exigentes ambientes de trabalho.</p>
+    </div>
+
+    <div class="cards-grid">
+      <!-- Card 1 -->
+      <article class="model-card">
+        <div>
+          <div class="model-icon">🩺</div>
+          <h3 class="model-title">Mocho Clínico Pro</h3>
+          <p class="model-desc">Projetado especificamente para cirurgiões dentistas, médicos e profissionais da saúde.</p>
+          <ul class="model-specs">
+            <li>Encosto lumbar reclinável ajustável</li>
+            <li>Revestimento lavável e impermeável</li>
+            <li>Elevação pneumática de alta precisão</li>
+          </ul>
+        </div>
+        <div class="model-foot">
+          <div class="model-price">A partir de<b>R$ 164,90</b></div>
+          <a href="pedidos.html" class="btn-card">Personalizar →</a>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="model-card">
+        <div>
+          <div class="model-icon">✨</div>
+          <h3 class="model-title">Mocho Studio Executivo</h3>
+          <p class="model-desc">Sofisticação e fluidez de movimento para estúdios de arquitetura, design e estática.</p>
+          <ul class="model-specs">
+            <li>Acabamento premium em couro ou tecido</li>
+            <li>Base giratória 360° em inox cromado</li>
+            <li>Rodízios silenciosos em silicone</li>
+          </ul>
+        </div>
+        <div class="model-foot">
+          <div class="model-price">A partir de<b>R$ 179,90</b></div>
+          <a href="pedidos.html" class="btn-card">Personalizar →</a>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="model-card">
+        <div>
+          <div class="model-icon">🌿</div>
+          <h3 class="model-title">Mocho Compact Minimal</h3>
+          <p class="model-desc">Design limpo e estrutura compacta em madeira maciça para ambientes otimizados.</p>
+          <ul class="model-specs">
+            <li>Estrutura leve e ultra resistente</li>
+            <li>Design escandinavo em madeira natural</li>
+            <li>Ideal para recepções e pequenos espaços</li>
+          </ul>
+        </div>
+        <div class="model-foot">
+          <div class="model-price">A partir de<b>R$ 89,90</b></div>
+          <a href="pedidos.html" class="btn-card">Personalizar →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- DIFERENCIAIS SECTION -->
+  <section class="section-wrap" id="diferenciais">
+    <div class="section-head">
+      <div class="eyebrow">Por que duoequilibrium?</div>
+      <h2>Engenharia a Serviço da sua Postura</h2>
+      <p>Cada detalhe é idealizado para minimizar o desgaste físico em jornadas prolongadas.</p>
+    </div>
+
+    <div class="diff-grid">
+      <div class="diff-card">
+        <div class="diff-num">01</div>
+        <h3 class="diff-title">Ergonomia Certificada</h3>
+        <p class="diff-desc">Projetados para manter a curvatura fisiológica natural da coluna vertebral, reduzindo tensões e dores lombares.</p>
+      </div>
+
+      <div class="diff-card">
+        <div class="diff-num">02</div>
+        <h3 class="diff-title">Customização Total</h3>
+        <p class="diff-desc">Escolha livremente entre tamanhos (P a GG), sistemas de encosto, tecidos, cores e acessórios específicos.</p>
+      </div>
+
+      <div class="diff-card">
+        <div class="diff-num">03</div>
+        <h3 class="diff-title">Exportação Instantânea</h3>
+        <p class="diff-desc">Gerador de pedidos inteligente que cria propostas comerciais e orçamentos em PDF, Excel e CSV na hora.</p>
+      </div>
+
+      <div class="diff-card">
+        <div class="diff-num">04</div>
+        <h3 class="diff-title">Durabilidade Garantida</h3>
+        <p class="diff-desc">Chassi reforçado, componentes antioxidantes e espumas de alta densidade desenvolvidas para anos de uso contínuo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPOIMENTOS -->
+  <section class="section-wrap" id="depoimentos">
+    <div class="section-head">
+      <div class="eyebrow">Aprovação Comprovada</div>
+      <h2>O que Dizem Nossos Clientes</h2>
+      <p>Profissionais de saúde e design que transformaram seu conforto de trabalho.</p>
+    </div>
+
+    <div class="testi-grid">
+      <div class="testi-card">
+        <p class="testi-text">"Trabalho cerca de 9 horas por dia em cirurgias odontológicas. O mocho com apoio lombar pneumático eliminou minhas dores nas costas."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">EV</div>
+          <div class="testi-info">
+            <b>Dr. Eduardo Vasconcelos</b>
+            <span>Cirurgião Dentista</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <p class="testi-text">"O gerador de pedidos no site facilitated imensamente a cotação para a nossa nova clínica. Em 2 minutos baixamos o PDF com o frete e desconto."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">CS</div>
+          <div class="testi-info">
+            <b>Dra. Camilla Sampaio</b>
+            <span>Dermatologista & Gestora</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <p class="testi-text">"A harmonia das cores de acabamento em madeira e couro trouxe um toque de luxo surreal para o nosso estúdio de arquitetura."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">RM</div>
+          <div class="testi-info">
+            <b>Rodrigo Mendes</b>
+            <span>Designer de Interiores</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="cta-banner">
+    <div class="cta-inner">
+      <h2>Monte seu pedido personalizado agora</h2>
+      <p>Acesse o gerador de pedidos da duoequilibrium, monte sua lista com os modelos e acessórios desejados e baixe sua proposta comercial pronta.</p>
+      <a href="pedidos.html" class="btn-primary">
+        Acessar Gerador de Pedidos →
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p><b>duoequilibrium</b> · Móveis com equilíbrio entre forma e função</p>
+  <p style="margin-top:8px; opacity:.7;">© 2026 duoequilibrium. Todos os direitos reservados. | <a href="pedidos.html">Gerador de Pedidos</a></p>
+</footer>
+
+<script>
+// Interactive Widget Script
+document.addEventListener('DOMContentLoaded', () => {
+  let basePrice = 89.90;
+  let addPrice = 0;
+
+  const wPrice = document.getElementById('wPrice');
+  const wSeat = document.getElementById('wSeat');
+  const wBack = document.getElementById('wBack');
+
+  function updatePrice() {
+    const total = basePrice + addPrice;
+    wPrice.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  document.querySelectorAll('#wOptsTamanho .w-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('#wOptsTamanho .w-opt').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      basePrice = parseFloat(opt.dataset.price);
+      
+      const tam = opt.dataset.tam;
+      if (tam === 'P') wSeat.style.width = '64px';
+      else if (tam === 'M') wSeat.style.width = '76px';
+      else if (tam === 'G') wSeat.style.width = '88px';
+
+      updatePrice();
+    });
+  });
+
+  document.querySelectorAll('#wOptsMaterial .w-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('#wOptsMaterial .w-opt').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      addPrice = parseFloat(opt.dataset.add);
+      wSeat.style.backgroundColor = opt.dataset.color;
+      wBack.style.backgroundColor = opt.dataset.color === '#3d4be8' ? '#162033' : opt.dataset.color;
+      updatePrice();
+    });
+  });
+});
+</script>
+
+</body>
+</html>
