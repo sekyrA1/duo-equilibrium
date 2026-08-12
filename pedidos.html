@@ -706,7 +706,7 @@
 <div class="toast" id="toast"></div>
 
 <!-- A janela fica fora dos cards para permanecer visível durante toda a configuração. -->
-<div class="mocho-viewer" id="mochoViewerPopup">
+<div class="mocho-viewer hidden" id="mochoViewerPopup" aria-hidden="true">
   <div class="viewer-toolbar" id="viewerDragHandle">
     <div><strong>Visualização 3D</strong> <span>arraste esta barra para mover</span></div>
     <button class="btn btn-ghost viewer-close" id="btnViewerClose" type="button" aria-label="Fechar visualização 3D">×</button>
@@ -934,8 +934,8 @@ function configurarJanelaViewer() {
   const redefinir = document.getElementById('btnViewerReset');
   let movendo = false, offsetX = 0, offsetY = 0;
 
-  abrir.addEventListener('click', () => { popup.classList.remove('hidden'); renderMocho3D(); });
-  fechar.addEventListener('click', () => popup.classList.add('hidden'));
+  abrir.addEventListener('click', () => { popup.classList.remove('hidden'); popup.setAttribute('aria-hidden', 'false'); renderMocho3D(); });
+  fechar.addEventListener('click', () => { popup.classList.add('hidden'); popup.setAttribute('aria-hidden', 'true'); });
   const aplicarTamanho = valor => {
     const largura = Math.max(320, Math.min(700, Number(valor)));
     popup.style.width = `${largura}px`;

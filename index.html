@@ -380,7 +380,6 @@
   @keyframes cardSlideBackward { 0% { opacity: .38; transform: perspective(1100px) translate3d(-38px, 12px, -35px) rotateY(7deg); } 100% { opacity: 1; transform: perspective(1100px) translateZ(22px) rotateY(1.6deg); } }
   @keyframes imageSlideFocus { 0% { transform: scale(1.1); filter: brightness(.8) saturate(.7); } 100% { transform: scale(1); filter: brightness(1) saturate(1); } }
   @keyframes cardContentRise { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
-  @media (prefers-reduced-motion: reduce) { .carousel-swiper *, .carousel-swiper .swiper-wrapper { animation: none !important; transition-duration: .01ms !important; } }
   .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; }
   .carousel-arrow { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; cursor: pointer; border: 1px solid rgba(187,23,34,.18); background: rgba(255,255,255,.78); color: var(--accent); font-size: 1.25rem; box-shadow: 0 8px 22px rgba(16,20,60,.08); transition: .25s ease; }
   .carousel-arrow:hover:not(:disabled) { background: var(--accent); color: #fff; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(187,23,34,.24); }
@@ -532,9 +531,6 @@
   .whatsapp-float:hover { transform: translateY(-4px) scale(1.04); background: #0e713b; }
   .whatsapp-float::after { content: 'Fale conosco'; position: absolute; right: 68px; width: max-content; padding: 8px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: .74rem; font-weight: 700; opacity: 0; transform: translateX(6px); pointer-events: none; transition: .2s ease; }
   .whatsapp-float:hover::after { opacity: 1; transform: translateX(0); }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
-  }
 
   /* ---------- RESPONSIVE ---------- */
   @media (max-width: 900px) {
