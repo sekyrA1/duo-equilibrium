@@ -308,15 +308,15 @@
   .section-head p { color: var(--muted); font-size: .98rem; margin-top: 10px; line-height: 1.5; }
 
   /* ---------- MODELOS / CATALOG ---------- */
-  .section-wrap { max-width: 1200px; margin: 26px auto; padding: 60px 24px; border-radius: 30px; }
-  .section-modelos { background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(252,239,240,.86)); border: 1px solid rgba(187,23,34,.14); box-shadow: 0 18px 42px rgba(16,20,60,.08); }
-  .section-diferenciais { background: linear-gradient(135deg, #10143c, #29204b); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 22px 50px rgba(16,20,60,.24); }
+  .section-wrap { max-width: none; margin: 0; padding: 78px max(24px, calc((100vw - 1152px) / 2)); border-radius: 0; }
+  .section-modelos { background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(252,239,240,.86)); border-top: 1px solid rgba(187,23,34,.14); border-bottom: 1px solid rgba(187,23,34,.14); }
+  .section-diferenciais { background: linear-gradient(135deg, #10143c, #29204b); border-top: 1px solid rgba(255,255,255,.12); border-bottom: 1px solid rgba(255,255,255,.12); }
   .section-diferenciais .section-head h2, .section-diferenciais .diff-title { color: #fff; }
   .section-diferenciais .section-head p, .section-diferenciais .diff-desc { color: rgba(255,255,255,.74); }
   .section-diferenciais .section-head .eyebrow { color: #ff9ba2; }
   .section-diferenciais .diff-card { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); }
   .section-diferenciais .diff-num { color: #ff717b; }
-  .section-depoimentos { background: linear-gradient(145deg, rgba(250,244,244,.92), rgba(255,255,255,.9)); border-top: 4px solid var(--accent); box-shadow: 0 16px 36px rgba(16,20,60,.07); }
+  .section-depoimentos { background: linear-gradient(145deg, rgba(250,244,244,.92), rgba(255,255,255,.9)); border-top: 4px solid var(--accent); border-bottom: 1px solid rgba(187,23,34,.12); }
   .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 24px; }
 
   .model-card {
