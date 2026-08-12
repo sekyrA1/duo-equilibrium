@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>duoequilibrium — Móveis com Equilíbrio entre Forma e Função</title>
+<title>Duo Equilibrium — Soluções Ergonômicas</title>
+<link rel="icon" type="image/png" href="assets/logo-duo-equilibrium.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -332,15 +333,16 @@
   .section-diferenciais .diff-num { color: #ff717b; }
   .section-depoimentos { background: linear-gradient(145deg, rgba(250,244,244,.92), rgba(255,255,255,.9)); border-top: 4px solid var(--accent); border-bottom: 1px solid rgba(187,23,34,.12); }
   .models-carousel { position: relative; max-width: 1152px; margin: 0 auto; }
-  .carousel-viewport { overflow: hidden; padding: 8px 4px 24px; margin: -8px -4px 0; }
-  .carousel-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 24px) / 2); gap: 24px; transition: transform .55s cubic-bezier(.2,.8,.2,1); }
-  .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 18px; }
-  .carousel-arrow { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; border: 1px solid rgba(187,23,34,.18); background: #fff; color: var(--accent); font-size: 1.25rem; transition: .2s ease; }
-  .carousel-arrow:hover { background: var(--accent); color: #fff; transform: translateY(-2px); }
-  .carousel-dots { display: flex; gap: 7px; }
-  .carousel-dot { border: 0; width: 8px; height: 8px; padding: 0; border-radius: 99px; background: rgba(16,20,60,.2); cursor: pointer; transition: .25s ease; }
-  .carousel-dot.active { width: 28px; background: var(--accent); }
-  .carousel-dot-third { display: none; }
+  .carousel-viewport { overflow: hidden; padding: 16px 8px 30px; margin: -16px -8px 0; perspective: 1400px; }
+  .carousel-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 48px) / 3); gap: 24px; transform-style: preserve-3d; transition: transform .72s cubic-bezier(.2,.8,.2,1); }
+  .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; }
+  .carousel-arrow { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; cursor: pointer; border: 1px solid rgba(187,23,34,.18); background: rgba(255,255,255,.78); color: var(--accent); font-size: 1.25rem; box-shadow: 0 8px 22px rgba(16,20,60,.08); transition: .25s ease; }
+  .carousel-arrow:hover:not(:disabled) { background: var(--accent); color: #fff; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(187,23,34,.24); }
+  .carousel-arrow:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
+  .carousel-status { min-width: 164px; display: flex; align-items: center; gap: 10px; padding: 0 8px; color: var(--muted); font-size: .78rem; font-weight: 700; letter-spacing: .08em; }
+  .carousel-status strong { color: var(--accent); font-size: .95rem; }
+  .carousel-progress { flex: 1; height: 4px; overflow: hidden; border-radius: 99px; background: rgba(16,20,60,.12); }
+  .carousel-progress span { display: block; width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), #ef545d); transition: width .55s cubic-bezier(.2,.8,.2,1); }
 
   .model-card {
     background: linear-gradient(145deg, rgba(255,255,255,.68), rgba(255,255,255,.32));
@@ -355,8 +357,19 @@
     flex-direction: column;
     justify-content: space-between;
     transition: transform .25s ease, box-shadow .25s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+    --cursor-x: 0deg;
+    --cursor-y: 0deg;
+    --gallery-y: 0deg;
+    --card-depth: 0px;
+    transform: perspective(1100px) translateY(-2px) translateZ(var(--card-depth)) rotateX(var(--cursor-x)) rotateY(calc(var(--gallery-y) + var(--cursor-y)));
   }
-  .model-card:hover { transform: translateY(-4px); box-shadow: 0 24px 50px rgba(44, 55, 108, .18); }
+  .model-card:hover { box-shadow: 0 24px 50px rgba(44, 55, 108, .18); }
+  .models-carousel.is-visible .model-card { animation: cardEntrance .65s cubic-bezier(.2,.8,.2,1); }
+  .models-carousel.is-visible .model-card:nth-child(2) { animation-delay: .12s; }
+  .models-carousel.is-visible .model-card:nth-child(3) { animation-delay: .24s; }
+  @keyframes cardEntrance { from { opacity: 0; transform: translateY(36px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
   .model-image-wrap { height: 470px; overflow: hidden; background: radial-gradient(circle at center, #fff 0%, #f7f3ef 72%); }
   .model-image { width: 100%; height: 100%; display: block; object-fit: contain; padding: 4px; transition: transform .6s ease; }
   .model-card:hover .model-image { transform: scale(1.05); }
@@ -480,6 +493,9 @@
   .whatsapp-float:hover { transform: translateY(-4px) scale(1.04); background: #0e713b; }
   .whatsapp-float::after { content: 'Fale conosco'; position: absolute; right: 68px; width: max-content; padding: 8px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: .74rem; font-weight: 700; opacity: 0; transform: translateX(6px); pointer-events: none; transition: .2s ease; }
   .whatsapp-float:hover::after { opacity: 1; transform: translateX(0); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  }
 
   /* ---------- RESPONSIVE ---------- */
   @media (max-width: 900px) {
@@ -489,6 +505,7 @@
     .hero-btns { justify-content: center; }
     .topbar { flex-direction: column; gap: 12px; padding: 14px 20px; }
     .nav-actions { width: 100%; justify-content: center; }
+    .carousel-track { grid-auto-columns: calc((100% - 24px) / 2); }
   }
   @media (max-width: 560px) {
     .hero-title { font-size: 2rem; }
@@ -496,7 +513,6 @@
     .cta-inner h2 { font-size: 1.7rem; }
     .section-wrap { padding-left: 20px; padding-right: 20px; }
     .carousel-track { grid-auto-columns: 100%; }
-    .carousel-dot-third { display: block; }
     .model-image-wrap { height: 380px; }
     .model-foot { align-items: flex-start; flex-direction: column; }
     .whatsapp-float { right: 16px; bottom: 16px; }
@@ -639,7 +655,7 @@
       </div>
       <div class="carousel-controls">
         <button class="carousel-arrow" type="button" data-carousel="prev" aria-label="Modelo anterior">&#8592;</button>
-        <div class="carousel-dots" aria-label="Selecionar modelo"><button class="carousel-dot active" type="button" aria-label="Modelo 1"></button><button class="carousel-dot" type="button" aria-label="Modelo 2"></button><button class="carousel-dot carousel-dot-third" type="button" aria-label="Modelo 3"></button></div>
+        <div class="carousel-status" aria-live="polite"><strong id="carouselCurrent">01</strong><span>/ 03</span><div class="carousel-progress" aria-hidden="true"><span></span></div></div>
         <button class="carousel-arrow" type="button" data-carousel="next" aria-label="Próximo modelo">&#8594;</button>
       </div>
     </div>
@@ -788,22 +804,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const track = document.querySelector('.carousel-track');
   const cards = [...document.querySelectorAll('.carousel-track .model-card')];
-  const dots = [...document.querySelectorAll('.carousel-dot')];
+  const previousButton = document.querySelector('[data-carousel="prev"]');
+  const nextButton = document.querySelector('[data-carousel="next"]');
+  const carouselCurrent = document.getElementById('carouselCurrent');
+  const carouselProgress = document.querySelector('.carousel-progress span');
   let carouselIndex = 0;
-  function cardsPerView() { return window.innerWidth <= 560 ? 1 : 2; }
+  function cardsPerView() { return window.innerWidth <= 560 ? 1 : window.innerWidth <= 900 ? 2 : 3; }
   function showSlide(nextIndex) {
     const maxIndex = Math.max(0, cards.length - cardsPerView());
     carouselIndex = Math.max(0, Math.min(nextIndex, maxIndex));
     const cardWidth = cards[0].getBoundingClientRect().width;
     const gap = 24;
     track.style.transform = `translateX(-${carouselIndex * (cardWidth + gap)}px)`;
-    dots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === carouselIndex));
+    cards.forEach((card, index) => {
+      const relativeIndex = index - carouselIndex;
+      const isVisible = relativeIndex >= 0 && relativeIndex < cardsPerView();
+      const middle = (cardsPerView() - 1) / 2;
+      card.style.setProperty('--gallery-y', isVisible ? `${(relativeIndex - middle) * -2.6}deg` : '0deg');
+      card.style.setProperty('--card-depth', isVisible && Math.abs(relativeIndex - middle) < .5 ? '28px' : '0px');
+      card.setAttribute('aria-hidden', String(!isVisible));
+    });
+    previousButton.disabled = carouselIndex === 0;
+    nextButton.disabled = carouselIndex === maxIndex;
+    carouselCurrent.textContent = String(carouselIndex + 1).padStart(2, '0');
+    carouselProgress.style.width = `${maxIndex === 0 ? 100 : ((carouselIndex + 1) / (maxIndex + 1)) * 100}%`;
   }
-  document.querySelector('[data-carousel="prev"]').addEventListener('click', () => showSlide(carouselIndex - 1));
-  document.querySelector('[data-carousel="next"]').addEventListener('click', () => showSlide(carouselIndex + 1));
-  dots.forEach((dot, index) => dot.addEventListener('click', () => showSlide(index)));
+  previousButton.addEventListener('click', () => showSlide(carouselIndex - 1));
+  nextButton.addEventListener('click', () => showSlide(carouselIndex + 1));
   window.addEventListener('resize', () => showSlide(carouselIndex));
   showSlide(0);
+
+  cards.forEach(card => {
+    card.addEventListener('pointermove', event => {
+      if (event.pointerType === 'touch') return;
+      const bounds = card.getBoundingClientRect();
+      const rotateY = ((event.clientX - bounds.left) / bounds.width - .5) * 5;
+      const rotateX = ((event.clientY - bounds.top) / bounds.height - .5) * -4;
+      card.style.setProperty('--cursor-x', `${rotateX}deg`);
+      card.style.setProperty('--cursor-y', `${rotateY}deg`);
+    });
+    card.addEventListener('pointerleave', () => {
+      card.style.setProperty('--cursor-x', '0deg');
+      card.style.setProperty('--cursor-y', '0deg');
+    });
+  });
 });
 </script>
 
