@@ -77,13 +77,22 @@
   .nav-tabs {
     display: flex;
     align-items: center;
+    position: relative;
     background: rgba(255, 255, 255, .55);
     padding: 4px;
     border-radius: 999px;
     border: 1px solid var(--glass-border);
     gap: 4px;
   }
+  .nav-indicator {
+    position: absolute; top: 4px; left: 0; height: calc(100% - 8px); width: 0;
+    border-radius: 999px; background: var(--accent); z-index: 0;
+    box-shadow: 0 4px 14px rgba(187, 23, 34, .28);
+    transition: transform .32s cubic-bezier(.2,.8,.2,1), width .32s cubic-bezier(.2,.8,.2,1);
+    pointer-events: none;
+  }
   .nav-tab {
+    position: relative; z-index: 1;
     padding: 7px 18px;
     border-radius: 999px;
     text-decoration: none;
@@ -92,8 +101,8 @@
     color: var(--ink-soft);
     transition: all .2s ease;
   }
-  .nav-tab:hover { color: var(--ink); background: rgba(255, 255, 255, .7); }
-  .nav-tab.active { background: var(--accent); color: #fff; box-shadow: 0 4px 14px rgba(187, 23, 34, .28); }
+  .nav-tab:hover { color: var(--accent); }
+  .nav-tab.active { color: #fff; }
 
   .nav-actions { display: flex; align-items: center; gap: 12px; }
   .btn-cta {
@@ -116,10 +125,11 @@
     margin: 0 auto;
     padding: 60px 24px 80px;
     display: grid;
-    grid-template-columns: 1.15fr .85fr;
+    grid-template-columns: 1fr;
     gap: 48px;
     align-items: center;
   }
+  .hero-wrap > div:first-child { max-width: 760px; }
   .hero-badge {
     display: inline-flex;
     align-items: center;
@@ -144,7 +154,7 @@
     margin-bottom: 20px;
   }
   .hero-title span {
-    background: linear-gradient(135deg, var(--accent), #7a3de8);
+    background: linear-gradient(135deg, var(--accent), #e1464f);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -298,7 +308,15 @@
   .section-head p { color: var(--muted); font-size: .98rem; margin-top: 10px; line-height: 1.5; }
 
   /* ---------- MODELOS / CATALOG ---------- */
-  .section-wrap { max-width: 1200px; margin: 0 auto; padding: 60px 24px; }
+  .section-wrap { max-width: 1200px; margin: 26px auto; padding: 60px 24px; border-radius: 30px; }
+  .section-modelos { background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(252,239,240,.86)); border: 1px solid rgba(187,23,34,.14); box-shadow: 0 18px 42px rgba(16,20,60,.08); }
+  .section-diferenciais { background: linear-gradient(135deg, #10143c, #29204b); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 22px 50px rgba(16,20,60,.24); }
+  .section-diferenciais .section-head h2, .section-diferenciais .diff-title { color: #fff; }
+  .section-diferenciais .section-head p, .section-diferenciais .diff-desc { color: rgba(255,255,255,.74); }
+  .section-diferenciais .section-head .eyebrow { color: #ff9ba2; }
+  .section-diferenciais .diff-card { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); }
+  .section-diferenciais .diff-num { color: #ff717b; }
+  .section-depoimentos { background: linear-gradient(145deg, rgba(250,244,244,.92), rgba(255,255,255,.9)); border-top: 4px solid var(--accent); box-shadow: 0 16px 36px rgba(16,20,60,.07); }
   .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 24px; }
 
   .model-card {
@@ -442,34 +460,34 @@
 
   <nav class="nav-center">
     <div class="nav-tabs">
-      <a href="index.html" class="nav-tab active">Início</a>
+      <span class="nav-indicator" aria-hidden="true"></span>
+      <a href="#inicio" class="nav-tab active">Início</a>
       <a href="#modelos" class="nav-tab">Modelos</a>
       <a href="#diferenciais" class="nav-tab">Diferenciais</a>
-      <a href="pedidos.html" class="nav-tab">Gerador de Pedidos</a>
     </div>
   </nav>
 
   <div class="nav-actions">
-    <a href="pedidos.html" class="btn-cta">
-      Gerar Pedido <span>→</span>
+    <a href="#modelos" class="btn-cta">
+      Conheça os modelos <span>→</span>
     </a>
   </div>
 </header>
 
 <main>
   <!-- HERO SECTION -->
-  <section class="hero-wrap">
+  <section class="hero-wrap" id="inicio">
     <div>
       <div class="hero-badge">✦ Design Ergonômico & Sob Medida</div>
       <h1 class="hero-title">O equilíbrio perfeito entre <span>postura, conforto</span> e design.</h1>
       <p class="hero-sub">
-        Mochos ergonômicos de alta performance configuráveis para clínicas, estúdios e consultórios. 
-        Personalize materiais, acabamentos e acessórios com orçamento instantâneo.
+        Mochos ergonômicos de alta performance para clínicas, estúdios e consultórios.
+        Soluções sob medida em materiais, acabamentos e acessórios.
       </p>
 
       <div class="hero-btns">
-        <a href="pedidos.html" class="btn-primary">
-          Ir para Gerador de Pedidos <span>→</span>
+        <a href="#modelos" class="btn-primary">
+          Conheça os modelos <span>→</span>
         </a>
         <a href="#modelos" class="btn-secondary">
           Explorar Coleção
@@ -486,62 +504,16 @@
           <div class="stat-label">Conforto certificado</div>
         </div>
         <div>
-          <div class="stat-num">PDF & Excel</div>
-          <div class="stat-label">Exportação em 1 clique</div>
+          <div class="stat-num">Sob medida</div>
+          <div class="stat-label">Atendimento especializado</div>
         </div>
       </div>
     </div>
 
-    <!-- INTERACTIVE WIDGET PREVIEW -->
-    <div class="hero-widget">
-      <div class="widget-head">
-        <h3>Simulador Rápido</h3>
-        <span class="widget-tag">Personalização em Tempo Real</span>
-      </div>
-
-      <div class="stool-preview">
-        <div class="stool-graphic">
-          <div class="stool-back" id="wBack"></div>
-          <div class="stool-seat" id="wSeat"></div>
-          <div class="stool-stem"></div>
-          <div class="stool-base" id="wBase"></div>
-        </div>
-      </div>
-
-      <div class="widget-controls">
-        <div class="widget-row">
-          <label>Tamanho</label>
-          <div class="widget-opts" id="wOptsTamanho">
-            <span class="w-opt active" data-tam="P" data-price="89.90">P (45cm)</span>
-            <span class="w-opt" data-tam="M" data-price="109.90">M (60cm)</span>
-            <span class="w-opt" data-tam="G" data-price="129.90">G (75cm)</span>
-          </div>
-        </div>
-
-        <div class="widget-row">
-          <label>Material</label>
-          <div class="widget-opts" id="wOptsMaterial">
-            <span class="w-opt active" data-mat="Madeira" data-add="0" data-color="#bb1722">Madeira</span>
-            <span class="w-opt" data-mat="Couro" data-add="20" data-color="#10143c">Couro</span>
-            <span class="w-opt" data-mat="Tecido" data-add="15" data-color="#157347">Tecido</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="widget-total">
-        <div>
-          <span style="font-size:.76rem; color:var(--muted); display:block;">Valor estimado unitário</span>
-          <span class="price-num" id="wPrice">R$ 89,90</span>
-        </div>
-        <a href="pedidos.html" class="btn-widget">
-          Configurar Completo →
-        </a>
-      </div>
-    </div>
   </section>
 
   <!-- MODELOS SECTION -->
-  <section class="section-wrap" id="modelos">
+  <section class="section-wrap section-modelos" id="modelos">
     <div class="section-head">
       <div class="eyebrow">Coleção em Destaque</div>
       <h2>Modelos Adaptados para sua Rotina</h2>
@@ -563,7 +535,7 @@
         </div>
         <div class="model-foot">
           <div class="model-price">A partir de<b>R$ 164,90</b></div>
-          <a href="pedidos.html" class="btn-card">Personalizar →</a>
+          <span class="btn-card">Sob consulta</span>
         </div>
       </article>
 
@@ -581,7 +553,7 @@
         </div>
         <div class="model-foot">
           <div class="model-price">A partir de<b>R$ 179,90</b></div>
-          <a href="pedidos.html" class="btn-card">Personalizar →</a>
+          <span class="btn-card">Sob consulta</span>
         </div>
       </article>
 
@@ -599,14 +571,14 @@
         </div>
         <div class="model-foot">
           <div class="model-price">A partir de<b>R$ 89,90</b></div>
-          <a href="pedidos.html" class="btn-card">Personalizar →</a>
+          <span class="btn-card">Sob consulta</span>
         </div>
       </article>
     </div>
   </section>
 
   <!-- DIFERENCIAIS SECTION -->
-  <section class="section-wrap" id="diferenciais">
+  <section class="section-wrap section-diferenciais" id="diferenciais">
     <div class="section-head">
       <div class="eyebrow">Por que duoequilibrium?</div>
       <h2>Engenharia a Serviço da sua Postura</h2>
@@ -628,8 +600,8 @@
 
       <div class="diff-card">
         <div class="diff-num">03</div>
-        <h3 class="diff-title">Exportação Instantânea</h3>
-        <p class="diff-desc">Gerador de pedidos inteligente que cria propostas comerciais e orçamentos em PDF, Excel e CSV na hora.</p>
+        <h3 class="diff-title">Atendimento Consultivo</h3>
+        <p class="diff-desc">Orientação especializada para escolher medidas, acabamentos e acessórios ideais para sua rotina.</p>
       </div>
 
       <div class="diff-card">
@@ -641,7 +613,7 @@
   </section>
 
   <!-- DEPOIMENTOS -->
-  <section class="section-wrap" id="depoimentos">
+  <section class="section-wrap section-depoimentos" id="depoimentos">
     <div class="section-head">
       <div class="eyebrow">Aprovação Comprovada</div>
       <h2>O que Dizem Nossos Clientes</h2>
@@ -661,7 +633,7 @@
       </div>
 
       <div class="testi-card">
-        <p class="testi-text">"O gerador de pedidos no site facilitated imensamente a cotação para a nossa nova clínica. Em 2 minutos baixamos o PDF com o frete e desconto."</p>
+        <p class="testi-text">"O atendimento foi essencial para definir o acabamento e as medidas ideais para a nossa nova clínica."</p>
         <div class="testi-author">
           <div class="testi-avatar">CS</div>
           <div class="testi-info">
@@ -684,16 +656,6 @@
     </div>
   </section>
 
-  <!-- CTA BANNER -->
-  <section class="cta-banner">
-    <div class="cta-inner">
-      <h2>Monte seu pedido personalizado agora</h2>
-      <p>Acesse o gerador de pedidos da duoequilibrium, monte sua lista com os modelos e acessórios desejados e baixe sua proposta comercial pronta.</p>
-      <a href="pedidos.html" class="btn-primary">
-        Acessar Gerador de Pedidos →
-      </a>
-    </div>
-  </section>
 </main>
 
 <footer>
@@ -701,45 +663,37 @@
 </footer>
 
 <script>
-// Interactive Widget Script
 document.addEventListener('DOMContentLoaded', () => {
-  let basePrice = 89.90;
-  let addPrice = 0;
+  const nav = document.querySelector('.nav-tabs');
+  const indicator = document.querySelector('.nav-indicator');
+  const links = [...document.querySelectorAll('.nav-tab[href^="#"]')];
+  const sections = links.map(link => document.querySelector(link.getAttribute('href'))).filter(Boolean);
 
-  const wPrice = document.getElementById('wPrice');
-  const wSeat = document.getElementById('wSeat');
-  const wBack = document.getElementById('wBack');
-
-  function updatePrice() {
-    const total = basePrice + addPrice;
-    wPrice.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  function ativar(link) {
+    links.forEach(item => item.classList.toggle('active', item === link));
+    indicator.style.width = `${link.offsetWidth}px`;
+    indicator.style.transform = `translateX(${link.offsetLeft}px)`;
   }
 
-  document.querySelectorAll('#wOptsTamanho .w-opt').forEach(opt => {
-    opt.addEventListener('click', () => {
-      document.querySelectorAll('#wOptsTamanho .w-opt').forEach(o => o.classList.remove('active'));
-      opt.classList.add('active');
-      basePrice = parseFloat(opt.dataset.price);
-      
-      const tam = opt.dataset.tam;
-      if (tam === 'P') wSeat.style.width = '64px';
-      else if (tam === 'M') wSeat.style.width = '76px';
-      else if (tam === 'G') wSeat.style.width = '88px';
+  links.forEach(link => link.addEventListener('click', () => {
+    ativar(link);
+  }));
 
-      updatePrice();
-    });
-  });
+  const observer = new IntersectionObserver(entries => {
+    const visivel = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visivel) return;
+    const link = links.find(item => item.getAttribute('href') === `#${visivel.target.id}`);
+    if (link) ativar(link);
+  }, { rootMargin: '-28% 0px -55% 0px', threshold: [0.05, 0.3, 0.6] });
 
-  document.querySelectorAll('#wOptsMaterial .w-opt').forEach(opt => {
-    opt.addEventListener('click', () => {
-      document.querySelectorAll('#wOptsMaterial .w-opt').forEach(o => o.classList.remove('active'));
-      opt.classList.add('active');
-      addPrice = parseFloat(opt.dataset.add);
-      wSeat.style.backgroundColor = opt.dataset.color;
-      wBack.style.backgroundColor = opt.dataset.color === '#bb1722' ? '#10143c' : opt.dataset.color;
-      updatePrice();
-    });
+  sections.forEach(section => observer.observe(section));
+  window.addEventListener('resize', () => {
+    const atual = nav.querySelector('.nav-tab.active');
+    if (atual) ativar(atual);
   });
+  ativar(nav.querySelector('.nav-tab.active'));
 });
 </script>
 
