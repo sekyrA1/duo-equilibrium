@@ -356,10 +356,8 @@
   .models-carousel { position: relative; max-width: 1152px; margin: 0 auto; }
   .carousel-swiper { overflow: hidden; padding: 16px 8px 30px; margin: -16px -8px 0; perspective: 1400px; }
   .carousel-swiper .swiper-wrapper { align-items: stretch; }
-  .carousel-swiper .swiper-slide { height: auto; transform: perspective(1100px) rotateY(-1.8deg) translateZ(0); transition: transform .4s ease, filter .4s ease; backface-visibility: hidden; }
-  .carousel-swiper .swiper-slide:nth-child(2) { transform: perspective(1100px) translateZ(22px); }
-  .carousel-swiper .swiper-slide:nth-child(3) { transform: perspective(1100px) rotateY(1.8deg) translateZ(0); }
-  .carousel-swiper .swiper-slide:hover { transform: perspective(1100px) translateY(-7px) translateZ(28px) rotateY(0); z-index: 2; }
+  .carousel-swiper .swiper-slide { height: auto; transition: filter .35s ease; backface-visibility: hidden; }
+  .carousel-swiper .swiper-slide:hover { z-index: 2; }
   .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; }
   .carousel-arrow { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; cursor: pointer; border: 1px solid rgba(187,23,34,.18); background: rgba(255,255,255,.78); color: var(--accent); font-size: 1.25rem; box-shadow: 0 8px 22px rgba(16,20,60,.08); transition: .25s ease; }
   .carousel-arrow:hover:not(:disabled) { background: var(--accent); color: #fff; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(187,23,34,.24); }
@@ -370,14 +368,12 @@
   .carousel-progress span { display: block; width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), #ef545d); transition: width .55s cubic-bezier(.2,.8,.2,1); }
 
   .model-card {
-    background: linear-gradient(145deg, rgba(255,255,255,.68), rgba(255,255,255,.32));
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    overflow: hidden;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
     padding: 0;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -385,15 +381,15 @@
     transform: none;
   }
   .model-card { backface-visibility: hidden; }
-  .model-card:hover { box-shadow: 0 24px 50px rgba(44, 55, 108, .18); }
+  .model-card:hover { box-shadow: none; }
   .models-carousel.is-visible .model-card { animation: cardEntrance .65s cubic-bezier(.2,.8,.2,1); }
   .models-carousel.is-visible .model-card:nth-child(2) { animation-delay: .12s; }
   .models-carousel.is-visible .model-card:nth-child(3) { animation-delay: .24s; }
   @keyframes cardEntrance { from { opacity: 0; transform: translateY(36px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-  .model-image-wrap { height: 470px; overflow: hidden; background: radial-gradient(circle at center, #fff 0%, #f7f3ef 72%); }
+  .model-image-wrap { height: 430px; overflow: hidden; border-radius: 20px; background: radial-gradient(circle at center, #fff 0%, #f7f3ef 72%); box-shadow: 0 18px 40px rgba(16,20,60,.13); }
   .model-image { width: 100%; height: 100%; display: block; object-fit: contain; padding: 4px; transition: transform .6s ease; }
   .model-card:hover .model-image { transform: scale(1.05); }
-  .model-card > div:not(.model-image-wrap) { padding: 16px 22px 20px; display: flex; flex: 1; flex-direction: column; }
+  .model-card > div:not(.model-image-wrap) { padding: 16px 10px 20px; display: flex; flex: 1; flex-direction: column; }
   .model-card .model-foot { margin-top: auto; padding: 12px 0 0; }
   .model-content { padding: 24px 26px 26px; display: flex; flex: 1; flex-direction: column; }
 
@@ -558,6 +554,7 @@
       <span class="nav-indicator" aria-hidden="true"></span>
       <a href="#inicio" class="nav-tab active">Início</a>
       <a href="#modelos" class="nav-tab">Modelos</a>
+      <a href="#mocho-sela" class="nav-tab">Por que mocho sela?</a>
       <a href="#diferenciais" class="nav-tab">Diferenciais</a>
     </div>
   </nav>
@@ -674,11 +671,26 @@
           <a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Compact%20Minimal.">Pedir no WhatsApp</a>
         </div>
       </article>
+      <article class="swiper-slide model-card">
+        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-clinico-pro.png" alt="Mocho Sela Flex azul"></div>
+        <div><div class="model-icon">◒</div><h3 class="model-title">Mocho Sela Flex</h3><p class="model-desc">Assento sela para uma rotina mais ativa, com ajuste pensado para procedimentos de precisão.</p><ul class="model-specs"><li>Formato sela ergonômico</li><li>Pistão com ajuste de altura</li></ul></div>
+        <div class="model-foot"><div class="model-price">A partir de<b>R$ 189,90</b><div class="installments">3x de R$ 63,30 sem juros</div></div><a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Sela%20Flex.">Pedir no WhatsApp</a></div>
+      </article>
+      <article class="swiper-slide model-card">
+        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-studio-executivo.png" alt="Mocho Estética Balance grafite"></div>
+        <div><div class="model-icon">✦</div><h3 class="model-title">Mocho Estética Balance</h3><p class="model-desc">Perfil minimalista para estética e clínicas, com mobilidade suave e acabamento resistente.</p><ul class="model-specs"><li>Base com rodízios silenciosos</li><li>Espuma de alta densidade</li></ul></div>
+        <div class="model-foot"><div class="model-price">A partir de<b>R$ 154,90</b><div class="installments">3x de R$ 51,63 sem juros</div></div><a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Estética%20Balance.">Pedir no WhatsApp</a></div>
+      </article>
+      <article class="swiper-slide model-card">
+        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-compact-minimal.png" alt="Mocho Madeira Essencial"></div>
+        <div><div class="model-icon">⌁</div><h3 class="model-title">Mocho Madeira Essencial</h3><p class="model-desc">Uma variação compacta em madeira para compor recepções, ateliês e espaços autorais.</p><ul class="model-specs"><li>Madeira natural selecionada</li><li>Base estável de três apoios</li></ul></div>
+        <div class="model-foot"><div class="model-price">A partir de<b>R$ 119,90</b><div class="installments">3x de R$ 39,97 sem juros</div></div><a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Madeira%20Essencial.">Pedir no WhatsApp</a></div>
+      </article>
         </div>
       </div>
       <div class="carousel-controls">
         <button class="carousel-arrow" type="button" data-carousel="prev" aria-label="Modelo anterior">&#8592;</button>
-        <div class="carousel-status" aria-live="polite"><strong id="carouselCurrent">01</strong><span>/ 03</span><div class="carousel-progress" aria-hidden="true"><span></span></div></div>
+        <div class="carousel-status" aria-live="polite"><strong id="carouselCurrent">01</strong><span>/ <span id="carouselTotal">06</span></span><div class="carousel-progress" aria-hidden="true"><span></span></div></div>
         <button class="carousel-arrow" type="button" data-carousel="next" aria-label="Próximo modelo">&#8594;</button>
       </div>
     </div>
@@ -871,12 +883,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const previousButton = document.querySelector('[data-carousel="prev"]');
   const nextButton = document.querySelector('[data-carousel="next"]');
   const carouselCurrent = document.getElementById('carouselCurrent');
+  const carouselTotal = document.getElementById('carouselTotal');
   const carouselProgress = document.querySelector('.carousel-progress span');
   const carousel = new Swiper('.carousel-swiper', {
     slidesPerView: 1.08,
     spaceBetween: 16,
     speed: 650,
     grabCursor: true,
+    effect: 'coverflow',
+    centeredSlides: true,
+    coverflowEffect: { rotate: 16, stretch: 0, depth: 130, modifier: 1, slideShadows: false },
     navigation: { prevEl: previousButton, nextEl: nextButton },
     a11y: { enabled: true },
     breakpoints: {
@@ -889,6 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginas = Math.max(1, Math.ceil(total / carousel.params.slidesPerView));
     const pagina = Math.min(paginas, Math.floor(carousel.activeIndex / carousel.params.slidesPerView) + 1);
     carouselCurrent.textContent = String(pagina).padStart(2, '0');
+    carouselTotal.textContent = String(total).padStart(2, '0');
     carouselProgress.style.width = `${(pagina / paginas) * 100}%`;
   }
   carousel.on('init slideChange resize', atualizarStatusCarrossel);

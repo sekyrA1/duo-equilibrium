@@ -481,51 +481,21 @@
         </template>
 
         <div class="config-steps" aria-label="Etapas de configuração">
-          <span><b>01</b> Estrutura</span>
-          <span><b>02</b> Acabamento</span>
-          <span><b>03</b> Complementos</span>
+          <span><b>01</b> Espuma</span>
+          <span><b>02</b> Pistão</span>
+          <span><b>03</b> Modelo sela</span>
         </div>
 
         <div class="config-panel">
-          <div class="panel-heading"><span>01</span><div><h3>Estrutura</h3><p>Escolhas fundamentais do modelo.</p></div></div>
+          <div class="panel-heading"><span>01</span><div><h3>Configuração de fábrica</h3><p>Use somente as especificações técnicas que já constam no pedido.</p></div></div>
           <div class="grid cols-2">
-            <div class="field"><label>Tamanho</label><div class="opt-group" id="tamanhoGroup"></div></div>
-            <div class="field"><label>Back (encosto)</label><div class="opt-group" id="backGroup"></div></div>
-            <div class="field"><label>Material do assento</label><div class="opt-group" id="materialGroup"></div></div>
-            <div class="field"><label>Tipo de base</label><div class="opt-group" id="baseGroup"></div></div>
-          </div>
-          <div class="grid cols-2 extra-controls">
-            <div class="field range-control"><label for="backAngle">Inclinação do back</label><output class="range-value" id="backAngleValue">0°</output><input id="backAngle" type="range" min="-20" max="25" value="0" step="1"></div>
-            <div class="field range-control"><label for="baseHeight">Altura expansível da base</label><output class="range-value" id="baseHeightValue">60 cm</output><input id="baseHeight" type="range" min="45" max="90" value="60" step="1"></div>
-          </div>
-          <div class="divider"></div>
-          <div class="panel-heading"><span>✓</span><div><h3>Especificações de fábrica</h3><p>Estes dados são vinculados diretamente ao pedido e à exportação.</p></div></div>
-          <div class="grid cols-2" style="margin-top:14px;">
             <div class="field"><label for="configEspessura">Espessura da espuma</label><select id="configEspessura"><option value="">Não informado</option><option value="3 cm">3 cm</option><option value="5 cm">5 cm</option></select></div>
             <div class="field"><label for="configPistao">Pistão</label><select id="configPistao"><option value="">Não informado</option><option value="P">P</option><option value="M">M</option></select></div>
             <div class="field"><label for="configSela">Modelo sela</label><select id="configSela"><option value="0">Não</option><option value="1">Sim</option></select></div>
             <div class="field"><label for="configLinhaSoft">Linha de espuma</label><select id="configLinhaSoft"><option value="">Padrão</option><option value="Soft">Soft</option><option value="Soft Plus">Soft Plus</option></select></div>
-          </div>
-        </div>
-
-        <div class="config-panel">
-          <div class="panel-heading"><span>02</span><div><h3>Acabamento</h3><p>Cores e quantidade de unidades.</p></div></div>
-          <div class="grid cols-3">
-            <div class="field"><label for="corAssento">Cor do assento</label><select id="corAssento"></select></div>
-            <div class="field"><label for="corEstrutura">Cor da estrutura</label><select id="corEstrutura"></select></div>
             <div class="field"><label for="qtd">Quantidade</label><input id="qtd" type="number" value="1" min="1" step="1"></div>
           </div>
-        </div>
-
-        <div class="config-panel config-panel-extras">
-          <div class="panel-heading"><span>03</span><div><h3>Complementos</h3><p>Ajustes ergonômicos e funcionais.</p></div></div>
-          <div class="field accessory-options"><label>Acessórios adicionais</label><div class="opt-group" id="acessoriosGroup"></div></div>
-          <div class="grid cols-3 extra-controls">
-            <div class="field"><label for="opcao-rodinhas">Rodízios</label><select id="opcao-rodinhas"><option value="0">Sem rodízios</option><option value="1">Com rodízios (+R$ 25,00)</option></select></div>
-            <div class="field"><label for="opcao-altura">Altura ajustável</label><select id="opcao-altura"><option value="0">Fixa</option><option value="1">Pneumática (+R$ 40,00)</option></select></div>
-            <div class="field"><label for="opcao-lombar">Apoio lombar</label><select id="opcao-lombar"><option value="0">Sem apoio lombar</option><option value="1">Com apoio lombar (+R$ 15,00)</option></select></div>
-          </div>
-          <div class="field config-note"><label for="observacoes">Observações de fabricação</label><textarea id="observacoes" placeholder="Especifique personalizações de bordado, medidas especiais ou detalhes de montagem..."></textarea></div>
+          <div class="field config-note"><label for="observacoes">Observações de fabricação</label><textarea id="observacoes" placeholder="Informações complementares da configuração do mocho..."></textarea></div>
         </div>
 
         <div class="config-actions">
@@ -960,6 +930,38 @@ function atualizarMocho3D() {
   document.getElementById('viewerLabel').textContent = `${nomeOpt(material, CONFIG.materiais)} · ${corAssento} · ${alturaBase} cm`;
 }
 
+function atualizarMocho3D() {
+  if (!mocho3D) return;
+  const especificacoes = especificacoesConfiguradas();
+  const ehSela = especificacoes.sela === 'Sim';
+  const espumaAlta = especificacoes.espuma === '5 cm';
+  const acabamentoSoft = especificacoes.linha === 'Soft' || especificacoes.linha === 'Soft Plus';
+  const corAssento = acabamentoSoft ? 0x162b52 : 0x41454f;
+  const estrutura = new THREE.MeshStandardMaterial({ color: especificacoes.pistao === 'M' ? 0xaeb7c3 : 0x4a5261, metalness: .72, roughness: .25 });
+
+  if (mocho3D.formatoSela !== ehSela) {
+    mocho3D.seat.geometry.dispose();
+    mocho3D.seat.geometry = ehSela ? new THREE.SphereGeometry(1.45, 48, 32) : new THREE.CylinderGeometry(1.48, 1.58, .34, 48);
+    mocho3D.formatoSela = ehSela;
+  }
+  mocho3D.seat.scale.set(ehSela ? 1.12 : 1, ehSela ? (espumaAlta ? .42 : .32) : (espumaAlta ? 1.22 : 1), ehSela ? .78 : 1);
+  mocho3D.seat.position.y = 1.25;
+  mocho3D.seat.material.color.setHex(corAssento);
+  mocho3D.seat.material.roughness = acabamentoSoft ? .32 : .58;
+  mocho3D.seatEdge.material.color.setHex(corAssento);
+  mocho3D.column.material = estrutura;
+  mocho3D.column.scale.y = especificacoes.pistao === 'M' ? 1.16 : 1;
+  mocho3D.column.position.y = especificacoes.pistao === 'M' ? .12 : -.05;
+
+  limparGrupo3D(mocho3D.back); limparGrupo3D(mocho3D.base); limparGrupo3D(mocho3D.extras);
+  for (let i = 0; i < 5; i++) {
+    const angulo = i * Math.PI * 2 / 5;
+    mesh(new THREE.BoxGeometry(.18, .14, 1.45), estrutura, mocho3D.base, [Math.sin(angulo) * .72, -1.28, Math.cos(angulo) * .72], [0, angulo, 0]);
+    mesh(new THREE.SphereGeometry(.18, 16, 12), new THREE.MeshStandardMaterial({ color: 0x20242b, roughness: .55 }), mocho3D.base, [Math.sin(angulo) * 1.45, -1.52, Math.cos(angulo) * 1.45]);
+  }
+  document.getElementById('viewerLabel').textContent = `Mocho ${ehSela ? 'sela' : 'tradicional'} · espuma ${especificacoes.espuma} · pistão ${especificacoes.pistao}`;
+}
+
 function renderMocho3D() {
   if (!mocho3D) return;
   const host = document.getElementById('mochoViewer');
@@ -978,26 +980,12 @@ function renderMocho3D() {
    ITENS
    ============================================================ */
 function calcularPrecoUnitario() {
-  const tam = getSelected('tamanhoGroup');
-  const back = getSelected('backGroup');
-  const mat = getSelected('materialGroup');
-  const base = getSelected('baseGroup');
-  const aces = getCheckedAcessorios();
-  const rodinhas = document.getElementById('opcao-rodinhas').value === '1' ? 25 : 0;
-  const altura = document.getElementById('opcao-altura').value === '1' ? 40 : 0;
-  const lombar = document.getElementById('opcao-lombar').value === '1' ? 15 : 0;
-
-  let total = 0;
-  total += precoOpt(tam, CONFIG.tamanhos);
-  total += precoOpt(back, CONFIG.backs);
-  total += precoOpt(mat, CONFIG.materiais);
-  total += precoOpt(base, CONFIG.bases);
-  aces.forEach(a => total += precoOpt(a, CONFIG.acessorios));
-  total += rodinhas + altura + lombar;
-  return total;
+  const quantidade = Math.max(1, parseInt(document.getElementById('qtd')?.value, 10) || 1);
+  return (parseFloat(document.getElementById('valorRecebido')?.value) || 0) / quantidade;
 }
 
 function addItem() {
+  return adicionarItemConfigurado();
   sincronizarConfiguracaoComPedido('config');
   const tam = getSelected('tamanhoGroup');
   const back = getSelected('backGroup');
@@ -1053,6 +1041,34 @@ function addItem() {
   toast('Item adicionado ao pedido!');
 }
 
+function adicionarItemConfigurado() {
+  sincronizarConfiguracaoComPedido('config');
+  const especificacoes = especificacoesConfiguradas();
+  const qtd = Math.max(1, parseInt(document.getElementById('qtd').value, 10) || 1);
+  const obs = document.getElementById('observacoes').value.trim();
+  const detalhes = [
+    `Espuma: ${especificacoes.espuma}`,
+    `Pistão: ${especificacoes.pistao}`,
+    `M. sela: ${especificacoes.sela}`,
+    `Linha de espuma: ${especificacoes.linha}`
+  ];
+  if (obs) detalhes.push(`Obs: ${obs}`);
+  const unitario = calcularPrecoUnitario();
+  const configuracao = `Espuma ${especificacoes.espuma} · Pistão ${especificacoes.pistao} · M. sela ${especificacoes.sela} · Linha ${especificacoes.linha}`;
+  itens.push({
+    id: ++itemCounter,
+    descricao: `Mocho ${especificacoes.sela === 'Sim' ? 'Sela' : 'Tradicional'}`,
+    detalhes: detalhes.join('; '),
+    configuracao,
+    qtd,
+    unitario,
+    subtotal: unitario * qtd
+  });
+  renderTabela();
+  limparConfig();
+  toast('Item configurado e adicionado ao pedido!');
+}
+
 function removeItem(id) {
   itens = itens.filter(i => i.id !== id);
   renderTabela();
@@ -1060,6 +1076,11 @@ function removeItem(id) {
 }
 
 function limparConfig() {
+  document.getElementById('qtd').value = 1;
+  document.getElementById('observacoes').value = '';
+  sincronizarConfiguracaoComPedido('pedido');
+  atualizarMocho3D();
+  return;
   ['tamanhoGroup', 'backGroup', 'materialGroup', 'baseGroup'].forEach(id => {
     const first = document.querySelector(`#${id} input`);
     if (first) first.checked = true;
@@ -1220,9 +1241,13 @@ function exportarPdfFabrica() {
 
   doc.setDrawColor(12, 16, 24); doc.setLineWidth(.8); doc.rect(margem, 10, largura, 277);
   doc.setLineWidth(.35);
-  doc.circle(28, 25, 11); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text('de', 21.4, 28.5);
-  doc.setFontSize(13); doc.text('DUO EQUILIBRIUM', 43, 25);
-  doc.setFontSize(7.5); doc.text('SOLUÇÕES ERGONÔMICAS', 43, 31);
+  const logoPdf = document.querySelector('.brand-logo-img');
+  if (logoPdf?.complete && logoPdf.naturalWidth) {
+    doc.addImage(logoPdf, 'PNG', 15, 12, 45, 32);
+  } else {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text('DUO EQUILIBRIUM', 15, 24);
+    doc.setFontSize(7.5); doc.text('SOLUÇÕES ERGONÔMICAS', 15, 30);
+  }
   doc.setFontSize(18); doc.text('Pedido de Fábrica', 194, 25, { align: 'right' });
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
   doc.text('CNPJ: 12.656.204/0001-64', 194, 31, { align: 'right' });
@@ -1554,13 +1579,6 @@ function toast(msg) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  buildRadio('tamanhoGroup', CONFIG.tamanhos, 'tamanho');
-  buildRadio('backGroup', CONFIG.backs, 'back');
-  buildRadio('materialGroup', CONFIG.materiais, 'material');
-  buildRadio('baseGroup', CONFIG.bases, 'base');
-  buildChecks('acessoriosGroup', 'acessorio');
-  buildSelect('corAssento', CONFIG.coresAssento);
-  buildSelect('corEstrutura', CONFIG.coresEstrutura);
   document.getElementById('data').value = new Date().toISOString().split('T')[0];
   sincronizarConfiguracaoComPedido('pedido');
   Object.keys(VINCULOS_CONFIGURACAO).forEach(id => document.getElementById(id).addEventListener('change', () => sincronizarConfiguracaoComPedido('config')));
@@ -1568,7 +1586,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   iniciarMocho3D();
   document.querySelector('.configurator').addEventListener('change', atualizarMocho3D);
-  ['backAngle', 'baseHeight'].forEach(id => document.getElementById(id).addEventListener('input', atualizarMocho3D));
 
   document.getElementById('btnAdd').addEventListener('click', addItem);
   document.getElementById('btnLimparConfig').addEventListener('click', limparConfig);
