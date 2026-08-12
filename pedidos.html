@@ -12,6 +12,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --ink: #10143c;
@@ -37,6 +38,25 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
+  body.dashboard-dark { --ink: #f5f6ff; --ink-soft: #c6cae6; --muted: #9097bc; --glass: rgba(23, 25, 54, .82); --glass-strong: rgba(28, 31, 65, .93); --glass-border: rgba(161, 171, 230, .15); --bg: #080a16; --accent: #c51c2a; --accent-hover: #eb3b49; --accent-soft: rgba(197,28,42,.16); --success: #37c982; --shadow: 0 20px 50px rgba(0,0,0,.31), inset 0 1px 0 rgba(255,255,255,.035); background: radial-gradient(circle at 85% 0%, rgba(61,55,143,.23), transparent 31%), radial-gradient(circle at 10% 84%, rgba(197,28,42,.13), transparent 28%), #080a16; }
+  body.dashboard-dark::before { background: rgba(95,80,205,.15); }
+  body.dashboard-dark::after { background: rgba(197,28,42,.1); }
+  body.dashboard-dark .topbar { background: rgba(10, 12, 28, .86); border-color: rgba(171,178,230,.12); }
+  body.dashboard-dark .brand { padding: 3px 7px; border-radius: 10px; background: rgba(255,255,255,.94); }
+  body.dashboard-dark .brand-logo-img { mix-blend-mode: normal; }
+  body.dashboard-dark .nav-tabs, body.dashboard-dark .badge { background: rgba(255,255,255,.035); border-color: rgba(171,178,230,.12); }
+  body.dashboard-dark .nav-tab { color: var(--muted); }
+  body.dashboard-dark .nav-tab.active { color: #fff; background: var(--accent); }
+  body.dashboard-dark .card, body.dashboard-dark .metric-card { background: linear-gradient(145deg, rgba(28,31,65,.86), rgba(17,19,42,.76)); border-color: rgba(161,171,230,.13); }
+  body.dashboard-dark input, body.dashboard-dark select, body.dashboard-dark textarea { background: rgba(4,6,18,.42); color: var(--ink); border-color: rgba(161,171,230,.14); }
+  body.dashboard-dark input:hover, body.dashboard-dark select:hover, body.dashboard-dark textarea:hover { background: rgba(4,6,18,.66); border-color: rgba(161,171,230,.28); }
+  body.dashboard-dark .btn-outline, body.dashboard-dark .btn-ghost { color: var(--ink-soft); background: rgba(255,255,255,.035); border-color: rgba(161,171,230,.16); }
+  body.dashboard-dark .fabrication-spec, body.dashboard-dark .historico-item, body.dashboard-dark .history-detail { background: rgba(6,8,23,.37); border-color: rgba(161,171,230,.12); }
+  body.dashboard-dark .configurator-head { background: linear-gradient(120deg, rgba(61,55,143,.32), rgba(197,28,42,.12)); border-color: rgba(161,171,230,.14); }
+  body.dashboard-dark .config-panel { background: rgba(6,8,23,.23); border-color: rgba(161,171,230,.12); }
+  body.dashboard-dark .config-steps { border-color: rgba(161,171,230,.12); }
+  body.dashboard-dark .history-dialog { background: #151837; }
+  body.dashboard-dark .empty-state { border-color: rgba(161,171,230,.2); background: rgba(6,8,23,.24); }
   body::before, body::after {
     content: '';
     position: fixed;
@@ -114,7 +134,22 @@
     font-weight: 600;
   }
 
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 56px; }
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 24px 28px 56px; }
+  .dashboard-shell { display: grid; grid-template-columns: 238px minmax(0, 1fr); gap: 24px; align-items: start; }
+  .dashboard-sidebar { position: sticky; top: 92px; padding: 14px; border: 1px solid rgba(161,171,230,.13); border-radius: 18px; background: linear-gradient(160deg, rgba(28,31,65,.9), rgba(15,17,38,.82)); box-shadow: var(--shadow); }
+  .dashboard-sidebar-label { padding: 8px 10px 12px; color: var(--muted); font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+  .dashboard-menu { display: flex; flex-direction: column; gap: 5px; }
+  .dashboard-menu button { display: flex; align-items: center; gap: 11px; width: 100%; padding: 11px 10px; border: 0; border-radius: 10px; cursor: pointer; color: var(--muted); background: transparent; font: inherit; font-size: .83rem; font-weight: 650; text-align: left; transition: .2s ease; }
+  .dashboard-menu button span { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 8px; background: rgba(255,255,255,.06); color: #c9cdef; font-size: .77rem; }
+  .dashboard-menu button:hover { color: #fff; background: rgba(255,255,255,.055); }
+  .dashboard-menu button.active { color: #fff; background: linear-gradient(90deg, rgba(197,28,42,.26), rgba(197,28,42,.08)); box-shadow: inset 3px 0 0 var(--accent); }
+  .dashboard-menu button.active span { color: #fff; background: var(--accent); }
+  .dashboard-sidebar-note { margin-top: 18px; padding: 12px; border-radius: 12px; background: rgba(197,28,42,.1); color: #d9dcef; font-size: .7rem; line-height: 1.5; }
+  .dashboard-sidebar-note strong { display: block; color: #fff; margin-bottom: 3px; font-size: .75rem; }
+  .dashboard-workspace { min-width: 0; }
+  .dashboard-page { animation: dashboardPageIn .35s ease both; }
+  .dashboard-page[hidden] { display: none; }
+  @keyframes dashboardPageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
   /* ---------- LAYOUT ---------- */
   .layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(340px, .9fr); gap: 22px; align-items: start; }
@@ -144,6 +179,39 @@
     display: grid; place-items: center; font-size: .85rem;
   }
   .card-sub { font-size: .84rem; color: var(--muted); margin-bottom: 22px; }
+  .dashboard-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+  .dashboard-kicker { color: var(--accent); font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+  .dashboard-head h1 { margin-top: 5px; font-size: clamp(1.45rem, 3vw, 2rem); letter-spacing: -.8px; }
+  .dashboard-head p { margin-top: 5px; color: var(--muted); font-size: .86rem; }
+  .dashboard-sync { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border-radius: 999px; color: var(--success); background: rgba(21,115,71,.08); font-size: .74rem; font-weight: 700; white-space: nowrap; }
+  .dashboard-sync::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 4px rgba(21,115,71,.1); }
+  .dashboard-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .metric-card { padding: 16px; border: 1px solid rgba(255,255,255,.65); border-radius: 14px; background: linear-gradient(145deg, rgba(255,255,255,.68), rgba(255,255,255,.27)); box-shadow: 0 10px 24px rgba(16,20,60,.06); }
+  .metric-card small { display: block; color: var(--muted); font-size: .67rem; font-weight: 750; letter-spacing: .45px; text-transform: uppercase; }
+  .metric-card strong { display: block; margin-top: 8px; color: var(--ink); font-size: 1.14rem; letter-spacing: -.45px; }
+  .metric-card em { display: block; margin-top: 5px; color: var(--success); font-style: normal; font-size: .7rem; font-weight: 700; }
+  .dashboard-chart-card { padding: 22px; min-height: 340px; }
+  .dashboard-chart-card canvas { width: 100% !important; height: 250px !important; margin-top: 15px; }
+  .historico-lista { display: flex; flex-direction: column; gap: 10px; }
+  .historico-item { padding: 13px; border: 1px solid rgba(16,20,60,.08); border-radius: 13px; background: rgba(255,255,255,.42); }
+  .historico-topo { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .historico-item strong { display: block; font-size: .82rem; }
+  .historico-item span { display: block; margin-top: 3px; color: var(--muted); font-size: .72rem; line-height: 1.35; }
+  .status-pedido { flex: none; padding: 4px 7px; border-radius: 999px; color: var(--success); background: rgba(21,115,71,.1); font-size: .62rem; font-weight: 800; text-transform: uppercase; }
+  .status-pedido.producao { color: #a46300; background: rgba(204,126,0,.12); }
+  .historico-valor { margin-top: 10px; color: var(--ink); font-size: .86rem; font-weight: 800; }
+  .historico-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 11px; }
+  .historico-acoes .btn { padding: 8px 9px; justify-content: center; font-size: .73rem; }
+  .history-dialog { width: min(480px, calc(100vw - 32px)); border: 0; border-radius: 18px; padding: 0; color: var(--ink); background: #f8f9ff; box-shadow: 0 28px 70px rgba(16,20,60,.32); }
+  .history-dialog::backdrop { background: rgba(16,20,60,.45); backdrop-filter: blur(4px); }
+  .history-dialog-content { padding: 24px; }
+  .history-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .history-dialog-header h2 { font-size: 1.2rem; }
+  .history-dialog-close { width: 34px; height: 34px; padding: 0; font-size: 1.1rem; }
+  .history-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
+  .history-detail { padding: 11px; border-radius: 10px; background: #fff; border: 1px solid rgba(16,20,60,.08); }
+  .history-detail small { display: block; color: var(--muted); font-size: .62rem; font-weight: 800; text-transform: uppercase; }
+  .history-detail strong { display: block; margin-top: 5px; font-size: .82rem; }
 
   .grid { display: grid; gap: 12px; }
   .cols-2 { grid-template-columns: 1fr 1fr; }
@@ -263,6 +331,7 @@
 
   /* ---------- CONFIGURADOR ---------- */
   .configurator { padding: 0; overflow: hidden; }
+  .card .configurator { margin: 24px -24px -24px; border-top: 1px solid var(--glass-border); }
   .configurator-head {
     min-height: 140px; padding: 26px 28px;
     display: flex; align-items: center; justify-content: space-between; gap: 24px;
@@ -287,6 +356,12 @@
   .panel-heading > span { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; color: var(--accent); background: rgba(255,255,255,.65); font-size: .68rem; font-weight: 800; }
   .panel-heading h3 { font-size: .92rem; letter-spacing: -.1px; font-weight: 700; }
   .panel-heading p { margin-top: 1px; color: var(--muted); font-size: .76rem; }
+  .fabrication-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .fabrication-spec { min-height: 74px; padding: 12px; border: 1px solid rgba(16,20,60,.08); border-radius: 12px; background: rgba(255,255,255,.52); }
+  .fabrication-spec small { display: block; color: var(--muted); font-size: .62rem; font-weight: 800; letter-spacing: .65px; text-transform: uppercase; }
+  .fabrication-spec strong { display: block; margin-top: 7px; color: var(--ink); font-size: .88rem; }
+  .fabrication-edit { width: 100%; margin-top: 12px; justify-content: center; }
+  .config-item-meta { display: grid; grid-template-columns: minmax(180px, .5fr) 1fr; gap: 12px; margin-top: 16px; }
   .config-panel-extras { margin-bottom: 0; }
   .accessory-options { padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.44); }
   .extra-controls { padding-top: 16px; }
@@ -356,6 +431,10 @@
 
   /* ---------- RESPONSIVO ---------- */
   @media (max-width: 960px) {
+    .dashboard-shell { grid-template-columns: 1fr; }
+    .dashboard-sidebar { position: static; display: flex; gap: 12px; align-items: center; overflow-x: auto; }
+    .dashboard-sidebar-label, .dashboard-sidebar-note { display: none; }
+    .dashboard-menu { flex-direction: row; min-width: max-content; }
     .layout { grid-template-columns: 1fr; }
     .right-col { position: static; }
     .cols-4 { grid-template-columns: 1fr 1fr; }
@@ -369,12 +448,16 @@
     .config-steps { padding: 12px 16px; gap: 8px; justify-content: space-between; }
     .config-steps span { font-size: .65rem; }
     .config-panel { margin: 12px 12px 0; padding: 15px; }
+    .fabrication-summary { grid-template-columns: 1fr 1fr; }
+    .config-item-meta { grid-template-columns: 1fr; }
     .config-actions { grid-template-columns: 1fr; margin: 14px; }
+    .dashboard-head { align-items: flex-start; flex-direction: column; }
+    .dashboard-metrics { grid-template-columns: 1fr 1fr; }
     .mocho-viewer { top: 76px; right: 12px; width: calc(100vw - 24px); height: 360px; min-width: 0; resize: vertical; }
   }
 </style>
 </head>
-<body>
+<body class="dashboard-dark">
 
 <div class="topbar">
   <a href="index.html" class="brand">
@@ -393,7 +476,43 @@
   </div>
 </div>
 
-<main class="wrap">
+<main class="wrap dashboard-shell">
+  <aside class="dashboard-sidebar" aria-label="Navegação do painel">
+    <div class="dashboard-sidebar-label">Duo Equilibrium</div>
+    <nav class="dashboard-menu">
+      <button class="active" type="button" data-dashboard-nav="visao"><span>◈</span>Visão geral</button>
+      <button type="button" data-dashboard-nav="novo"><span>＋</span>Novo pedido</button>
+      <button type="button" data-dashboard-nav="historico"><span>◷</span>Pedidos anteriores</button>
+    </nav>
+    <div class="dashboard-sidebar-note"><strong>Operação online</strong>Histórico demonstrativo e exportações prontos para consulta.</div>
+  </aside>
+  <div class="dashboard-workspace">
+  <section class="dashboard-page" data-dashboard-page="visao" aria-label="Visão geral do painel">
+  <section class="dashboard-head">
+    <div>
+      <div class="dashboard-kicker">Operação comercial</div>
+      <h1>Painel de pedidos</h1>
+      <p>Crie, acompanhe e exporte pedidos de fabricação em um só lugar.</p>
+    </div>
+    <span class="dashboard-sync">Dados simulados sincronizados</span>
+  </section>
+  <section class="dashboard-metrics" aria-label="Indicadores dos pedidos">
+    <article class="metric-card"><small>Pedidos no mês</small><strong id="metricPedidos">24</strong><em>+18% vs. mês anterior</em></article>
+    <article class="metric-card"><small>Em produção</small><strong id="metricProducao">06</strong><em>Prazo médio: 7 dias</em></article>
+    <article class="metric-card"><small>Faturamento</small><strong id="metricFaturamento">R$ 18.490</strong><em>Pedidos confirmados</em></article>
+    <article class="metric-card"><small>Ticket médio</small><strong id="metricTicket">R$ 770</strong><em>Base: últimos pedidos</em></article>
+  </section>
+  <section class="card dashboard-chart-card" aria-labelledby="graficoPedidosTitulo">
+    <div class="card-title" id="graficoPedidosTitulo"><span class="ico">↗</span> Evolução de pedidos</div>
+    <p class="card-sub">Faturamento confirmado e em produção nos últimos seis meses.</p>
+    <canvas id="graficoPedidos" aria-label="Gráfico de evolução de pedidos"></canvas>
+  </section>
+  </section>
+  <section class="dashboard-page" data-dashboard-page="novo" hidden aria-label="Novo pedido">
+  <div class="dashboard-head">
+    <div><div class="dashboard-kicker">Novo registro</div><h1>Criar pedido de fábrica</h1><p>Complete os dados, defina a fabricação uma vez e adicione os itens ao pedido.</p></div>
+    <span class="dashboard-sync">Rascunho ativo</span>
+  </div>
   <div class="layout">
 
     <!-- ================= COLUNA ESQUERDA ================= -->
@@ -441,7 +560,7 @@
           <div class="field"><label for="peso">Peso do cliente</label><input id="peso" type="text" placeholder="Ex.: 72 kg"></div>
         </div>
         <div class="divider"></div>
-        <div class="section-label">Fabricação, pagamento e assinaturas</div>
+        <div class="section-label" id="dadosFabricacao">Fabricação, pagamento e assinaturas</div>
         <div class="grid cols-3">
           <div class="field"><label for="valorRecebido">Valor recebido (R$)</label><input id="valorRecebido" type="number" min="0" step="0.01" value="0"></div>
           <div class="field"><label for="parcelas">Nº de parcelas</label><input id="parcelas" type="number" min="1" step="1" value="1"></div>
@@ -454,10 +573,9 @@
           <div class="field"><label for="linhaSoft">Linha de espuma</label><select id="linhaSoft"><option value="">Padrão</option><option value="Soft">Soft</option><option value="Soft Plus">Soft Plus</option></select></div>
         </div>
         <div class="field config-note"><label for="observacoesPedido">Observações gerais do pedido</label><textarea id="observacoesPedido" placeholder="Informações adicionais para a fábrica, entrega ou pagamento..."></textarea></div>
-      </section>
 
       <!-- CONFIGURAÇÃO DO MOCHO -->
-      <section class="card configurator">
+      <div class="configurator">
         <div class="configurator-head">
           <div>
             <div class="eyebrow">Novo item personalizado</div>
@@ -480,19 +598,9 @@
           </div>
         </template>
 
-        <div class="config-steps" aria-label="Etapas de configuração">
-          <span><b>01</b> Espuma</span>
-          <span><b>02</b> Pistão</span>
-          <span><b>03</b> Modelo sela</span>
-        </div>
-
         <div class="config-panel">
-          <div class="panel-heading"><span>01</span><div><h3>Configuração de fábrica</h3><p>Use somente as especificações técnicas que já constam no pedido.</p></div></div>
-          <div class="grid cols-2">
-            <div class="field"><label for="configEspessura">Espessura da espuma</label><select id="configEspessura"><option value="">Não informado</option><option value="3 cm">3 cm</option><option value="5 cm">5 cm</option></select></div>
-            <div class="field"><label for="configPistao">Pistão</label><select id="configPistao"><option value="">Não informado</option><option value="P">P</option><option value="M">M</option></select></div>
-            <div class="field"><label for="configSela">Modelo sela</label><select id="configSela"><option value="0">Não</option><option value="1">Sim</option></select></div>
-            <div class="field"><label for="configLinhaSoft">Linha de espuma</label><select id="configLinhaSoft"><option value="">Padrão</option><option value="Soft">Soft</option><option value="Soft Plus">Soft Plus</option></select></div>
+          <div class="panel-heading"><span>01</span><div><h3>Item do pedido</h3><p>As especificações do mocho já foram definidas na seção de fabricação acima.</p></div></div>
+          <div class="config-item-meta">
             <div class="field"><label for="qtd">Quantidade</label><input id="qtd" type="number" value="1" min="1" step="1"></div>
           </div>
           <div class="field config-note"><label for="observacoes">Observações de fabricação</label><textarea id="observacoes" placeholder="Informações complementares da configuração do mocho..."></textarea></div>
@@ -502,6 +610,7 @@
           <button class="btn btn-primary btn-add" id="btnAdd">Adicionar ao pedido <span>→</span></button>
           <button class="btn btn-ghost" id="btnLimparConfig">Limpar escolhas</button>
         </div>
+      </div>
       </section>
     </div>
 
@@ -564,9 +673,35 @@
       </section>
     </div>
   </div>
+  </section>
+
+  <section class="dashboard-page" data-dashboard-page="historico" hidden aria-label="Pedidos anteriores">
+    <div class="dashboard-head">
+      <div><div class="dashboard-kicker">Base simulada</div><h1>Pedidos anteriores</h1><p>Consulte dados de pedidos já registrados e gere uma cópia do PDF.</p></div>
+      <span class="dashboard-sync">24 registros na base</span>
+    </div>
+    <section class="card" aria-labelledby="historicoTitulo">
+      <div class="card-title" id="historicoTitulo"><span class="ico">◷</span> Histórico de pedidos</div>
+      <p class="card-sub">Dados demonstrativos prontos para substituir por uma integração de back-end.</p>
+      <div class="historico-lista" id="historicoPedidos"></div>
+    </section>
+  </section>
+
+  </div>
 
   <footer>Sistema de Pedidos</footer>
 </main>
+
+<dialog class="history-dialog" id="historyDialog">
+  <div class="history-dialog-content">
+    <div class="history-dialog-header">
+      <div><div class="dashboard-kicker">Pedido registrado</div><h2 id="historyDialogTitle">Pedido</h2></div>
+      <button class="btn btn-ghost history-dialog-close" id="historyDialogClose" type="button" aria-label="Fechar">×</button>
+    </div>
+    <div class="history-detail-grid" id="historyDialogDetails"></div>
+    <button class="btn btn-accent btn-add" id="historyDialogPdf" type="button">Baixar PDF do pedido</button>
+  </div>
+</dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -716,22 +851,7 @@ function nomeOpt(id, list) {
   return item ? item.nome : id;
 }
 
-const VINCULOS_CONFIGURACAO = {
-  configEspessura: 'espessura',
-  configPistao: 'pistao',
-  configSela: 'mSela',
-  configLinhaSoft: 'linhaSoft'
-};
-
-function sincronizarConfiguracaoComPedido(origem = 'pedido') {
-  Object.entries(VINCULOS_CONFIGURACAO).forEach(([campoConfig, campoPedido]) => {
-    const config = document.getElementById(campoConfig);
-    const pedido = document.getElementById(campoPedido);
-    if (!config || !pedido) return;
-    if (origem === 'config') pedido.value = config.value;
-    else config.value = pedido.value;
-  });
-}
+const CAMPOS_FABRICACAO = ['espessura', 'pistao', 'mSela', 'linhaSoft'];
 
 function especificacoesConfiguradas() {
   const valor = id => document.getElementById(id)?.value || '';
@@ -872,7 +992,7 @@ function cor3D(nome, fallback) {
   return ({ 'Marrom': 0x633b25, 'Preto': 0x17191f, 'Caramelo': 0xb96f3c, 'Verde Musgo': 0x445e43, 'Azul Marinho': 0x162b52, 'Creme': 0xe2d1b1, 'Vermelho': 0x9f3030, 'Grafite': 0x41454f, 'Madeira Natural': 0xa96b3e, 'Branco': 0xe8ebef, 'Cromado': 0xbcc5cf, 'Dourado': 0xa98232, 'Carvalho': 0x7c542f })[nome] || fallback;
 }
 
-function atualizarMocho3D() {
+function atualizarMocho3DLegadoDesativado() {
   if (!mocho3D) return;
   const material = getSelected('materialGroup');
   const baseTipo = getSelected('baseGroup');
@@ -985,64 +1105,10 @@ function calcularPrecoUnitario() {
 }
 
 function addItem() {
-  return adicionarItemConfigurado();
-  sincronizarConfiguracaoComPedido('config');
-  const tam = getSelected('tamanhoGroup');
-  const back = getSelected('backGroup');
-  const mat = getSelected('materialGroup');
-  const base = getSelected('baseGroup');
-  const aces = getCheckedAcessorios();
-  const corAssento = document.getElementById('corAssento').value;
-  const corEstrutura = document.getElementById('corEstrutura').value;
-  const qtd = Math.max(1, parseInt(document.getElementById('qtd').value, 10) || 1);
-  const obs = document.getElementById('observacoes').value.trim();
-  const anguloBack = document.getElementById('backAngle').value;
-  const alturaBase = document.getElementById('baseHeight').value;
-  const especificacoes = especificacoesConfiguradas();
-
-  const rodinhas = document.getElementById('opcao-rodinhas').value === '1';
-  const altura = document.getElementById('opcao-altura').value === '1';
-  const lombar = document.getElementById('opcao-lombar').value === '1';
-
-  const detalhes = [
-    `Tamanho: ${nomeOpt(tam, CONFIG.tamanhos)}`,
-    `Back: ${nomeOpt(back, CONFIG.backs)}`,
-    `Material: ${nomeOpt(mat, CONFIG.materiais)}`,
-    `Base: ${nomeOpt(base, CONFIG.bases)}`,
-    `Inclinação do back: ${anguloBack}°`,
-    `Altura da base: ${alturaBase} cm`,
-    `Cor assento: ${corAssento}`,
-    `Cor estrutura: ${corEstrutura}`,
-    `Espuma: ${especificacoes.espuma}`,
-    `Pistão: ${especificacoes.pistao}`,
-    `M. sela: ${especificacoes.sela}`,
-    `Linha de espuma: ${especificacoes.linha}`
-  ];
-  aces.forEach(a => detalhes.push(`Acessório: ${nomeOpt(a, CONFIG.acessorios)}`));
-  if (rodinhas) detalhes.push('Acessório: Rodízios');
-  if (altura) detalhes.push('Acessório: Altura pneumática');
-  if (lombar) detalhes.push('Acessório: Apoio lombar');
-  if (obs) detalhes.push(`Obs: ${obs}`);
-
-  const unitario = calcularPrecoUnitario();
-
-  const item = {
-    id: ++itemCounter,
-    descricao: `Mocho ${nomeOpt(tam, CONFIG.tamanhos)} — ${nomeOpt(mat, CONFIG.materiais)} (${corAssento}/${corEstrutura})`,
-    detalhes: detalhes.join('; '),
-    configuracao: `Espuma ${especificacoes.espuma} · Pistão ${especificacoes.pistao} · M. sela ${especificacoes.sela} · Linha ${especificacoes.linha}`,
-    qtd,
-    unitario,
-    subtotal: unitario * qtd
-  };
-  itens.push(item);
-  renderTabela();
-  limparConfig();
-  toast('Item adicionado ao pedido!');
+  adicionarItemConfigurado();
 }
 
 function adicionarItemConfigurado() {
-  sincronizarConfiguracaoComPedido('config');
   const especificacoes = especificacoesConfiguradas();
   const qtd = Math.max(1, parseInt(document.getElementById('qtd').value, 10) || 1);
   const obs = document.getElementById('observacoes').value.trim();
@@ -1078,24 +1144,6 @@ function removeItem(id) {
 function limparConfig() {
   document.getElementById('qtd').value = 1;
   document.getElementById('observacoes').value = '';
-  sincronizarConfiguracaoComPedido('pedido');
-  atualizarMocho3D();
-  return;
-  ['tamanhoGroup', 'backGroup', 'materialGroup', 'baseGroup'].forEach(id => {
-    const first = document.querySelector(`#${id} input`);
-    if (first) first.checked = true;
-  });
-  document.querySelectorAll('#acessoriosGroup input').forEach(i => i.checked = false);
-  document.getElementById('qtd').value = 1;
-  document.getElementById('observacoes').value = '';
-  document.getElementById('opcao-rodinhas').value = '0';
-  document.getElementById('opcao-altura').value = '0';
-  document.getElementById('opcao-lombar').value = '0';
-  document.getElementById('corAssento').selectedIndex = 0;
-  document.getElementById('corEstrutura').selectedIndex = 0;
-  document.getElementById('backAngle').value = 0;
-  document.getElementById('baseHeight').value = 60;
-  sincronizarConfiguracaoComPedido('pedido');
   atualizarMocho3D();
 }
 
@@ -1559,6 +1607,106 @@ function exportarCsv() {
 }
 
 /* ============================================================
+   HISTÓRICO SIMULADO — PONTO DE INTEGRAÇÃO PARA O BACK-END
+   ============================================================ */
+const HISTORICO_PEDIDOS = [
+  { id: 'PED-2026-041', cliente: 'Clínica Sorriso Prime', data: '08/08/2026', produto: 'Mocho Sela Soft Plus', valor: 1290, status: 'Em produção', espuma: '5 cm', pistao: 'M', sela: 'Sim', linha: 'Soft Plus', itens: 2 },
+  { id: 'PED-2026-040', cliente: 'Studio Helena Aesthetics', data: '06/08/2026', produto: 'Mocho Estética Balance', valor: 849.9, status: 'Confirmado', espuma: '3 cm', pistao: 'P', sela: 'Não', linha: 'Soft', itens: 1 },
+  { id: 'PED-2026-039', cliente: 'Dr. Rafael Nogueira', data: '04/08/2026', produto: 'Mocho Clínico Pro', valor: 1549.8, status: 'Em produção', espuma: '5 cm', pistao: 'M', sela: 'Sim', linha: 'Soft Plus', itens: 2 },
+  { id: 'PED-2026-038', cliente: 'Odonto Vida Centro', data: '01/08/2026', produto: 'Mocho Compact Minimal', valor: 699.9, status: 'Confirmado', espuma: '3 cm', pistao: 'P', sela: 'Não', linha: 'Padrão', itens: 1 }
+];
+
+let pedidoHistoricoAtual = null;
+
+function iniciarGraficoPedidos() {
+  const canvas = document.getElementById('graficoPedidos');
+  if (!canvas || !window.Chart) return;
+  new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: ['Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago'],
+      datasets: [
+        { label: 'Faturamento (R$)', data: [8400, 10950, 9250, 13480, 15620, 18490], backgroundColor: 'rgba(197,28,42,.78)', borderRadius: 7, borderSkipped: false },
+        { label: 'Pedidos', data: [11, 14, 12, 18, 20, 24], type: 'line', yAxisID: 'pedidos', borderColor: '#8d82ff', backgroundColor: '#8d82ff', pointBackgroundColor: '#f5f6ff', pointBorderColor: '#8d82ff', pointRadius: 4, tension: .38, borderWidth: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#c6cae6', usePointStyle: true, boxWidth: 9, font: { family: 'Inter', size: 11 } } }, tooltip: { backgroundColor: '#151837', titleColor: '#fff', bodyColor: '#dfe2fb', borderColor: 'rgba(161,171,230,.2)', borderWidth: 1 } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#9097bc', font: { family: 'Inter' } }, border: { display: false } },
+        y: { beginAtZero: true, grid: { color: 'rgba(161,171,230,.12)' }, ticks: { color: '#9097bc', callback: valor => `R$ ${Number(valor / 1000).toFixed(0)}k` }, border: { display: false } },
+        pedidos: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { color: '#9097bc', stepSize: 5 }, border: { display: false } }
+      }
+    }
+  });
+}
+
+function iniciarNavegacaoDashboard() {
+  const botoes = document.querySelectorAll('[data-dashboard-nav]');
+  const paginas = document.querySelectorAll('[data-dashboard-page]');
+  const navegar = destino => {
+    paginas.forEach(pagina => pagina.hidden = pagina.dataset.dashboardPage !== destino);
+    botoes.forEach(botao => botao.classList.toggle('active', botao.dataset.dashboardNav === destino));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  botoes.forEach(botao => botao.addEventListener('click', () => navegar(botao.dataset.dashboardNav)));
+}
+
+function renderHistoricoPedidos() {
+  const lista = document.getElementById('historicoPedidos');
+  lista.innerHTML = HISTORICO_PEDIDOS.map(pedido => {
+    const emProducao = pedido.status === 'Em produção';
+    return `<article class="historico-item">
+      <div class="historico-topo"><div><strong>${pedido.id}</strong><span>${pedido.cliente} · ${pedido.data}</span></div><span class="status-pedido${emProducao ? ' producao' : ''}">${pedido.status}</span></div>
+      <span>${pedido.produto} · ${pedido.itens} ${pedido.itens === 1 ? 'item' : 'itens'}</span>
+      <div class="historico-valor">${fmt(pedido.valor)}</div>
+      <div class="historico-acoes"><button class="btn btn-outline" type="button" data-history-view="${pedido.id}">Ver dados</button><button class="btn btn-ghost" type="button" data-history-pdf="${pedido.id}">PDF</button></div>
+    </article>`;
+  }).join('');
+
+  lista.querySelectorAll('[data-history-view]').forEach(botao => botao.addEventListener('click', () => abrirHistorico(botao.dataset.historyView)));
+  lista.querySelectorAll('[data-history-pdf]').forEach(botao => botao.addEventListener('click', () => baixarPdfHistorico(botao.dataset.historyPdf)));
+}
+
+function abrirHistorico(id) {
+  const pedido = HISTORICO_PEDIDOS.find(item => item.id === id);
+  if (!pedido) return;
+  pedidoHistoricoAtual = pedido;
+  document.getElementById('historyDialogTitle').textContent = `${pedido.id} · ${pedido.cliente}`;
+  document.getElementById('historyDialogDetails').innerHTML = [
+    ['Status', pedido.status], ['Data', pedido.data], ['Produto', pedido.produto], ['Total', fmt(pedido.valor)],
+    ['Espuma', pedido.espuma], ['Pistão', pedido.pistao], ['Modelo sela', pedido.sela], ['Linha', pedido.linha]
+  ].map(([rotulo, valor]) => `<div class="history-detail"><small>${rotulo}</small><strong>${valor}</strong></div>`).join('');
+  document.getElementById('historyDialog').showModal();
+}
+
+function baixarPdfHistorico(id) {
+  const pedido = HISTORICO_PEDIDOS.find(item => item.id === id);
+  if (!pedido) return;
+  if (!window.jspdf?.jsPDF) { toast('Biblioteca PDF indisponível.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  doc.setFillColor(16, 20, 60); doc.rect(0, 0, 210, 36, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(17); doc.text('DUO EQUILIBRIUM', 16, 18);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text('SOLUÇÕES ERGONÔMICAS', 16, 24);
+  doc.setFontSize(14); doc.text('Resumo de pedido', 194, 18, { align: 'right' });
+  doc.setTextColor(16, 20, 60); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text(pedido.id, 16, 53);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.text(`Cliente: ${pedido.cliente}`, 16, 62); doc.text(`Data: ${pedido.data}`, 16, 69);
+  doc.setDrawColor(220, 224, 235); doc.line(16, 77, 194, 77);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('ITEM REGISTRADO', 16, 88);
+  doc.setFont('helvetica', 'normal'); doc.text(pedido.produto, 16, 96); doc.text(`${pedido.itens} ${pedido.itens === 1 ? 'item' : 'itens'}`, 16, 103);
+  doc.setFont('helvetica', 'bold'); doc.text('CONFIGURAÇÃO DE FÁBRICA', 16, 119);
+  doc.setFont('helvetica', 'normal');
+  [['Espuma', pedido.espuma], ['Pistão', pedido.pistao], ['Modelo sela', pedido.sela], ['Linha de espuma', pedido.linha], ['Status', pedido.status]].forEach(([chave, valor], indice) => doc.text(`${chave}: ${valor}`, 16, 128 + indice * 8));
+  doc.setFillColor(187, 23, 34); doc.roundedRect(16, 180, 178, 22, 3, 3, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.text('TOTAL DO PEDIDO', 22, 190); doc.setFontSize(14); doc.text(fmt(pedido.valor), 188, 192, { align: 'right' });
+  doc.setTextColor(95, 99, 126); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text('Documento simulado para consulta no painel de pedidos.', 105, 280, { align: 'center' });
+  doc.save(`${pedido.id}.pdf`);
+  toast(`PDF de ${pedido.id} baixado.`);
+}
+
+/* ============================================================
    NOVO PEDIDO
    ============================================================ */
 function novoPedido() {
@@ -1597,9 +1745,20 @@ function toast(msg) {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('data').value = new Date().toISOString().split('T')[0];
-  sincronizarConfiguracaoComPedido('pedido');
-  Object.keys(VINCULOS_CONFIGURACAO).forEach(id => document.getElementById(id).addEventListener('change', () => sincronizarConfiguracaoComPedido('config')));
-  Object.values(VINCULOS_CONFIGURACAO).forEach(id => document.getElementById(id).addEventListener('change', () => sincronizarConfiguracaoComPedido('pedido')));
+  CAMPOS_FABRICACAO.forEach(id => document.getElementById(id).addEventListener('change', () => {
+    atualizarMocho3D();
+  }));
+  renderHistoricoPedidos();
+  iniciarGraficoPedidos();
+  iniciarNavegacaoDashboard();
+  const dialogHistorico = document.getElementById('historyDialog');
+  document.getElementById('historyDialogClose').addEventListener('click', () => dialogHistorico.close());
+  document.getElementById('historyDialogPdf').addEventListener('click', () => {
+    if (pedidoHistoricoAtual) baixarPdfHistorico(pedidoHistoricoAtual.id);
+  });
+  dialogHistorico.addEventListener('click', evento => {
+    if (evento.target === dialogHistorico) dialogHistorico.close();
+  });
 
   iniciarMocho3D();
   document.querySelector('.configurator').addEventListener('change', atualizarMocho3D);
