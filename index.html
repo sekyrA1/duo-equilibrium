@@ -323,8 +323,8 @@
   .section-head p { color: var(--muted); font-size: .98rem; margin-top: 10px; line-height: 1.5; }
 
   /* ---------- MODELOS / CATALOG ---------- */
-  .section-wrap { max-width: none; margin: 0; padding: 78px max(24px, calc((100vw - 1152px) / 2)); border-radius: 0; }
-  .section-modelos { background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(252,239,240,.86)); border-top: 1px solid rgba(187,23,34,.14); border-bottom: 1px solid rgba(187,23,34,.14); }
+  .section-wrap { width: 100vw; max-width: none; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); padding: 78px max(24px, calc((100vw - 1152px) / 2)); border-radius: 0; isolation: isolate; }
+  .section-modelos { background: linear-gradient(110deg, #f4eaed 0%, #fffafa 18%, #fffafa 82%, #f4eaed 100%); border-top: 1px solid rgba(187,23,34,.14); border-bottom: 1px solid rgba(187,23,34,.14); }
   .section-diferenciais { background: linear-gradient(135deg, #10143c, #29204b); border-top: 1px solid rgba(255,255,255,.12); border-bottom: 1px solid rgba(255,255,255,.12); }
   .section-diferenciais .section-head h2, .section-diferenciais .diff-title { color: #fff; }
   .section-diferenciais .section-head p, .section-diferenciais .diff-desc { color: rgba(255,255,255,.74); }
@@ -345,9 +345,13 @@
   .sela-media-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .sela-media { position: relative; margin: 0; min-height: 320px; overflow: hidden; border: 1px solid rgba(255,255,255,.8); border-radius: 22px; background: #fff; box-shadow: 0 18px 40px rgba(16,20,60,.12); }
   .sela-media:first-child { transform: translateY(-16px); }
-  .sela-media > img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .sela-media figcaption { position: absolute; inset: auto 12px 12px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: rgba(16,20,60,.84); color: #fff; font-size: .72rem; font-weight: 700; backdrop-filter: blur(8px); }
-  .sela-motion { width: 32px; height: 24px; object-fit: cover; border-radius: 7px; border: 1px solid rgba(255,255,255,.35); }
+  .sela-media > img:not(.sela-hover-gif) { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sela-hover-gif { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.04); transition: opacity .35s ease, transform .55s ease; pointer-events: none; }
+  .sela-media figcaption { position: absolute; z-index: 2; inset: auto 12px 12px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: rgba(16,20,60,.84); color: #fff; font-size: .72rem; font-weight: 700; backdrop-filter: blur(8px); transition: background .25s ease; }
+  .sela-motion { width: 32px; height: 24px; object-fit: cover; border-radius: 7px; border: 1px solid rgba(255,255,255,.35); transition: width .25s ease, opacity .2s ease, margin .25s ease; }
+  .sela-media:hover .sela-hover-gif { opacity: 1; transform: scale(1); }
+  .sela-media:hover .sela-motion { width: 0; opacity: 0; margin: 0; border-width: 0; }
+  .sela-media:hover figcaption { background: rgba(16,20,60,.68); }
   .models-carousel { position: relative; max-width: 1152px; margin: 0 auto; }
   .carousel-viewport { overflow: hidden; padding: 16px 8px 30px; margin: -16px -8px 0; perspective: 1400px; }
   .carousel-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 48px) / 3); gap: 24px; transform-style: preserve-3d; transition: transform .72s cubic-bezier(.2,.8,.2,1); }
@@ -381,7 +385,8 @@
     --card-depth: 0px;
     transform: perspective(1100px) translateY(-2px) translateZ(var(--card-depth)) rotateX(var(--cursor-x)) rotateY(calc(var(--gallery-y) + var(--cursor-y)));
   }
-  .model-card:hover { box-shadow: 0 24px 50px rgba(44, 55, 108, .18); }
+  .model-card { backface-visibility: hidden; }
+  .model-card:hover { --cursor-x: 1deg; --cursor-y: 1.5deg; box-shadow: 0 24px 50px rgba(44, 55, 108, .18); }
   .models-carousel.is-visible .model-card { animation: cardEntrance .65s cubic-bezier(.2,.8,.2,1); }
   .models-carousel.is-visible .model-card:nth-child(2) { animation-delay: .12s; }
   .models-carousel.is-visible .model-card:nth-child(3) { animation-delay: .24s; }
@@ -693,8 +698,8 @@
         </div>
       </div>
       <div class="sela-media-grid" aria-label="Explicações visuais sobre o mocho sela">
-        <figure class="sela-media"><img src="assets/mocho-sela-postura.png" alt="Profissional utilizando um mocho sela em postura de trabalho"><figcaption><img class="sela-motion" src="assets/mocho-sela-postura.gif" alt="Animação de postura no mocho sela">Postura em movimento</figcaption></figure>
-        <figure class="sela-media"><img src="assets/mocho-sela-ergonomia.png" alt="Ilustração da posição de quadris e pernas em um mocho sela"><figcaption><img class="sela-motion" src="assets/mocho-sela-ergonomia.gif" alt="Animação da ergonomia do mocho sela">Mobilidade e ajuste</figcaption></figure>
+        <figure class="sela-media"><img src="assets/mocho-sela-postura.png" alt="Profissional utilizando um mocho sela em postura de trabalho"><img class="sela-hover-gif" src="assets/mocho-sela-postura.gif" alt="Animação de postura no mocho sela"><figcaption><img class="sela-motion" src="assets/mocho-sela-postura.gif" alt="">Postura em movimento</figcaption></figure>
+        <figure class="sela-media"><img src="assets/mocho-sela-ergonomia.png" alt="Ilustração da posição de quadris e pernas em um mocho sela"><img class="sela-hover-gif" src="assets/mocho-sela-ergonomia.gif" alt="Animação da ergonomia do mocho sela"><figcaption><img class="sela-motion" src="assets/mocho-sela-ergonomia.gif" alt="">Mobilidade e ajuste</figcaption></figure>
       </div>
     </div>
   </section>
@@ -872,20 +877,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', () => showSlide(carouselIndex));
   showSlide(0);
 
-  cards.forEach(card => {
-    card.addEventListener('pointermove', event => {
-      if (event.pointerType === 'touch') return;
-      const bounds = card.getBoundingClientRect();
-      const rotateY = ((event.clientX - bounds.left) / bounds.width - .5) * 5;
-      const rotateX = ((event.clientY - bounds.top) / bounds.height - .5) * -4;
-      card.style.setProperty('--cursor-x', `${rotateX}deg`);
-      card.style.setProperty('--cursor-y', `${rotateY}deg`);
-    });
-    card.addEventListener('pointerleave', () => {
-      card.style.setProperty('--cursor-x', '0deg');
-      card.style.setProperty('--cursor-y', '0deg');
-    });
-  });
 });
 </script>
 
