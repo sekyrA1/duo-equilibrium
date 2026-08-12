@@ -380,11 +380,11 @@
   @keyframes cardSlideBackward { 0% { opacity: .38; transform: perspective(1100px) translate3d(-38px, 12px, -35px) rotateY(7deg); } 100% { opacity: 1; transform: perspective(1100px) translateZ(22px) rotateY(1.6deg); } }
   @keyframes imageSlideFocus { 0% { transform: scale(1.1); filter: brightness(.8) saturate(.7); } 100% { transform: scale(1); filter: brightness(1) saturate(1); } }
   @keyframes cardContentRise { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
-  .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; }
-  .carousel-arrow { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; border: 1px solid rgba(18,34,99,.18); background: #fff; color: var(--ink); font-size: 1.15rem; box-shadow: 0 8px 22px rgba(16,20,60,.1); transition: .25s ease; }
+  .carousel-controls { position: relative; z-index: 4; display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: -2px; transform: translateY(-14px); }
+  .carousel-arrow { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; border: 1px solid rgba(18,34,99,.22); background: rgba(255,255,255,.56); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--ink); font-size: 1.15rem; box-shadow: 0 8px 22px rgba(16,20,60,.1); transition: .25s ease; }
   .carousel-arrow:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 24px rgba(187,23,34,.24); }
   .carousel-arrow:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
-  .carousel-status { --progress: 16.66%; min-width: 228px; display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 16px; border: 1px solid rgba(16,20,60,.1); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.74); box-shadow: 0 10px 24px rgba(16,20,60,.08); font-size: .76rem; font-weight: 750; letter-spacing: .06em; }
+  .carousel-status { --progress: 16.66%; min-width: 228px; display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 16px; border: 1px solid rgba(16,20,60,.16); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.52); backdrop-filter: blur(14px) saturate(1.15); -webkit-backdrop-filter: blur(14px) saturate(1.15); box-shadow: 0 10px 24px rgba(16,20,60,.08); font-size: .76rem; font-weight: 750; letter-spacing: .06em; }
   .carousel-counter { display: flex; gap: 4px; align-items: baseline; white-space: nowrap; }
   .carousel-status strong { color: var(--accent); font-size: .95rem; }
   .carousel-piston { position: relative; flex: 1; height: 28px; min-width: 108px; }
