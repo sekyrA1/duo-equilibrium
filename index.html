@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Duo Equilibrium — Soluções Ergonômicas</title>
 <link rel="icon" type="image/png" href="assets/logo-duo-equilibrium.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -324,7 +325,7 @@
 
   /* ---------- MODELOS / CATALOG ---------- */
   .section-wrap { width: 100vw; max-width: none; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); padding: 78px max(24px, calc((100vw - 1152px) / 2)); border-radius: 0; isolation: isolate; }
-  .section-modelos { background: linear-gradient(110deg, #f4eaed 0%, #fffafa 18%, #fffafa 82%, #f4eaed 100%); border-top: 1px solid rgba(187,23,34,.14); border-bottom: 1px solid rgba(187,23,34,.14); }
+  .section-modelos { background: transparent; border-top: 1px solid rgba(187,23,34,.14); border-bottom: 1px solid rgba(187,23,34,.14); }
   .section-diferenciais { background: linear-gradient(135deg, #10143c, #29204b); border-top: 1px solid rgba(255,255,255,.12); border-bottom: 1px solid rgba(255,255,255,.12); }
   .section-diferenciais .section-head h2, .section-diferenciais .diff-title { color: #fff; }
   .section-diferenciais .section-head p, .section-diferenciais .diff-desc { color: rgba(255,255,255,.74); }
@@ -353,8 +354,12 @@
   .sela-media:hover .sela-motion { width: 0; opacity: 0; margin: 0; border-width: 0; }
   .sela-media:hover figcaption { background: rgba(16,20,60,.68); }
   .models-carousel { position: relative; max-width: 1152px; margin: 0 auto; }
-  .carousel-viewport { overflow: hidden; padding: 16px 8px 30px; margin: -16px -8px 0; perspective: 1400px; }
-  .carousel-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 48px) / 3); gap: 24px; transform-style: preserve-3d; transition: transform .72s cubic-bezier(.2,.8,.2,1); }
+  .carousel-swiper { overflow: hidden; padding: 16px 8px 30px; margin: -16px -8px 0; perspective: 1400px; }
+  .carousel-swiper .swiper-wrapper { align-items: stretch; }
+  .carousel-swiper .swiper-slide { height: auto; transform: perspective(1100px) rotateY(-1.8deg) translateZ(0); transition: transform .4s ease, filter .4s ease; backface-visibility: hidden; }
+  .carousel-swiper .swiper-slide:nth-child(2) { transform: perspective(1100px) translateZ(22px); }
+  .carousel-swiper .swiper-slide:nth-child(3) { transform: perspective(1100px) rotateY(1.8deg) translateZ(0); }
+  .carousel-swiper .swiper-slide:hover { transform: perspective(1100px) translateY(-7px) translateZ(28px) rotateY(0); z-index: 2; }
   .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; }
   .carousel-arrow { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; cursor: pointer; border: 1px solid rgba(187,23,34,.18); background: rgba(255,255,255,.78); color: var(--accent); font-size: 1.25rem; box-shadow: 0 8px 22px rgba(16,20,60,.08); transition: .25s ease; }
   .carousel-arrow:hover:not(:disabled) { background: var(--accent); color: #fff; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(187,23,34,.24); }
@@ -377,16 +382,10 @@
     flex-direction: column;
     justify-content: space-between;
     transition: transform .25s ease, box-shadow .25s ease;
-    transform-style: preserve-3d;
-    will-change: transform;
-    --cursor-x: 0deg;
-    --cursor-y: 0deg;
-    --gallery-y: 0deg;
-    --card-depth: 0px;
-    transform: perspective(1100px) translateY(-2px) translateZ(var(--card-depth)) rotateX(var(--cursor-x)) rotateY(calc(var(--gallery-y) + var(--cursor-y)));
+    transform: none;
   }
   .model-card { backface-visibility: hidden; }
-  .model-card:hover { --cursor-x: 1deg; --cursor-y: 1.5deg; box-shadow: 0 24px 50px rgba(44, 55, 108, .18); }
+  .model-card:hover { box-shadow: 0 24px 50px rgba(44, 55, 108, .18); }
   .models-carousel.is-visible .model-card { animation: cardEntrance .65s cubic-bezier(.2,.8,.2,1); }
   .models-carousel.is-visible .model-card:nth-child(2) { animation-delay: .12s; }
   .models-carousel.is-visible .model-card:nth-child(3) { animation-delay: .24s; }
@@ -617,10 +616,10 @@
     </div>
 
     <div class="models-carousel reveal" aria-label="Modelos de mochos">
-      <div class="carousel-viewport">
-        <div class="carousel-track">
+      <div class="carousel-swiper swiper">
+        <div class="swiper-wrapper">
       <!-- Card 1 -->
-      <article class="model-card">
+      <article class="swiper-slide model-card">
         <div class="model-image-wrap"><img class="model-image" src="assets/mocho-clinico-pro.png" alt="Mocho Clínico Pro azul com encosto"></div>
         <div>
           <div class="model-icon">🩺</div>
@@ -639,7 +638,7 @@
       </article>
 
       <!-- Card 2 -->
-      <article class="model-card">
+      <article class="swiper-slide model-card">
         <div class="model-image-wrap"><img class="model-image" src="assets/mocho-studio-executivo.png" alt="Mocho Studio Executivo grafite"></div>
         <div>
           <div class="model-icon">✨</div>
@@ -658,7 +657,7 @@
       </article>
 
       <!-- Card 3 -->
-      <article class="model-card">
+      <article class="swiper-slide model-card">
         <div class="model-image-wrap"><img class="model-image" src="assets/mocho-compact-minimal.png" alt="Mocho Compact Minimal em madeira"></div>
         <div>
           <div class="model-icon">🌿</div>
@@ -791,6 +790,7 @@
   <p style="margin-top:8px; opacity:.7;">© 2026 duoequilibrium. Todos os direitos reservados. | <a href="pedidos.html">Gerador de Pedidos</a></p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const nav = document.querySelector('.nav-tabs');
@@ -804,8 +804,31 @@ document.addEventListener('DOMContentLoaded', () => {
     indicator.style.transform = `translateX(${link.offsetLeft}px)`;
   }
 
-  links.forEach(link => link.addEventListener('click', () => {
+  let lerpFrame;
+  function rolarComLerp(section) {
+    cancelAnimationFrame(lerpFrame);
+    const inicio = window.scrollY;
+    const destino = Math.max(0, section.getBoundingClientRect().top + window.scrollY - document.querySelector('.topbar').offsetHeight - 14);
+    const comportamentoAnterior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    let posicao = inicio;
+    const animar = () => {
+      posicao += (destino - posicao) * .13;
+      window.scrollTo(0, posicao);
+      if (Math.abs(destino - posicao) > .8) lerpFrame = requestAnimationFrame(animar);
+      else {
+        window.scrollTo(0, destino);
+        document.documentElement.style.scrollBehavior = comportamentoAnterior;
+      }
+    };
+    animar();
+  }
+  links.forEach(link => link.addEventListener('click', event => {
+    const section = document.querySelector(link.getAttribute('href'));
+    if (!section) return;
+    event.preventDefault();
     ativar(link);
+    rolarComLerp(section);
   }));
 
   const observer = new IntersectionObserver(entries => {
@@ -845,37 +868,31 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', updateScrollMotion, { passive: true });
   updateScrollMotion();
 
-  const track = document.querySelector('.carousel-track');
-  const cards = [...document.querySelectorAll('.carousel-track .model-card')];
   const previousButton = document.querySelector('[data-carousel="prev"]');
   const nextButton = document.querySelector('[data-carousel="next"]');
   const carouselCurrent = document.getElementById('carouselCurrent');
   const carouselProgress = document.querySelector('.carousel-progress span');
-  let carouselIndex = 0;
-  function cardsPerView() { return window.innerWidth <= 560 ? 1 : window.innerWidth <= 900 ? 2 : 3; }
-  function showSlide(nextIndex) {
-    const maxIndex = Math.max(0, cards.length - cardsPerView());
-    carouselIndex = Math.max(0, Math.min(nextIndex, maxIndex));
-    const cardWidth = cards[0].getBoundingClientRect().width;
-    const gap = 24;
-    track.style.transform = `translateX(-${carouselIndex * (cardWidth + gap)}px)`;
-    cards.forEach((card, index) => {
-      const relativeIndex = index - carouselIndex;
-      const isVisible = relativeIndex >= 0 && relativeIndex < cardsPerView();
-      const middle = (cardsPerView() - 1) / 2;
-      card.style.setProperty('--gallery-y', isVisible ? `${(relativeIndex - middle) * -2.6}deg` : '0deg');
-      card.style.setProperty('--card-depth', isVisible && Math.abs(relativeIndex - middle) < .5 ? '28px' : '0px');
-      card.setAttribute('aria-hidden', String(!isVisible));
-    });
-    previousButton.disabled = carouselIndex === 0;
-    nextButton.disabled = carouselIndex === maxIndex;
-    carouselCurrent.textContent = String(carouselIndex + 1).padStart(2, '0');
-    carouselProgress.style.width = `${maxIndex === 0 ? 100 : ((carouselIndex + 1) / (maxIndex + 1)) * 100}%`;
+  const carousel = new Swiper('.carousel-swiper', {
+    slidesPerView: 1.08,
+    spaceBetween: 16,
+    speed: 650,
+    grabCursor: true,
+    navigation: { prevEl: previousButton, nextEl: nextButton },
+    a11y: { enabled: true },
+    breakpoints: {
+      640: { slidesPerView: 2, spaceBetween: 20 },
+      980: { slidesPerView: 3, spaceBetween: 24 }
+    }
+  });
+  function atualizarStatusCarrossel() {
+    const total = carousel.slides.length;
+    const paginas = Math.max(1, Math.ceil(total / carousel.params.slidesPerView));
+    const pagina = Math.min(paginas, Math.floor(carousel.activeIndex / carousel.params.slidesPerView) + 1);
+    carouselCurrent.textContent = String(pagina).padStart(2, '0');
+    carouselProgress.style.width = `${(pagina / paginas) * 100}%`;
   }
-  previousButton.addEventListener('click', () => showSlide(carouselIndex - 1));
-  nextButton.addEventListener('click', () => showSlide(carouselIndex + 1));
-  window.addEventListener('resize', () => showSlide(carouselIndex));
-  showSlide(0);
+  carousel.on('init slideChange resize', atualizarStatusCarrossel);
+  atualizarStatusCarrossel();
 
 });
 </script>
