@@ -364,6 +364,23 @@
   .carousel-swiper .swiper-slide-active .model-card { transform: perspective(1100px) translateZ(22px) rotateY(1.6deg); filter: saturate(1.05); }
   .carousel-swiper .swiper-slide-next .model-card { transform: perspective(1100px) rotateY(-1.2deg); }
   .carousel-swiper .swiper-slide:hover .model-card { transform: perspective(1100px) translateY(-7px) translateZ(28px) rotateY(0); filter: saturate(1.08); }
+  .carousel-swiper.is-sliding-forward .swiper-slide-active .model-card { animation: cardSlideForward .68s cubic-bezier(.16,.85,.25,1) both; }
+  .carousel-swiper.is-sliding-backward .swiper-slide-active .model-card { animation: cardSlideBackward .68s cubic-bezier(.16,.85,.25,1) both; }
+  .carousel-swiper.is-sliding .swiper-slide-active .model-image { animation: imageSlideFocus .68s cubic-bezier(.16,.85,.25,1) both; }
+  .carousel-swiper.is-sliding .swiper-slide-active .model-icon,
+  .carousel-swiper.is-sliding .swiper-slide-active .model-title,
+  .carousel-swiper.is-sliding .swiper-slide-active .model-desc,
+  .carousel-swiper.is-sliding .swiper-slide-active .model-specs,
+  .carousel-swiper.is-sliding .swiper-slide-active .model-foot { animation: cardContentRise .52s cubic-bezier(.16,.85,.25,1) both; }
+  .carousel-swiper.is-sliding .swiper-slide-active .model-title { animation-delay: .05s; }
+  .carousel-swiper.is-sliding .swiper-slide-active .model-desc { animation-delay: .1s; }
+  .carousel-swiper.is-sliding .swiper-slide-active .model-specs { animation-delay: .14s; }
+  .carousel-swiper.is-sliding .swiper-slide-active .model-foot { animation-delay: .18s; }
+  @keyframes cardSlideForward { 0% { opacity: .38; transform: perspective(1100px) translate3d(38px, 12px, -35px) rotateY(-7deg); } 100% { opacity: 1; transform: perspective(1100px) translateZ(22px) rotateY(1.6deg); } }
+  @keyframes cardSlideBackward { 0% { opacity: .38; transform: perspective(1100px) translate3d(-38px, 12px, -35px) rotateY(7deg); } 100% { opacity: 1; transform: perspective(1100px) translateZ(22px) rotateY(1.6deg); } }
+  @keyframes imageSlideFocus { 0% { transform: scale(1.1); filter: brightness(.8) saturate(.7); } 100% { transform: scale(1); filter: brightness(1) saturate(1); } }
+  @keyframes cardContentRise { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .carousel-swiper *, .carousel-swiper .swiper-wrapper { animation: none !important; transition-duration: .01ms !important; } }
   .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; }
   .carousel-arrow { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; cursor: pointer; border: 1px solid rgba(187,23,34,.18); background: rgba(255,255,255,.78); color: var(--accent); font-size: 1.25rem; box-shadow: 0 8px 22px rgba(16,20,60,.08); transition: .25s ease; }
   .carousel-arrow:hover:not(:disabled) { background: var(--accent); color: #fff; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(187,23,34,.24); }
@@ -937,6 +954,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function moverCarrossel(direcao = 1) {
     if (carousel.animating || reposicionando) return;
+    carouselHost.classList.remove('is-sliding-forward', 'is-sliding-backward');
+    carouselHost.classList.add('is-sliding', direcao > 0 ? 'is-sliding-forward' : 'is-sliding-backward');
     carousel.slideTo(carousel.activeIndex + direcao);
   }
   function iniciarAutoplay() {
@@ -951,6 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (carousel.activeIndex === indiceInicial - 1) {
       reposicionando = true; carousel.slideTo(indiceFinal, 0, false); reposicionando = false;
     }
+    carouselHost.classList.remove('is-sliding', 'is-sliding-forward', 'is-sliding-backward');
     atualizarStatusCarrossel();
   });
   carousel.on('slideChange resize', atualizarStatusCarrossel);
