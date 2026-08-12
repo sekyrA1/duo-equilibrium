@@ -1216,6 +1216,23 @@ function exportarPdfFabrica() {
   }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const criarLogoParaPdf = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 720; canvas.height = 260;
+    const ctx = canvas.getContext('2d');
+    const navy = '#10143c'; const red = '#bb1722';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineWidth = 14; ctx.strokeStyle = navy;
+    ctx.beginPath(); ctx.arc(120, 88, 62, 0.27, Math.PI * 1.82); ctx.stroke();
+    ctx.fillStyle = red;
+    ctx.beginPath(); ctx.moveTo(37, 158); ctx.lineTo(192, 27); ctx.lineTo(112, 143); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(119, 85, 17, 0, Math.PI * 2); ctx.fill();
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = '800 43px Arial'; ctx.fillStyle = red; ctx.fillText('DUO', 18, 218);
+    ctx.font = '800 43px Arial'; ctx.fillStyle = navy; ctx.fillText('EQUILIBRIUM', 125, 218);
+    ctx.font = '600 17px Arial'; ctx.fillStyle = navy; ctx.fillText('SOLUÇÕES ERGONÔMICAS', 54, 246);
+    return canvas.toDataURL('image/png');
+  };
   const p = dadosPedido();
   const pageW = 210, margem = 12, largura = pageW - margem * 2;
   const primeiro = itens[0];
@@ -1241,10 +1258,10 @@ function exportarPdfFabrica() {
 
   doc.setDrawColor(12, 16, 24); doc.setLineWidth(.8); doc.rect(margem, 10, largura, 277);
   doc.setLineWidth(.35);
-  const logoPdf = document.querySelector('.brand-logo-img');
-  if (logoPdf?.complete && logoPdf.naturalWidth) {
-    doc.addImage(logoPdf, 'PNG', 15, 12, 45, 32);
-  } else {
+  try {
+    doc.addImage(criarLogoParaPdf(), 'PNG', 15, 12, 45, 18);
+  } catch (erroLogo) {
+    console.warn('Não foi possível desenhar o logo no PDF.', erroLogo);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text('DUO EQUILIBRIUM', 15, 24);
     doc.setFontSize(7.5); doc.text('SOLUÇÕES ERGONÔMICAS', 15, 30);
   }

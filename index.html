@@ -326,6 +326,7 @@
   /* ---------- MODELOS / CATALOG ---------- */
   .section-wrap { width: 100vw; max-width: none; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); padding: 78px max(24px, calc((100vw - 1152px) / 2)); border-radius: 0; isolation: isolate; }
   .section-modelos { background: transparent; border-top: 1px solid rgba(187,23,34,.14); border-bottom: 1px solid rgba(187,23,34,.14); }
+  .section-modelos { padding-left: clamp(24px, 4vw, 72px); padding-right: clamp(24px, 4vw, 72px); }
   .section-diferenciais { background: linear-gradient(135deg, #10143c, #29204b); border-top: 1px solid rgba(255,255,255,.12); border-bottom: 1px solid rgba(255,255,255,.12); }
   .section-diferenciais .section-head h2, .section-diferenciais .diff-title { color: #fff; }
   .section-diferenciais .section-head p, .section-diferenciais .diff-desc { color: rgba(255,255,255,.74); }
@@ -353,11 +354,15 @@
   .sela-media:hover .sela-hover-gif { opacity: 1; transform: scale(1); }
   .sela-media:hover .sela-motion { width: 0; opacity: 0; margin: 0; border-width: 0; }
   .sela-media:hover figcaption { background: rgba(16,20,60,.68); }
-  .models-carousel { position: relative; max-width: 1152px; margin: 0 auto; }
-  .carousel-swiper { overflow: hidden; padding: 16px 8px 30px; margin: -16px -8px 0; perspective: 1400px; }
+  .models-carousel { position: relative; max-width: none; margin: 0 auto; }
+  .carousel-swiper { overflow: hidden; padding: 20px 10px 30px; margin: -20px -10px 0; perspective: 1400px; }
   .carousel-swiper .swiper-wrapper { align-items: stretch; }
   .carousel-swiper .swiper-slide { height: auto; transition: filter .35s ease; backface-visibility: hidden; }
-  .carousel-swiper .swiper-slide:hover { z-index: 2; }
+  .carousel-swiper .model-card { transform: perspective(1100px) translateZ(0) rotateY(0); transition: transform .45s cubic-bezier(.2,.8,.2,1), filter .45s ease; }
+  .carousel-swiper .swiper-slide-visible .model-card { filter: saturate(.94); }
+  .carousel-swiper .swiper-slide-active .model-card { transform: perspective(1100px) translateZ(22px) rotateY(1.6deg); filter: saturate(1.05); }
+  .carousel-swiper .swiper-slide-next .model-card { transform: perspective(1100px) rotateY(-1.2deg); }
+  .carousel-swiper .swiper-slide:hover .model-card { transform: perspective(1100px) translateY(-7px) translateZ(28px) rotateY(0); filter: saturate(1.08); }
   .carousel-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; }
   .carousel-arrow { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; cursor: pointer; border: 1px solid rgba(187,23,34,.18); background: rgba(255,255,255,.78); color: var(--accent); font-size: 1.25rem; box-shadow: 0 8px 22px rgba(16,20,60,.08); transition: .25s ease; }
   .carousel-arrow:hover:not(:disabled) { background: var(--accent); color: #fff; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(187,23,34,.24); }
@@ -885,14 +890,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const carouselCurrent = document.getElementById('carouselCurrent');
   const carouselTotal = document.getElementById('carouselTotal');
   const carouselProgress = document.querySelector('.carousel-progress span');
+  const totalCards = document.querySelectorAll('.carousel-swiper .swiper-slide').length;
   const carousel = new Swiper('.carousel-swiper', {
-    slidesPerView: 1.08,
+    slidesPerView: 1,
     spaceBetween: 16,
     speed: 650,
     grabCursor: true,
-    effect: 'coverflow',
-    centeredSlides: true,
-    coverflowEffect: { rotate: 16, stretch: 0, depth: 130, modifier: 1, slideShadows: false },
+    loop: true,
+    loopAdditionalSlides: 3,
     navigation: { prevEl: previousButton, nextEl: nextButton },
     a11y: { enabled: true },
     breakpoints: {
@@ -901,12 +906,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   function atualizarStatusCarrossel() {
-    const total = carousel.slides.length;
-    const paginas = Math.max(1, Math.ceil(total / carousel.params.slidesPerView));
-    const pagina = Math.min(paginas, Math.floor(carousel.activeIndex / carousel.params.slidesPerView) + 1);
-    carouselCurrent.textContent = String(pagina).padStart(2, '0');
-    carouselTotal.textContent = String(total).padStart(2, '0');
-    carouselProgress.style.width = `${(pagina / paginas) * 100}%`;
+    const atual = carousel.realIndex + 1;
+    carouselCurrent.textContent = String(atual).padStart(2, '0');
+    carouselTotal.textContent = String(totalCards).padStart(2, '0');
+    carouselProgress.style.width = `${(atual / totalCards) * 100}%`;
   }
   carousel.on('init slideChange resize', atualizarStatusCarrossel);
   atualizarStatusCarrossel();
