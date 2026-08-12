@@ -332,6 +332,22 @@
   .section-diferenciais .diff-card { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); }
   .section-diferenciais .diff-num { color: #ff717b; }
   .section-depoimentos { background: linear-gradient(145deg, rgba(250,244,244,.92), rgba(255,255,255,.9)); border-top: 4px solid var(--accent); border-bottom: 1px solid rgba(187,23,34,.12); }
+  .section-sela { background: linear-gradient(135deg, #f8f8fb 0%, #eef1f8 50%, #fbf4f4 100%); border-top: 1px solid rgba(16,20,60,.08); border-bottom: 1px solid rgba(16,20,60,.08); }
+  .sela-layout { max-width: 1152px; margin: 0 auto; display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+  .sela-copy .eyebrow { color: var(--accent); font-size: .78rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 10px; }
+  .sela-copy h2 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.08; letter-spacing: -1px; margin-bottom: 18px; }
+  .sela-copy > p { color: var(--muted); line-height: 1.65; max-width: 560px; }
+  .sela-points { display: grid; gap: 14px; margin-top: 26px; }
+  .sela-point { display: grid; grid-template-columns: 42px 1fr; gap: 12px; align-items: start; }
+  .sela-point-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: rgba(187,23,34,.1); color: var(--accent); font-weight: 800; }
+  .sela-point b { display: block; font-size: .93rem; margin-bottom: 3px; }
+  .sela-point span { color: var(--muted); font-size: .84rem; line-height: 1.5; }
+  .sela-media-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .sela-media { position: relative; margin: 0; min-height: 320px; overflow: hidden; border: 1px solid rgba(255,255,255,.8); border-radius: 22px; background: #fff; box-shadow: 0 18px 40px rgba(16,20,60,.12); }
+  .sela-media:first-child { transform: translateY(-16px); }
+  .sela-media > img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sela-media figcaption { position: absolute; inset: auto 12px 12px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: rgba(16,20,60,.84); color: #fff; font-size: .72rem; font-weight: 700; backdrop-filter: blur(8px); }
+  .sela-motion { width: 32px; height: 24px; object-fit: cover; border-radius: 7px; border: 1px solid rgba(255,255,255,.35); }
   .models-carousel { position: relative; max-width: 1152px; margin: 0 auto; }
   .carousel-viewport { overflow: hidden; padding: 16px 8px 30px; margin: -16px -8px 0; perspective: 1400px; }
   .carousel-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 48px) / 3); gap: 24px; transform-style: preserve-3d; transition: transform .72s cubic-bezier(.2,.8,.2,1); }
@@ -506,6 +522,7 @@
     .topbar { flex-direction: column; gap: 12px; padding: 14px 20px; }
     .nav-actions { width: 100%; justify-content: center; }
     .carousel-track { grid-auto-columns: calc((100% - 24px) / 2); }
+    .sela-layout { grid-template-columns: 1fr; gap: 32px; }
   }
   @media (max-width: 560px) {
     .hero-title { font-size: 2rem; }
@@ -514,6 +531,8 @@
     .section-wrap { padding-left: 20px; padding-right: 20px; }
     .carousel-track { grid-auto-columns: 100%; }
     .model-image-wrap { height: 380px; }
+    .sela-media { min-height: 250px; }
+    .sela-media:first-child { transform: none; }
     .model-foot { align-items: flex-start; flex-direction: column; }
     .whatsapp-float { right: 16px; bottom: 16px; }
     .whatsapp-float::after { display: none; }
@@ -657,6 +676,25 @@
         <button class="carousel-arrow" type="button" data-carousel="prev" aria-label="Modelo anterior">&#8592;</button>
         <div class="carousel-status" aria-live="polite"><strong id="carouselCurrent">01</strong><span>/ 03</span><div class="carousel-progress" aria-hidden="true"><span></span></div></div>
         <button class="carousel-arrow" type="button" data-carousel="next" aria-label="Próximo modelo">&#8594;</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-wrap section-sela" id="mocho-sela">
+    <div class="sela-layout reveal">
+      <div class="sela-copy">
+        <div class="eyebrow">Ergonomia que acompanha seu ritmo</div>
+        <h2>Por que escolher um mocho sela?</h2>
+        <p>O assento em formato de sela favorece uma posição de trabalho mais ativa e próxima ao campo de atuação, ajudando o profissional a encontrar conforto em movimentos repetitivos.</p>
+        <div class="sela-points">
+          <div class="sela-point"><div class="sela-point-icon">01</div><div><b>Quadris mais livres</b><span>O desenho do assento permite variar a posição das pernas e aproxima o profissional da bancada sem comprimir o movimento.</span></div></div>
+          <div class="sela-point"><div class="sela-point-icon">02</div><div><b>Postura de trabalho ativa</b><span>A elevação correta e o encaixe do assento ajudam a manter uma posição funcional durante procedimentos longos.</span></div></div>
+          <div class="sela-point"><div class="sela-point-icon">03</div><div><b>Mobilidade precisa</b><span>Base giratória e rodízios adequados permitem reposicionamento fluido no consultório, estúdio ou clínica.</span></div></div>
+        </div>
+      </div>
+      <div class="sela-media-grid" aria-label="Explicações visuais sobre o mocho sela">
+        <figure class="sela-media"><img src="assets/mocho-sela-postura.png" alt="Profissional utilizando um mocho sela em postura de trabalho"><figcaption><img class="sela-motion" src="assets/mocho-sela-postura.gif" alt="Animação de postura no mocho sela">Postura em movimento</figcaption></figure>
+        <figure class="sela-media"><img src="assets/mocho-sela-ergonomia.png" alt="Ilustração da posição de quadris e pernas em um mocho sela"><figcaption><img class="sela-motion" src="assets/mocho-sela-ergonomia.gif" alt="Animação da ergonomia do mocho sela">Mobilidade e ajuste</figcaption></figure>
       </div>
     </div>
   </section>

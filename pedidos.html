@@ -498,6 +498,14 @@
             <div class="field range-control"><label for="backAngle">Inclinação do back</label><output class="range-value" id="backAngleValue">0°</output><input id="backAngle" type="range" min="-20" max="25" value="0" step="1"></div>
             <div class="field range-control"><label for="baseHeight">Altura expansível da base</label><output class="range-value" id="baseHeightValue">60 cm</output><input id="baseHeight" type="range" min="45" max="90" value="60" step="1"></div>
           </div>
+          <div class="divider"></div>
+          <div class="panel-heading"><span>✓</span><div><h3>Especificações de fábrica</h3><p>Estes dados são vinculados diretamente ao pedido e à exportação.</p></div></div>
+          <div class="grid cols-2" style="margin-top:14px;">
+            <div class="field"><label for="configEspessura">Espessura da espuma</label><select id="configEspessura"><option value="">Não informado</option><option value="3 cm">3 cm</option><option value="5 cm">5 cm</option></select></div>
+            <div class="field"><label for="configPistao">Pistão</label><select id="configPistao"><option value="">Não informado</option><option value="P">P</option><option value="M">M</option></select></div>
+            <div class="field"><label for="configSela">Modelo sela</label><select id="configSela"><option value="0">Não</option><option value="1">Sim</option></select></div>
+            <div class="field"><label for="configLinhaSoft">Linha de espuma</label><select id="configLinhaSoft"><option value="">Padrão</option><option value="Soft">Soft</option><option value="Soft Plus">Soft Plus</option></select></div>
+          </div>
         </div>
 
         <div class="config-panel">
@@ -738,6 +746,33 @@ function nomeOpt(id, list) {
   return item ? item.nome : id;
 }
 
+const VINCULOS_CONFIGURACAO = {
+  configEspessura: 'espessura',
+  configPistao: 'pistao',
+  configSela: 'mSela',
+  configLinhaSoft: 'linhaSoft'
+};
+
+function sincronizarConfiguracaoComPedido(origem = 'pedido') {
+  Object.entries(VINCULOS_CONFIGURACAO).forEach(([campoConfig, campoPedido]) => {
+    const config = document.getElementById(campoConfig);
+    const pedido = document.getElementById(campoPedido);
+    if (!config || !pedido) return;
+    if (origem === 'config') pedido.value = config.value;
+    else config.value = pedido.value;
+  });
+}
+
+function especificacoesConfiguradas() {
+  const valor = id => document.getElementById(id)?.value || '';
+  return {
+    espuma: valor('espessura') || 'Não informado',
+    pistao: valor('pistao') || 'Não informado',
+    sela: valor('mSela') === '1' ? 'Sim' : 'Não',
+    linha: valor('linhaSoft') || 'Padrão'
+  };
+}
+
 /* ============================================================
    VISUALIZADOR 3D DO MOCHO
    ============================================================ */
@@ -963,6 +998,7 @@ function calcularPrecoUnitario() {
 }
 
 function addItem() {
+  sincronizarConfiguracaoComPedido('config');
   const tam = getSelected('tamanhoGroup');
   const back = getSelected('backGroup');
   const mat = getSelected('materialGroup');
@@ -974,6 +1010,7 @@ function addItem() {
   const obs = document.getElementById('observacoes').value.trim();
   const anguloBack = document.getElementById('backAngle').value;
   const alturaBase = document.getElementById('baseHeight').value;
+  const especificacoes = especificacoesConfiguradas();
 
   const rodinhas = document.getElementById('opcao-rodinhas').value === '1';
   const altura = document.getElementById('opcao-altura').value === '1';
@@ -987,7 +1024,11 @@ function addItem() {
     `Inclinação do back: ${anguloBack}°`,
     `Altura da base: ${alturaBase} cm`,
     `Cor assento: ${corAssento}`,
-    `Cor estrutura: ${corEstrutura}`
+    `Cor estrutura: ${corEstrutura}`,
+    `Espuma: ${especificacoes.espuma}`,
+    `Pistão: ${especificacoes.pistao}`,
+    `M. sela: ${especificacoes.sela}`,
+    `Linha de espuma: ${especificacoes.linha}`
   ];
   aces.forEach(a => detalhes.push(`Acessório: ${nomeOpt(a, CONFIG.acessorios)}`));
   if (rodinhas) detalhes.push('Acessório: Rodízios');
@@ -1001,6 +1042,7 @@ function addItem() {
     id: ++itemCounter,
     descricao: `Mocho ${nomeOpt(tam, CONFIG.tamanhos)} — ${nomeOpt(mat, CONFIG.materiais)} (${corAssento}/${corEstrutura})`,
     detalhes: detalhes.join('; '),
+    configuracao: `Espuma ${especificacoes.espuma} · Pistão ${especificacoes.pistao} · M. sela ${especificacoes.sela} · Linha ${especificacoes.linha}`,
     qtd,
     unitario,
     subtotal: unitario * qtd
@@ -1032,6 +1074,7 @@ function limparConfig() {
   document.getElementById('corEstrutura').selectedIndex = 0;
   document.getElementById('backAngle').value = 0;
   document.getElementById('baseHeight').value = 60;
+  sincronizarConfiguracaoComPedido('pedido');
   atualizarMocho3D();
 }
 
@@ -1242,7 +1285,8 @@ function exportarPdfFabrica() {
   check(49, yOpcoes + 34, 'SOFT PLUS', p.linhaSoft === 'Soft Plus');
 
   const obsItens = itens.map(item => item.detalhes.match(/Obs: (.*?)(; |$)/)?.[1]).filter(Boolean);
-  const observacoes = [p.observacoesPedido, ...obsItens, itens.length > 5 ? `Mais ${itens.length - 5} item(ns) no pedido.` : ''].filter(Boolean).join(' | ');
+  const configuracoesItens = itens.map((item, indice) => item.configuracao ? `Item ${indice + 1}: ${item.configuracao}` : '').filter(Boolean);
+  const observacoes = [p.observacoesPedido, ...configuracoesItens, ...obsItens, itens.length > 5 ? `Mais ${itens.length - 5} item(ns) no pedido.` : ''].filter(Boolean).join(' | ');
   doc.rect(98, yOpcoes, 98, 40);
   doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('Observações:', 102, yOpcoes + 7);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
@@ -1518,6 +1562,9 @@ document.addEventListener('DOMContentLoaded', () => {
   buildSelect('corAssento', CONFIG.coresAssento);
   buildSelect('corEstrutura', CONFIG.coresEstrutura);
   document.getElementById('data').value = new Date().toISOString().split('T')[0];
+  sincronizarConfiguracaoComPedido('pedido');
+  Object.keys(VINCULOS_CONFIGURACAO).forEach(id => document.getElementById(id).addEventListener('change', () => sincronizarConfiguracaoComPedido('config')));
+  Object.values(VINCULOS_CONFIGURACAO).forEach(id => document.getElementById(id).addEventListener('change', () => sincronizarConfiguracaoComPedido('pedido')));
 
   iniciarMocho3D();
   document.querySelector('.configurator').addEventListener('change', atualizarMocho3D);
