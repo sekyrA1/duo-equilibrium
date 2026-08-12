@@ -13,16 +13,16 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
 <style>
   :root {
-    --ink: #162033;
-    --ink-soft: #34415a;
-    --muted: #66718a;
+    --ink: #10143c;
+    --ink-soft: #292c52;
+    --muted: #5f637e;
     --glass: rgba(255, 255, 255, .46);
     --glass-strong: rgba(255, 255, 255, .66);
     --glass-border: rgba(255, 255, 255, .62);
-    --bg: #dfe4f2;
-    --accent: #3d4be8;
-    --accent-hover: #303ed3;
-    --accent-soft: rgba(235, 238, 255, .72);
+    --bg: #f3f4f7;
+    --accent: #bb1722;
+    --accent-hover: #941019;
+    --accent-soft: rgba(255, 237, 238, .72);
     --success: #157347;
     --danger: #b42318;
     --radius: 18px;
@@ -47,12 +47,12 @@
   body::before {
     width: min(56vw, 760px); height: min(56vw, 760px);
     top: -280px; left: -140px;
-    background: radial-gradient(circle, rgba(157, 131, 255, .5), rgba(157, 131, 255, 0) 68%);
+    background: radial-gradient(circle, rgba(187, 23, 34, .2), rgba(187, 23, 34, 0) 68%);
   }
   body::after {
     width: min(62vw, 840px); height: min(62vw, 840px);
     right: -260px; bottom: -360px;
-    background: radial-gradient(circle, rgba(93, 185, 255, .42), rgba(93, 185, 255, 0) 68%);
+    background: radial-gradient(circle, rgba(16, 20, 60, .18), rgba(16, 20, 60, 0) 68%);
   }
 
   /* ---------- TOPO ---------- */
@@ -71,18 +71,7 @@
     -webkit-backdrop-filter: blur(22px) saturate(1.25);
   }
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
-  .brand-logo {
-    width: 38px; height: 38px;
-    background: var(--accent);
-    border-radius: 12px;
-    box-shadow: 0 8px 18px rgba(61, 75, 232, .25);
-    display: grid; place-items: center;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 800;
-  }
-  .brand h1 { font-size: 1.05rem; font-weight: 800; color: var(--ink); }
-  .brand p { color: var(--muted); font-size: .75rem; margin-top: 1px; }
+  .brand-logo-img { width: 136px; height: 58px; object-fit: contain; display: block; mix-blend-mode: multiply; }
 
   .nav-tabs {
     display: flex;
@@ -109,7 +98,7 @@
   .nav-tab.active {
     background: var(--accent);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(61, 75, 232, .25);
+    box-shadow: 0 4px 12px rgba(187, 23, 34, .25);
   }
 
   .topbar-badges { display: flex; gap: 6px; align-items: center; }
@@ -177,7 +166,7 @@
   input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 4px rgba(61,75,232,.13);
+    box-shadow: 0 0 0 4px rgba(187,23,34,.13);
     background: rgba(255,255,255,.9);
   }
   textarea { resize: vertical; min-height: 60px; }
@@ -201,7 +190,7 @@
   .opt-group label:has(input:checked) {
     background: var(--accent);
     color: #fff;
-    box-shadow: 0 7px 16px rgba(61,75,232,.25);
+    box-shadow: 0 7px 16px rgba(187,23,34,.25);
   }
   .opt-group label:has(input:checked) .preco { color: #dbeafe; }
   .opt-group .preco { color: var(--muted); font-weight: 500; font-size: .76rem; }
@@ -231,9 +220,9 @@
   }
   .btn:active { transform: scale(.985); }
   .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 8px 18px rgba(61,75,232,.28); transform: translateY(-1px); }
+  .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 8px 18px rgba(187,23,34,.28); transform: translateY(-1px); }
   .btn-accent { background: var(--accent); color: #fff; }
-  .btn-accent:hover { background: var(--accent-hover); box-shadow: 0 8px 18px rgba(61,75,232,.28); transform: translateY(-1px); }
+  .btn-accent:hover { background: var(--accent-hover); box-shadow: 0 8px 18px rgba(187,23,34,.28); transform: translateY(-1px); }
   .btn-success { background: var(--success); color: #fff; }
   .btn-success:hover { filter: brightness(1.08); }
   .btn-danger { background: var(--danger); color: #fff; }
@@ -388,11 +377,7 @@
 
 <div class="topbar">
   <a href="index.html" class="brand">
-    <div class="brand-logo">de</div>
-    <div>
-      <h1>duoequilibrium</h1>
-      <p>Móveis com equilíbrio entre forma e função</p>
-    </div>
+    <img class="brand-logo-img" src="assets/logo-duo-equilibrium.png" alt="Duo Equilibrium - Soluções Ergonômicas">
   </a>
 
   <nav class="nav-tabs">
