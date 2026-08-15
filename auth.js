@@ -105,8 +105,6 @@
     const email = document.getElementById('recoveryEmail').value.trim();
     const redirectTo = new URL('admin.html', window.location.href);
     redirectTo.search = '';
-    redirectTo.searchParams.set('mode', 'reset');
-    redirectTo.searchParams.set('next', next);
     const { error } = await window.appSupabase.auth.resetPasswordForEmail(email, { redirectTo: redirectTo.href });
     submitRecovery.disabled = false;
     if (error) {
