@@ -524,7 +524,36 @@ function nomeArquivo(p) {
 /* ============================================================
    EXPORTAÇÃO PDF
    ============================================================ */
-function exportarPdfFabrica() {
+let pdfPreview = { doc: null, url: '', filename: '' };
+
+function abrirPreviewPdf(doc, filename) {
+  const dialog = document.getElementById('pdfPreviewDialog');
+  const frame = document.getElementById('pdfPreviewFrame');
+  if (!dialog || !frame) return;
+  if (pdfPreview.url) URL.revokeObjectURL(pdfPreview.url);
+  pdfPreview = { doc, url: URL.createObjectURL(doc.output('blob')), filename };
+  frame.src = pdfPreview.url;
+  document.getElementById('pdfPreviewTitle').textContent = filename.replace(/\.pdf$/i, '');
+  dialog.showModal();
+}
+
+function fecharPreviewPdf() {
+  const dialog = document.getElementById('pdfPreviewDialog');
+  const frame = document.getElementById('pdfPreviewFrame');
+  if (frame) frame.src = 'about:blank';
+  if (pdfPreview.url) URL.revokeObjectURL(pdfPreview.url);
+  pdfPreview = { doc: null, url: '', filename: '' };
+  if (dialog?.open) dialog.close();
+}
+
+function exportarPdfDaPreview() {
+  if (!pdfPreview.doc) return;
+  pdfPreview.doc.save(pdfPreview.filename);
+  fecharPreviewPdf();
+  toast('Pedido de fábrica em PDF gerado com sucesso!');
+}
+
+function exportarPdfFabrica(modo = 'download') {
   if (itens.length === 0) { toast('Adicione ao menos um item ao pedido.'); return; }
   if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
     toast('Biblioteca PDF indisponível - verifique a conexão com a internet.');
@@ -637,7 +666,12 @@ function exportarPdfFabrica() {
   doc.text('ASS. CLIENTE', 154, 280, { align: 'center' });
   doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text(texto(p.representante), 54, 272, { align: 'center' });
 
-  doc.save(`${nomeArquivo(p)}.pdf`);
+  const filename = `${nomeArquivo(p)}.pdf`;
+  if (modo === 'preview') {
+    abrirPreviewPdf(doc, filename);
+    return;
+  }
+  doc.save(filename);
   toast('Pedido de fábrica em PDF gerado com sucesso!');
 }
 
@@ -1017,6 +1051,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnAdd').addEventListener('click', addItem);
   document.getElementById('btnLimparConfig').addEventListener('click', limparConfig);
   document.getElementById('btnPdf').addEventListener('click', exportarPdf);
+  document.getElementById('btnPdfPreview').addEventListener('click', () => exportarPdfFabrica('preview'));
+  document.getElementById('pdfPreviewClose').addEventListener('click', fecharPreviewPdf);
+  document.getElementById('pdfPreviewBack').addEventListener('click', fecharPreviewPdf);
+  document.getElementById('pdfPreviewExport').addEventListener('click', exportarPdfDaPreview);
+  document.getElementById('pdfPreviewDialog').addEventListener('click', evento => {
+    if (evento.target === document.getElementById('pdfPreviewDialog')) fecharPreviewPdf();
+  });
   document.getElementById('btnXlsx').addEventListener('click', exportarXlsx);
   document.getElementById('btnCsv').addEventListener('click', exportarCsv);
   document.getElementById('btnNovo').addEventListener('click', novoPedido);

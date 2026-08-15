@@ -220,7 +220,10 @@
         <div class="resumo-labels" id="resumoLabels"></div>
 
         <div style="margin-top:18px; display:flex; flex-direction:column; gap:10px;">
-          <button class="btn btn-accent btn-add" id="btnPdf">Exportar PDF</button>
+          <div class="btn-row pdf-actions">
+            <button class="btn btn-outline" id="btnPdfPreview" style="flex:1;justify-content:center;">Visualizar PDF</button>
+            <button class="btn btn-accent btn-add" id="btnPdf" style="flex:1;justify-content:center;">Exportar PDF</button>
+          </div>
           <div class="btn-row">
             <button class="btn btn-outline" id="btnXlsx" style="flex:1;justify-content:center;">XLSX (Excel)</button>
             <button class="btn btn-outline" id="btnCsv" style="flex:1;justify-content:center;">CSV</button>
@@ -265,6 +268,25 @@
         <button class="btn btn-ghost" id="historyDialogBack" type="button">Fechar</button>
         <button class="btn btn-accent" id="historyDialogPdf" type="button">Baixar PDF do pedido</button>
       </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="pdf-preview-dialog" id="pdfPreviewDialog" aria-labelledby="pdfPreviewTitle">
+  <div class="pdf-preview-shell">
+    <div class="pdf-preview-header">
+      <div>
+        <div class="dashboard-kicker">Prévia antes da exportação</div>
+        <h2 id="pdfPreviewTitle">Pedido de fábrica</h2>
+      </div>
+      <button class="btn btn-ghost history-dialog-close" id="pdfPreviewClose" type="button" aria-label="Fechar prévia">×</button>
+    </div>
+    <div class="pdf-preview-body">
+      <iframe id="pdfPreviewFrame" title="Prévia do PDF do pedido"></iframe>
+    </div>
+    <div class="pdf-preview-actions">
+      <button class="btn btn-ghost" id="pdfPreviewBack" type="button">Voltar</button>
+      <button class="btn btn-accent" id="pdfPreviewExport" type="button">Confirmar e exportar PDF</button>
     </div>
   </div>
 </dialog>
