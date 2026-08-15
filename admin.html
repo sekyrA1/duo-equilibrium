@@ -35,27 +35,32 @@
         <button class="auth-link" id="backToLogin" type="button">Voltar para o login</button>
       </form>
 
-      <form class="auth-form" id="inviteForm" hidden>
-        <p>Convite confirmado para <span class="auth-invite-email" id="inviteEmail"></span>.</p>
-        <label for="invitePassword">Crie sua senha
-          <input id="invitePassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo de 8 caracteres">
-        </label>
-        <label for="invitePasswordConfirmation">Repita a senha
-          <input id="invitePasswordConfirmation" type="password" autocomplete="new-password" minlength="8" required placeholder="Repita a senha">
-        </label>
-        <button class="auth-button" id="submitInvite" type="submit">Ativar acesso</button>
-      </form>
+      <!-- Fluxos especiais ficam fora do DOM renderizado até o link seguro chegar. -->
+      <template id="inviteFormTemplate">
+        <form class="auth-form" id="inviteForm" hidden>
+          <p>Convite confirmado para <span class="auth-invite-email" id="inviteEmail"></span>.</p>
+          <label for="invitePassword">Crie sua senha
+            <input id="invitePassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo de 8 caracteres">
+          </label>
+          <label for="invitePasswordConfirmation">Repita a senha
+            <input id="invitePasswordConfirmation" type="password" autocomplete="new-password" minlength="8" required placeholder="Repita a senha">
+          </label>
+          <button class="auth-button" id="submitInvite" type="submit">Ativar acesso</button>
+        </form>
+      </template>
 
-      <form class="auth-form" id="resetForm" hidden>
-        <p>Crie uma nova senha para voltar ao painel.</p>
-        <label for="resetPassword">Nova senha
-          <input id="resetPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo de 8 caracteres">
-        </label>
-        <label for="resetPasswordConfirmation">Repita a senha
-          <input id="resetPasswordConfirmation" type="password" autocomplete="new-password" minlength="8" required placeholder="Repita a senha">
-        </label>
-        <button class="auth-button" id="submitReset" type="submit">Salvar nova senha</button>
-      </form>
+      <template id="resetFormTemplate">
+        <form class="auth-form" id="resetForm" hidden>
+          <p>Crie uma nova senha para voltar ao painel.</p>
+          <label for="resetPassword">Nova senha
+            <input id="resetPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo de 8 caracteres">
+          </label>
+          <label for="resetPasswordConfirmation">Repita a senha
+            <input id="resetPasswordConfirmation" type="password" autocomplete="new-password" minlength="8" required placeholder="Repita a senha">
+          </label>
+          <button class="auth-button" id="submitReset" type="submit">Salvar nova senha</button>
+        </form>
+      </template>
 
       <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
       <a class="auth-back" href="index.html">Voltar para o site público</a>

@@ -76,8 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const previousButton = document.querySelector('[data-carousel="prev"]');
   const nextButton = document.querySelector('[data-carousel="next"]');
-  const carouselCurrent = document.getElementById('carouselCurrent');
-  const carouselTotal = document.getElementById('carouselTotal');
   const carouselProgress = document.querySelector('.carousel-progress span');
   const carouselStatus = document.querySelector('.carousel-status');
   const carouselHandle = document.getElementById('carouselHandle');
@@ -122,8 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function atualizarStatusCarrossel() {
     const atual = indiceReal() + 1;
-    carouselCurrent.textContent = String(atual).padStart(2, '0');
-    carouselTotal.textContent = String(totalCards).padStart(2, '0');
     carouselProgress.style.width = `${(atual / totalCards) * 100}%`;
     carouselStatus.style.setProperty('--progress', `${6 + ((atual - 1) / Math.max(1, totalCards - 1)) * 88}%`);
     carouselHandle.value = atual;

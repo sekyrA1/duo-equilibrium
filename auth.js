@@ -1,19 +1,39 @@
 (function setupAdminAuth() {
   const loginForm = document.getElementById('loginForm');
   const recoveryForm = document.getElementById('recoveryForm');
-  const inviteForm = document.getElementById('inviteForm');
-  const resetForm = document.getElementById('resetForm');
+  const inviteTemplate = document.getElementById('inviteFormTemplate');
+  const resetTemplate = document.getElementById('resetFormTemplate');
+  let inviteForm = null;
+  let resetForm = null;
   const message = document.getElementById('authMessage');
   const submitLogin = document.getElementById('submitLogin');
   const submitRecovery = document.getElementById('submitRecovery');
-  const submitInvite = document.getElementById('submitInvite');
-  const submitReset = document.getElementById('submitReset');
+  let submitInvite = null;
+  let submitReset = null;
   const showRecovery = document.getElementById('showRecovery');
   const backToLogin = document.getElementById('backToLogin');
   const params = new URLSearchParams(window.location.search);
   const next = params.get('next') || 'pedidos.html';
   const inviteInHash = /(?:^|[#&])type=invite(?:&|$)/.test(window.location.hash);
   const recoveryInHash = /(?:^|[#&])type=recovery(?:&|$)/.test(window.location.hash);
+
+  // Os fluxos especiais só entram no DOM quando o Supabase devolve o
+  // marcador correspondente no link. Assim, o login comum não carrega
+  // painéis de convite ou troca de senha na interface.
+  function mountForm(template, anchor) {
+    if (!template?.content?.firstElementChild) return null;
+    const form = template.content.firstElementChild.cloneNode(true);
+    anchor.insertAdjacentElement('afterend', form);
+    template.remove();
+    return form;
+  }
+
+  if (inviteInHash) inviteForm = mountForm(inviteTemplate, recoveryForm);
+  else inviteTemplate?.remove();
+  if (recoveryInHash) resetForm = mountForm(resetTemplate, inviteForm || recoveryForm);
+  else resetTemplate?.remove();
+  submitInvite = inviteForm?.querySelector('#submitInvite') || null;
+  submitReset = resetForm?.querySelector('#submitReset') || null;
 
   const setMessage = (text, type = '') => {
     message.textContent = text;
@@ -37,7 +57,7 @@
   }
 
   function showOnly(form) {
-    [loginForm, recoveryForm, inviteForm, resetForm].forEach(item => {
+    [loginForm, recoveryForm, inviteForm, resetForm].filter(Boolean).forEach(item => {
       item.hidden = item !== form;
     });
   }
@@ -119,7 +139,7 @@
     setMessage('Link enviado. Verifique sua caixa de entrada e também a pasta de spam.', 'success');
   });
 
-  inviteForm.addEventListener('submit', async event => {
+  inviteForm?.addEventListener('submit', async event => {
     event.preventDefault();
     submitInvite.disabled = true;
     const password = document.getElementById('invitePassword').value;
@@ -140,7 +160,7 @@
     window.setTimeout(redirectAfterAuth, 400);
   });
 
-  resetForm.addEventListener('submit', async event => {
+  resetForm?.addEventListener('submit', async event => {
     event.preventDefault();
     submitReset.disabled = true;
     const password = document.getElementById('resetPassword').value;
