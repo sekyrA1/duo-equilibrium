@@ -23,6 +23,16 @@
           <input id="password" type="password" autocomplete="current-password" required placeholder="Sua senha">
         </label>
         <button class="auth-button" id="submitLogin" type="submit">Entrar no painel</button>
+        <button class="auth-link" id="showRecovery" type="button">Esqueci minha senha</button>
+      </form>
+
+      <form class="auth-form" id="recoveryForm" hidden>
+        <p>Informe seu e-mail e enviaremos um link seguro para criar uma nova senha.</p>
+        <label for="recoveryEmail">E-mail
+          <input id="recoveryEmail" type="email" autocomplete="email" required placeholder="seu@email.com">
+        </label>
+        <button class="auth-button" id="submitRecovery" type="submit">Enviar link de recuperação</button>
+        <button class="auth-link" id="backToLogin" type="button">Voltar para o login</button>
       </form>
 
       <form class="auth-form" id="inviteForm" hidden>
@@ -34,6 +44,17 @@
           <input id="invitePasswordConfirmation" type="password" autocomplete="new-password" minlength="8" required placeholder="Repita a senha">
         </label>
         <button class="auth-button" id="submitInvite" type="submit">Ativar acesso</button>
+      </form>
+
+      <form class="auth-form" id="resetForm" hidden>
+        <p>Crie uma nova senha para voltar ao painel.</p>
+        <label for="resetPassword">Nova senha
+          <input id="resetPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo de 8 caracteres">
+        </label>
+        <label for="resetPasswordConfirmation">Repita a senha
+          <input id="resetPasswordConfirmation" type="password" autocomplete="new-password" minlength="8" required placeholder="Repita a senha">
+        </label>
+        <button class="auth-button" id="submitReset" type="submit">Salvar nova senha</button>
       </form>
 
       <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>

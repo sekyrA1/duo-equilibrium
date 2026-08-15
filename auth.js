@@ -1,12 +1,19 @@
 (function setupAdminAuth() {
   const loginForm = document.getElementById('loginForm');
+  const recoveryForm = document.getElementById('recoveryForm');
   const inviteForm = document.getElementById('inviteForm');
+  const resetForm = document.getElementById('resetForm');
   const message = document.getElementById('authMessage');
   const submitLogin = document.getElementById('submitLogin');
+  const submitRecovery = document.getElementById('submitRecovery');
   const submitInvite = document.getElementById('submitInvite');
+  const submitReset = document.getElementById('submitReset');
+  const showRecovery = document.getElementById('showRecovery');
+  const backToLogin = document.getElementById('backToLogin');
   const params = new URLSearchParams(window.location.search);
   const next = params.get('next') || 'pedidos.html';
   const inviteInHash = /(?:^|[#&])type=invite(?:&|$)/.test(window.location.hash);
+  const recoveryInHash = /(?:^|[#&])type=recovery(?:&|$)/.test(window.location.hash);
 
   const setMessage = (text, type = '') => {
     message.textContent = text;
@@ -29,6 +36,12 @@
     window.location.assign(next);
   }
 
+  function showOnly(form) {
+    [loginForm, recoveryForm, inviteForm, resetForm].forEach(item => {
+      item.hidden = item !== form;
+    });
+  }
+
   async function handleSession(session) {
     if (!session) return false;
     try {
@@ -40,10 +53,12 @@
       }
 
       if (inviteInHash) {
-        loginForm.hidden = true;
-        inviteForm.hidden = false;
+        showOnly(inviteForm);
         document.getElementById('inviteEmail').textContent = session.user.email || '';
         setMessage('Convite confirmado. Defina uma senha para continuar.', 'success');
+      } else if (recoveryInHash) {
+        showOnly(resetForm);
+        setMessage('Link confirmado. Defina uma nova senha.', 'success');
       } else {
         redirectAfterAuth();
       }
@@ -71,6 +86,37 @@
     submitLogin.disabled = false;
   });
 
+  showRecovery.addEventListener('click', () => {
+    const email = document.getElementById('email').value.trim();
+    document.getElementById('recoveryEmail').value = email;
+    showOnly(recoveryForm);
+    setMessage('');
+  });
+
+  backToLogin.addEventListener('click', () => {
+    showOnly(loginForm);
+    setMessage('');
+  });
+
+  recoveryForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    submitRecovery.disabled = true;
+    setMessage('Enviando link seguro…');
+    const email = document.getElementById('recoveryEmail').value.trim();
+    const redirectTo = new URL('admin.html', window.location.href);
+    redirectTo.search = '';
+    redirectTo.searchParams.set('mode', 'reset');
+    redirectTo.searchParams.set('next', next);
+    const { error } = await window.appSupabase.auth.resetPasswordForEmail(email, { redirectTo: redirectTo.href });
+    submitRecovery.disabled = false;
+    if (error) {
+      console.error(error);
+      setMessage('Não foi possível enviar o link. Confira o e-mail e tente novamente.', 'error');
+      return;
+    }
+    setMessage('Link enviado. Verifique sua caixa de entrada e também a pasta de spam.', 'success');
+  });
+
   inviteForm.addEventListener('submit', async event => {
     event.preventDefault();
     submitInvite.disabled = true;
@@ -92,11 +138,34 @@
     window.setTimeout(redirectAfterAuth, 400);
   });
 
+  resetForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    submitReset.disabled = true;
+    const password = document.getElementById('resetPassword').value;
+    const confirmation = document.getElementById('resetPasswordConfirmation').value;
+    if (password.length < 8 || password !== confirmation) {
+      submitReset.disabled = false;
+      setMessage('Use pelo menos 8 caracteres e repita a mesma senha.', 'error');
+      return;
+    }
+    const { error } = await window.appSupabase.auth.updateUser({ password });
+    if (error) {
+      submitReset.disabled = false;
+      console.error(error);
+      setMessage('O link expirou ou não é mais válido. Solicite outro link.', 'error');
+      return;
+    }
+    window.history.replaceState({}, document.title, `${window.location.pathname}?next=${encodeURIComponent(next)}`);
+    setMessage('Senha atualizada. Abrindo o painel…', 'success');
+    window.setTimeout(redirectAfterAuth, 500);
+  });
+
   if (!window.appSupabase) {
     setMessage('Não foi possível carregar a conexão segura.', 'error');
     return;
   }
 
   if (params.get('reason') === 'permission') setMessage('Sua sessão não tem permissão para acessar essa área.', 'error');
+  if (params.get('reason') === 'session') setMessage('Sua sessão expirou. Entre novamente ou recupere sua senha.', 'error');
   window.appSupabase.auth.getSession().then(({ data: { session } }) => handleSession(session));
 })();

@@ -49,6 +49,8 @@ body.auth-page {
 .auth-form input:focus { border-color: #647eff; box-shadow: 0 0 0 3px rgba(70, 100, 239, .2); }
 .auth-button { border: 0; border-radius: 13px; padding: 14px 18px; color: #fff; background: linear-gradient(110deg, var(--auth-red), #e53d4d 52%, var(--auth-blue)); font-weight: 800; cursor: pointer; }
 .auth-button:disabled { cursor: wait; opacity: .62; }
+.auth-link { border: 0; padding: 0; color: #b9c5ff; background: transparent; font: inherit; font-size: .82rem; cursor: pointer; }
+.auth-link:hover { color: #fff; text-decoration: underline; }
 .auth-message { min-height: 24px; margin: 16px 0 0; font-size: .86rem; }
 .auth-message[data-type="error"] { color: #ff9ca6; }
 .auth-message[data-type="success"] { color: #8be4c2; }
