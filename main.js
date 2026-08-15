@@ -560,7 +560,7 @@ function exportarPdfFabrica() {
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
   doc.text('CNPJ: 12.656.204/0001-64', 194, 30, { align: 'right' });
   doc.text('Tel.: (21) 97143-3650', 194, 34, { align: 'right' });
-  doc.text('E-mail: duoequilibrium@gmail.com', 194, 38, { align: 'right' });
+  doc.text('E-mail: duoequilibrium@gmail.com', 105, 38, { align: 'center' });
   doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
   doc.text(`Cód. do evento: ${texto(p.codigoEvento, '________________')}`, 105, 42, { align: 'center' });
   doc.text(`Nº: ${p.pedido}`, 194, 42, { align: 'right' });
