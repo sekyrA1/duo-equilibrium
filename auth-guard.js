@@ -1,0 +1,29 @@
+(async function protectOrdersPage() {
+  const allowedRoles = new Set(['admin', 'sales', 'factory', 'viewer']);
+  const goToLogin = (reason = '') => {
+    const next = `${window.location.pathname.split('/').pop()}${window.location.search}`;
+    const target = new URL('admin.html', window.location.href);
+    target.searchParams.set('next', next);
+    if (reason) target.searchParams.set('reason', reason);
+    window.location.replace(target.href);
+  };
+
+  if (!window.appSupabase) return goToLogin('client');
+
+  const { data: { session } } = await window.appSupabase.auth.getSession();
+  if (!session) return goToLogin('session');
+
+  const { data: profile, error } = await window.appSupabase
+    .from('profiles')
+    .select('id, display_name, role, active')
+    .eq('id', session.user.id)
+    .maybeSingle();
+
+  if (error || !profile?.active || !allowedRoles.has(profile.role)) {
+    await window.appSupabase.auth.signOut();
+    return goToLogin('permission');
+  }
+
+  window.currentAuth = { session, profile };
+  window.dispatchEvent(new CustomEvent('auth-ready', { detail: window.currentAuth }));
+})();

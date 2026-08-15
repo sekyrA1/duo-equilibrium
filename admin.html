@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acesso administrativo · Duo Equilibrium</title>
+  <link rel="icon" type="image/png" href="assets/logo-duo-equilibrium.png">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-card" aria-labelledby="authTitle">
+      <img class="auth-logo" src="assets/logo-duo-equilibrium.png" alt="Duo Equilibrium">
+      <p class="auth-kicker">Área restrita</p>
+      <h1 id="authTitle">Acesso ao painel</h1>
+      <p>Entre com o usuário convidado para acompanhar pedidos, produção e exportações.</p>
+
+      <form class="auth-form" id="loginForm">
+        <label for="email">E-mail
+          <input id="email" type="email" autocomplete="email" required placeholder="seu@email.com">
+        </label>
+        <label for="password">Senha
+          <input id="password" type="password" autocomplete="current-password" required placeholder="Sua senha">
+        </label>
+        <button class="auth-button" id="submitLogin" type="submit">Entrar no painel</button>
+      </form>
+
+      <form class="auth-form" id="inviteForm" hidden>
+        <p>Convite confirmado para <span class="auth-invite-email" id="inviteEmail"></span>.</p>
+        <label for="invitePassword">Crie sua senha
+          <input id="invitePassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo de 8 caracteres">
+        </label>
+        <label for="invitePasswordConfirmation">Repita a senha
+          <input id="invitePasswordConfirmation" type="password" autocomplete="new-password" minlength="8" required placeholder="Repita a senha">
+        </label>
+        <button class="auth-button" id="submitInvite" type="submit">Ativar acesso</button>
+      </form>
+
+      <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+      <a class="auth-back" href="index.html">Voltar para o site público</a>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/dist/umd/supabase.min.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>
