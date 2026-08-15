@@ -111,6 +111,10 @@
     submitRecovery.disabled = false;
     if (error) {
       console.error(error);
+      if (error.status === 429 || /rate.?limit|too many/i.test(error.message || '')) {
+        setMessage('O Supabase atingiu o limite temporário de e-mails. Use o link mais recente ou aguarde antes de solicitar outro.', 'error');
+        return;
+      }
       setMessage('Não foi possível enviar o link. Confira o e-mail e tente novamente.', 'error');
       return;
     }
