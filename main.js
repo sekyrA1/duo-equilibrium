@@ -263,8 +263,8 @@ function limparGrupo3D(group) {
   }
 }
 
-function cor3D(nome, fallback) {
-  return ({ 'Marrom': 0x633b25, 'Preto': 0x17191f, 'Caramelo': 0xb96f3c, 'Verde Musgo': 0x445e43, 'Azul Marinho': 0x162b52, 'Creme': 0xe2d1b1, 'Vermelho': 0x9f3030, 'Grafite': 0x41454f, 'Madeira Natural': 0xa96b3e, 'Branco': 0xe8ebef, 'Cromado': 0xbcc5cf, 'Dourado': 0xa98232, 'Carvalho': 0x7c542f })[nome] || fallback;
+function cor3D(nome, corPadrao) {
+  return ({ 'Marrom': 0x633b25, 'Preto': 0x17191f, 'Caramelo': 0xb96f3c, 'Verde Musgo': 0x445e43, 'Azul Marinho': 0x162b52, 'Creme': 0xe2d1b1, 'Vermelho': 0x9f3030, 'Grafite': 0x41454f, 'Madeira Natural': 0xa96b3e, 'Branco': 0xe8ebef, 'Cromado': 0xbcc5cf, 'Dourado': 0xa98232, 'Carvalho': 0x7c542f })[nome] || corPadrao;
 }
 
 function atualizarMocho3DLegadoDesativado() {
