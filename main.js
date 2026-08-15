@@ -558,9 +558,9 @@ function exportarPdfFabrica() {
   doc.addImage(LOGO_DUO_PDF, 'PNG', 15, 12, 34, 24);
   doc.setFontSize(18); doc.text('Pedido de Fábrica', 194, 25, { align: 'right' });
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-  doc.text('CNPJ: 12.656.204/0001-64', 194, 31, { align: 'right' });
-  doc.text('Tel.: (21) 97143-3650', 194, 35.5, { align: 'right' });
-  doc.text('E-mail: duoequilibrium@gmail.com', 194, 40, { align: 'right' });
+  doc.text('CNPJ: 12.656.204/0001-64', 194, 30, { align: 'right' });
+  doc.text('Tel.: (21) 97143-3650', 194, 34, { align: 'right' });
+  doc.text('E-mail: duoequilibrium@gmail.com', 194, 38, { align: 'right' });
   doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
   doc.text(`Cód. do evento: ${texto(p.codigoEvento, '________________')}`, 105, 42, { align: 'center' });
   doc.text(`Nº: ${p.pedido}`, 194, 42, { align: 'right' });
