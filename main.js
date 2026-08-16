@@ -1131,7 +1131,7 @@ function mapearPedido(row, itensPorPedido) {
 async function carregarDadosRemotos() {
   const sync = document.getElementById('dashboardSync');
   const historicoSync = document.getElementById('historicoSync');
-  if (!window.appSupabase) return;
+  if (!window.appSupabase) return false;
   try {
     const { data: pedidos, error: erroPedidos } = await window.appSupabase
       .from('orders')
@@ -1163,6 +1163,7 @@ async function carregarDadosRemotos() {
     iniciarGraficoPedidos(dashboardOrders);
     if (sync) sync.textContent = `${dashboardOrders.length} ${dashboardOrders.length === 1 ? 'pedido sincronizado' : 'pedidos sincronizados'}`;
     if (historicoSync) historicoSync.textContent = `${dashboardOrders.length} ${dashboardOrders.length === 1 ? 'registro' : 'registros'}`;
+    return true;
   } catch (error) {
     console.error('Falha ao carregar pedidos:', error);
     dashboardOrders = [];
@@ -1172,6 +1173,7 @@ async function carregarDadosRemotos() {
     iniciarGraficoPedidos([]);
     if (sync) sync.textContent = 'Não foi possível carregar os dados';
     if (historicoSync) historicoSync.textContent = 'Falha ao carregar';
+    return false;
   }
 }
 
@@ -1367,10 +1369,18 @@ async function excluirPedidoHistorico(id) {
     return;
   }
   toast(`Excluindo ${pedido.id}…`, 'loading');
-  const { error } = await window.appSupabase.from('orders').delete().eq('id', pedido.dbId);
+  const { data: removidos, error } = await window.appSupabase
+    .from('orders')
+    .delete()
+    .eq('id', pedido.dbId)
+    .select('id');
   if (error) {
     console.error('Falha ao excluir pedido:', error);
     toast(`Não foi possível excluir: ${mensagemErroSupabase(error)}`, 'error');
+    return;
+  }
+  if (!removidos?.some(item => item.id === pedido.dbId)) {
+    toast('O pedido não foi excluído. Verifique se seu perfil tem permissão de administrador ou vendas.', 'error');
     return;
   }
   if (pedidoHistoricoAtual?.id === pedido.id) {
@@ -1378,7 +1388,11 @@ async function excluirPedidoHistorico(id) {
     if (dialog?.open) dialog.close();
     pedidoHistoricoAtual = null;
   }
-  await carregarDadosRemotos();
+  const carregamentoOk = await carregarDadosRemotos();
+  if (!carregamentoOk || HISTORICO_PEDIDOS.some(item => item.dbId === pedido.dbId)) {
+    toast('A exclusão não foi confirmada pelo banco de dados.', 'error');
+    return;
+  }
   toast(`Pedido ${pedido.id} excluído.`, 'success');
 }
 
