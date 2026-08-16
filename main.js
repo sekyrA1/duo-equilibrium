@@ -504,7 +504,9 @@ function dataBrasileira(data) {
 }
 
 function nomeArquivo(p) {
-  return `Pedido_${p.pedido.replace(/[\\/:*?"<>|]/g, '_')}_${p.cliente.replace(/[\\/:*?"<>|]/g, '_')}`;
+  const pedido = String(p?.pedido || 'sem-numero');
+  const cliente = String(p?.cliente || 'cliente');
+  return `Pedido_${pedido.replace(/[\\/:*?"<>|]/g, '_')}_${cliente.replace(/[\\/:*?"<>|]/g, '_')}`;
 }
 
 /* ============================================================
@@ -539,17 +541,18 @@ function exportarPdfDaPreview() {
   toast('Pedido de fábrica em PDF gerado com sucesso!');
 }
 
-function exportarPdfFabrica(modo = 'download') {
-  if (itens.length === 0) { toast('Adicione ao menos um item ao pedido.'); return; }
+function exportarPdfFabrica(modo = 'download', contexto = null) {
+  const itensPdf = contexto?.itens || itens;
+  if (itensPdf.length === 0) { toast('Adicione ao menos um item ao pedido.'); return; }
   if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
     toast('Biblioteca PDF indisponível - verifique a conexão com a internet.');
     return;
   }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const p = dadosPedido();
+  const p = contexto?.p || dadosPedido();
   const pageW = 210, margem = 12, largura = pageW - margem * 2;
-  const temLombar = itens.some(item => item.detalhes.includes('Apoio lombar'));
+  const temLombar = itensPdf.some(item => item.detalhes?.includes('Apoio lombar'));
   const valorParcela = p.valorParcela || (p.total / p.parcelas);
 
   const texto = (valor, padrao = '') => String(valor || padrao);
@@ -607,7 +610,7 @@ function exportarPdfFabrica(modo = 'download') {
   doc.text('ESTRUTURA: METAL CROMADO PRATA', 22, yInfo + 36);
   check(22, yInfo + 43, 'MOCHO SELA', true);
 
-  const linhasProduto = itens.slice(0, 5).map((item, indice) => [
+  const linhasProduto = itensPdf.slice(0, 5).map((item, indice) => [
     item.descricao.length > 42 ? `${item.descricao.slice(0, 39)}...` : item.descricao,
     indice === 0 ? fmt(p.valorRecebido) : '',
     indice === 0 ? String(p.parcelas) : '',
@@ -632,9 +635,9 @@ function exportarPdfFabrica(modo = 'download') {
   check(19, yOpcoes + 34, 'SELA SOFT', p.tamanhoSela === 'Soft');
   check(49, yOpcoes + 34, 'SELA SOFT PLUS', p.tamanhoSela === 'Soft Plus');
 
-  const obsItens = itens.map(item => item.detalhes.match(/Obs: (.*?)(; |$)/)?.[1]).filter(Boolean);
-  const configuracoesItens = itens.map((item, indice) => item.configuracao ? `Item ${indice + 1}: ${item.configuracao}` : '').filter(Boolean);
-  const observacoes = [p.observacoesPedido, ...configuracoesItens, ...obsItens, itens.length > 5 ? `Mais ${itens.length - 5} item(ns) no pedido.` : ''].filter(Boolean).join(' | ');
+  const obsItens = itensPdf.map(item => item.detalhes?.match(/Obs: (.*?)(; |$)/)?.[1]).filter(Boolean);
+  const configuracoesItens = itensPdf.map((item, indice) => item.configuracao ? `Item ${indice + 1}: ${item.configuracao}` : '').filter(Boolean);
+  const observacoes = [p.observacoesPedido, ...configuracoesItens, ...obsItens, itensPdf.length > 5 ? `Mais ${itensPdf.length - 5} item(ns) no pedido.` : ''].filter(Boolean).join(' | ');
   doc.rect(98, yOpcoes, 98, 40);
   doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('Observações:', 102, yOpcoes + 7);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
@@ -1209,24 +1212,90 @@ function renderHistoricoPedidos() {
     lista.innerHTML = '<div class="empty-state">Nenhum pedido registrado ainda.</div>';
     return;
   }
+  const podeExcluir = ['admin', 'sales'].includes(window.currentAuth?.profile?.role);
   lista.innerHTML = HISTORICO_PEDIDOS.map(pedido => {
     const emProducao = ['in_production', 'quality_check'].includes(pedido.statusCode);
+    const botaoExcluir = podeExcluir ? `<button class="btn btn-danger" type="button" data-history-delete="${escapeHtml(pedido.id)}" aria-label="Excluir ${escapeHtml(pedido.id)}">Lixeira</button>` : '';
     return `<article class="historico-item">
       <div class="historico-topo"><div><strong>${escapeHtml(pedido.id)}</strong><span>${escapeHtml(pedido.cliente)} · ${escapeHtml(pedido.data || '—')}</span></div><span class="status-pedido${emProducao ? ' producao' : ''}">${escapeHtml(pedido.status)}</span></div>
       <span>${escapeHtml(pedido.produto)} · ${pedido.itens} ${pedido.itens === 1 ? 'item' : 'itens'}</span>
       <div class="historico-valor">${fmt(pedido.valor)}</div>
-      <div class="historico-acoes"><button class="btn btn-outline" type="button" data-history-view="${escapeHtml(pedido.id)}">Ver dados</button><button class="btn btn-ghost" type="button" data-history-pdf="${escapeHtml(pedido.id)}">PDF</button></div>
+      <div class="historico-acoes"><button class="btn btn-outline" type="button" data-history-view="${escapeHtml(pedido.id)}">Ver dados</button><button class="btn btn-ghost" type="button" data-history-pdf="${escapeHtml(pedido.id)}">PDF</button>${botaoExcluir}</div>
     </article>`;
   }).join('');
 
   lista.querySelectorAll('[data-history-view]').forEach(botao => botao.addEventListener('click', () => abrirHistorico(botao.dataset.historyView)));
   lista.querySelectorAll('[data-history-pdf]').forEach(botao => botao.addEventListener('click', () => baixarPdfHistorico(botao.dataset.historyPdf)));
+  lista.querySelectorAll('[data-history-delete]').forEach(botao => botao.addEventListener('click', () => excluirPedidoHistorico(botao.dataset.historyDelete)));
+}
+
+function construirContextoPdfHistorico(pedido) {
+  const snapshot = pedido.raw?.order_snapshot || {};
+  const clienteSnapshot = pedido.raw?.customer_snapshot || {};
+  const itensSnapshot = Array.isArray(snapshot.items) ? snapshot.items : [];
+  const itensFonte = itensSnapshot.length ? itensSnapshot : (pedido.rawItems || []);
+  const itensPdf = itensFonte.map((item, indice) => {
+    const unitario = Number(item.unitario ?? item.unit_price ?? 0);
+    const quantidade = Number(item.qtd ?? item.quantity ?? 1);
+    return {
+      id: item.id || indice + 1,
+      descricao: item.descricao || item.product_name || 'Mocho Sela',
+      detalhes: item.detalhes || item.manufacturing_notes || '',
+      configuracao: item.configuracao || '',
+      qtd: quantidade,
+      unitario,
+      subtotal: Number(item.subtotal ?? unitario * quantidade)
+    };
+  });
+  const p = {
+    ...snapshot,
+    pedido: snapshot.pedido || pedido.id,
+    cliente: snapshot.cliente || clienteSnapshot.name || pedido.cliente || '',
+    telefone: snapshot.telefone || clienteSnapshot.phone || pedido.telefone || '',
+    data: snapshot.data || pedido.raw?.issue_date || '',
+    subtotal: Number(snapshot.subtotal ?? pedido.raw?.subtotal ?? 0),
+    descontoPct: Number(snapshot.descontoPct ?? pedido.raw?.discount_pct ?? 0),
+    desconto: Number(snapshot.desconto ?? pedido.raw?.discount_amount ?? 0),
+    frete: Number(snapshot.frete ?? pedido.raw?.freight ?? 0),
+    total: Number(snapshot.total ?? pedido.raw?.total ?? 0),
+    valorRecebido: Number(snapshot.valorRecebido ?? pedido.raw?.amount_received ?? 0),
+    parcelas: Math.max(1, Number(snapshot.parcelas ?? pedido.raw?.installments ?? 1)),
+    valorParcela: Number(snapshot.valorParcela ?? pedido.raw?.installment_amount ?? 0),
+    codigoEvento: snapshot.codigoEvento ?? clienteSnapshot.event_code ?? '',
+    cpf: snapshot.cpf ?? clienteSnapshot.cpf ?? '',
+    nascimento: snapshot.nascimento ?? clienteSnapshot.birth_date ?? '',
+    cnpj: snapshot.cnpj ?? clienteSnapshot.cnpj ?? '',
+    email: snapshot.email ?? clienteSnapshot.email ?? '',
+    profissao: snapshot.profissao ?? clienteSnapshot.profession ?? '',
+    rua: snapshot.rua ?? clienteSnapshot.address_line ?? '',
+    numero: snapshot.numero ?? clienteSnapshot.address_number ?? '',
+    complemento: snapshot.complemento ?? clienteSnapshot.address_complement ?? '',
+    bairro: snapshot.bairro ?? clienteSnapshot.neighborhood ?? '',
+    cidade: snapshot.cidade ?? clienteSnapshot.city ?? '',
+    uf: snapshot.uf ?? clienteSnapshot.state ?? '',
+    cep: snapshot.cep ?? clienteSnapshot.postal_code ?? '',
+    medidaAltura: snapshot.medidaAltura ?? clienteSnapshot.height ?? '',
+    peso: snapshot.peso ?? clienteSnapshot.weight ?? '',
+    espessura: snapshot.espessura ?? pedido.espuma ?? '',
+    pistao: snapshot.pistao ?? pedido.pistao ?? '',
+    corAssento: snapshot.corAssento ?? '',
+    corEstrutura: snapshot.corEstrutura ?? 'Cromado',
+    representante: snapshot.representante ?? pedido.raw?.representative ?? '',
+    localAssinatura: snapshot.localAssinatura ?? pedido.raw?.signature_city ?? '',
+    mSela: snapshot.mSela ?? true,
+    tamanhoSela: snapshot.tamanhoSela ?? pedido.linha ?? '',
+    observacoesPedido: snapshot.observacoesPedido ?? pedido.raw?.notes ?? ''
+  };
+  return { p, itens: itensPdf };
 }
 
 function abrirHistorico(id) {
   const pedido = HISTORICO_PEDIDOS.find(item => item.id === id);
   if (!pedido) return;
   pedidoHistoricoAtual = pedido;
+  const podeExcluir = ['admin', 'sales'].includes(window.currentAuth?.profile?.role);
+  const botaoExcluir = document.getElementById('historyDialogDelete');
+  if (botaoExcluir) botaoExcluir.hidden = !podeExcluir;
   document.getElementById('historyDialogTitle').textContent = `${pedido.id} · ${pedido.cliente}`;
   const emProducao = ['in_production', 'quality_check'].includes(pedido.statusCode);
   document.getElementById('historyDialogOverview').innerHTML = `
@@ -1241,28 +1310,41 @@ function abrirHistorico(id) {
   document.getElementById('historyDialog').showModal();
 }
 
+function abrirPreviewHistorico(id) {
+  const pedido = HISTORICO_PEDIDOS.find(item => item.id === id);
+  if (!pedido) return;
+  exportarPdfFabrica('preview', construirContextoPdfHistorico(pedido));
+}
+
 function baixarPdfHistorico(id) {
   const pedido = HISTORICO_PEDIDOS.find(item => item.id === id);
   if (!pedido) return;
-  if (!window.jspdf?.jsPDF) { toast('Biblioteca PDF indisponível.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  doc.setFillColor(16, 20, 60); doc.rect(0, 0, 210, 36, 'F');
-  doc.addImage(LOGO_DUO_PDF, 'PNG', 14, 3, 34, 24);
-  doc.setFontSize(14); doc.text('Resumo de pedido', 194, 18, { align: 'right' });
-  doc.setTextColor(16, 20, 60); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text(pedido.id, 16, 53);
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.text(`Cliente: ${pedido.cliente}`, 16, 62); doc.text(`Data: ${pedido.data}`, 16, 69);
-  doc.setDrawColor(220, 224, 235); doc.line(16, 77, 194, 77);
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('ITEM REGISTRADO', 16, 88);
-  doc.setFont('helvetica', 'normal'); doc.text(pedido.produto, 16, 96); doc.text(`${pedido.itens} ${pedido.itens === 1 ? 'item' : 'itens'}`, 16, 103);
-  doc.setFont('helvetica', 'bold'); doc.text('CONFIGURAÇÃO DE FÁBRICA', 16, 119);
-  doc.setFont('helvetica', 'normal');
-  [['Espuma', pedido.espuma], ['Pistão', pedido.pistao], ['Modelo sela', pedido.sela], ['Linha de espuma', pedido.linha], ['Status', pedido.status]].forEach(([chave, valor], indice) => doc.text(`${chave}: ${valor}`, 16, 128 + indice * 8));
-  doc.setFillColor(187, 23, 34); doc.roundedRect(16, 180, 178, 22, 3, 3, 'F');
-  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.text('TOTAL DO PEDIDO', 22, 190); doc.setFontSize(14); doc.text(fmt(pedido.valor), 188, 192, { align: 'right' });
-  doc.setTextColor(95, 99, 126); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text('Documento gerado pelo painel de pedidos.', 105, 280, { align: 'center' });
-  doc.save(`${pedido.id}.pdf`);
-  toast(`PDF de ${pedido.id} baixado.`);
+  exportarPdfFabrica('download', construirContextoPdfHistorico(pedido));
+}
+
+async function excluirPedidoHistorico(id) {
+  const pedido = HISTORICO_PEDIDOS.find(item => item.id === id);
+  if (!pedido?.dbId) return;
+  const confirmado = window.confirm(`Excluir permanentemente o pedido ${pedido.id} de ${pedido.cliente}?\n\nEsta ação não pode ser desfeita.`);
+  if (!confirmado) return;
+  if (!window.appSupabase) {
+    toast('Banco de dados indisponível.', 'error');
+    return;
+  }
+  toast(`Excluindo ${pedido.id}…`, 'loading');
+  const { error } = await window.appSupabase.from('orders').delete().eq('id', pedido.dbId);
+  if (error) {
+    console.error('Falha ao excluir pedido:', error);
+    toast(`Não foi possível excluir: ${mensagemErroSupabase(error)}`, 'error');
+    return;
+  }
+  if (pedidoHistoricoAtual?.id === pedido.id) {
+    const dialog = document.getElementById('historyDialog');
+    if (dialog?.open) dialog.close();
+    pedidoHistoricoAtual = null;
+  }
+  await carregarDadosRemotos();
+  toast(`Pedido ${pedido.id} excluído.`, 'success');
 }
 
 /* ============================================================
@@ -1372,6 +1454,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('historyDialogBack').addEventListener('click', () => dialogHistorico.close());
   document.getElementById('historyDialogPdf').addEventListener('click', () => {
     if (pedidoHistoricoAtual) baixarPdfHistorico(pedidoHistoricoAtual.id);
+  });
+  document.getElementById('historyDialogPreview').addEventListener('click', () => {
+    if (pedidoHistoricoAtual) abrirPreviewHistorico(pedidoHistoricoAtual.id);
+  });
+  document.getElementById('historyDialogDelete').addEventListener('click', () => {
+    if (pedidoHistoricoAtual) excluirPedidoHistorico(pedidoHistoricoAtual.id);
   });
   dialogHistorico.addEventListener('click', evento => {
     if (evento.target === dialogHistorico) dialogHistorico.close();
