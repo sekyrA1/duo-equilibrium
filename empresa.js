@@ -101,4 +101,41 @@
       card.style.setProperty('--card-tilt-y', '0deg');
     });
   });
+
+  const cursor = document.querySelector('.duo-cursor');
+  const finePointer = window.matchMedia?.('(pointer: fine)').matches;
+  if (cursor && finePointer) {
+    root.classList.add('has-custom-cursor');
+    let cursorX = -100;
+    let cursorY = -100;
+    let targetX = -100;
+    let targetY = -100;
+    let cursorFrame = null;
+    const renderCursor = () => {
+      if (reducedMotion) {
+        cursorX = targetX;
+        cursorY = targetY;
+      } else {
+        cursorX += (targetX - cursorX) * .2;
+        cursorY += (targetY - cursorY) * .2;
+      }
+      cursor.style.transform = `translate3d(${cursorX - 19}px, ${cursorY - 19}px, 0)`;
+      if (Math.abs(targetX - cursorX) > .1 || Math.abs(targetY - cursorY) > .1) {
+        cursorFrame = requestAnimationFrame(renderCursor);
+      } else {
+        cursorFrame = null;
+      }
+    };
+    window.addEventListener('pointermove', event => {
+      targetX = event.clientX;
+      targetY = event.clientY;
+      cursor.classList.add('is-visible');
+      if (cursorFrame === null) cursorFrame = requestAnimationFrame(renderCursor);
+    }, { passive: true });
+    window.addEventListener('blur', () => cursor.classList.remove('is-visible'));
+    document.querySelectorAll('a, button, .company-hero-art, .principle-card').forEach(element => {
+      element.addEventListener('pointerenter', () => cursor.classList.add('is-interactive'));
+      element.addEventListener('pointerleave', () => cursor.classList.remove('is-interactive'));
+    });
+  }
 })();
