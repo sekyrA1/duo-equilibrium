@@ -90,10 +90,16 @@ html.has-custom-cursor, html.has-custom-cursor body, html.has-custom-cursor a, h
 .art-mark img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
 .procedural-logo { width: 100%; height: 100%; overflow: visible; }
 .logo-ring { fill: #040b3f; opacity: .98; }
-.logo-needle { transform-box: view-box; transform-origin: center; animation: logoNeedlePulse 5.5s ease-in-out infinite; }
+.logo-ring path { transform-box: view-box; transform-origin: 50% 50%; will-change: transform; }
+.logo-ring path:first-child { animation: logoRingForward 12s ease-in-out infinite; }
+.logo-ring path:last-child { animation: logoRingReverse 14s ease-in-out infinite; }
+.logo-needle { transform-box: view-box; transform-origin: 50% 50%; animation: logoNeedlePulse 5.5s cubic-bezier(.2,.8,.2,1) infinite; filter: drop-shadow(0 5px 5px rgba(4, 11, 63, .16)); will-change: transform, filter; }
 .logo-red, .logo-blue { stroke: none; }
 .logo-red { fill: #c1020a; }
 .logo-blue { fill: #040b3f; }
+.company-hero-art:hover .logo-ring path:first-child { animation-duration: 6s; }
+.company-hero-art:hover .logo-ring path:last-child { animation-duration: 7s; }
+.company-hero-art:hover .logo-needle { animation-duration: 2.7s; filter: drop-shadow(0 8px 8px rgba(193, 2, 10, .2)); }
 .art-card { position: absolute; z-index: 2; display: grid; gap: 8px; padding: 16px 17px; border: 1px solid rgba(255, 255, 255, .21); border-radius: 14px; background: rgba(255, 255, 255, .09); color: #fff; backdrop-filter: blur(14px); }
 .art-card span { color: rgba(255, 255, 255, .62); font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .art-card strong { font-size: .92rem; line-height: 1.2; letter-spacing: -.03em; }
@@ -215,7 +221,9 @@ html.js-ready [data-reveal][data-reveal-delay="3"] { transition-delay: .3s; }
 @keyframes glowBreath { 0%, 100% { opacity: .72; } 50% { opacity: 1; } }
 @keyframes orbitBreath { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
 @keyframes markBreath { 0%, 100% { box-shadow: 0 22px 50px rgba(0, 0, 0, .24); } 50% { box-shadow: 0 26px 60px rgba(0, 0, 0, .34), 0 0 0 12px rgba(255,255,255,.04); } }
-@keyframes logoNeedlePulse { 0%, 100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(2deg) scale(1.035); } }
+@keyframes logoRingForward { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(2.5deg); } }
+@keyframes logoRingReverse { 0%, 100% { transform: rotate(1.5deg); } 50% { transform: rotate(-2.5deg); } }
+@keyframes logoNeedlePulse { 0%, 100% { transform: rotate(0deg) scale(1); } 38% { transform: rotate(-1deg) scale(1.01); } 68% { transform: rotate(2.3deg) scale(1.035); } }
 
 @media (max-width: 1080px) {
   .company-topbar { grid-template-columns: auto 1fr; }
