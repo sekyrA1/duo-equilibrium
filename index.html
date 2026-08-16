@@ -3,283 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://skzvmjocbwdboxvqvngc.supabase.co wss://skzvmjocbwdboxvqvngc.supabase.co https://fonts.googleapis.com https://fonts.gstatic.com; frame-src 'self' blob:; worker-src 'self' blob:; form-action 'self'; upgrade-insecure-requests">
+<meta name="description" content="Conheça a Duo Equilibrium, a empresa por trás de soluções que aproximam ergonomia, design e cuidado da rotina profissional.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
-<title>Duo Equilibrium — Soluções Ergonômicas</title>
+<title>Sobre a Duo Equilibrium | Ergonomia com presença humana</title>
 <link rel="icon" type="image/png" href="assets/logo-duo-equilibrium.png">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11.2.10/swiper-bundle.min.css" integrity="sha384-gAPqlBuTCdtVcYt9ocMOYWrnBZ4XSL6q+4eXqwNycOr4iFczhNKtnYhF3NEXJM51" crossorigin="anonymous">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="landing.css?v=security-20260815">
+<link rel="stylesheet" href="empresa.css?v=20260816">
 </head>
 <body>
 
-<div class="scroll-progress" aria-hidden="true"></div>
+<div class="company-progress" aria-hidden="true"></div>
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <a href="index.html" class="brand">
-    <img class="brand-logo-img" src="assets/logo-duo-equilibrium.png" alt="Duo Equilibrium - Soluções Ergonômicas">
+<header class="company-topbar">
+  <a class="company-brand" href="index.html" aria-label="Duo Equilibrium — voltar para a página institucional">
+    <img src="assets/logo-duo-equilibrium.png" alt="Duo Equilibrium">
   </a>
 
-  <nav class="nav-center">
-    <div class="nav-tabs">
-      <span class="nav-indicator" aria-hidden="true"></span>
-      <a href="#inicio" class="nav-tab active">Início</a>
-      <a href="#modelos" class="nav-tab">Modelos</a>
-      <a href="#mocho-sela" class="nav-tab">Por que mocho sela?</a>
-      <a href="#diferenciais" class="nav-tab">Diferenciais</a>
-      <a href="empresa.html" class="nav-tab nav-tab-page">A empresa</a>
-    </div>
+  <nav class="company-nav" aria-label="Navegação institucional">
+    <a class="company-nav-link active" href="#inicio">A empresa</a>
+    <a class="company-nav-link" href="#manifesto">Nosso jeito</a>
+    <a class="company-nav-link" href="#principios">Princípios</a>
+    <a class="company-nav-link" href="#fundador">O fundador</a>
   </nav>
 
-  <div class="nav-actions">
-    <a href="#modelos" class="btn-cta">
-      Conheça os modelos <span>→</span>
-    </a>
+  <div class="company-actions">
+    <a class="company-vision-link" href="#manifesto">Conhecer a nossa história <span aria-hidden="true">↓</span></a>
+    <a class="company-contact" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20conhecer%20melhor%20a%20Duo%20Equilibrium." target="_blank" rel="noopener">Falar com a Duo</a>
   </div>
 </header>
 
 <main>
-  <!-- HERO SECTION -->
-  <section class="hero-wrap" id="inicio">
-    <div>
-      <div class="hero-badge">✦ Design Ergonômico & Sob Medida</div>
-      <h1 class="hero-title">O equilíbrio perfeito entre <span>postura, conforto</span> e design.</h1>
-      <p class="hero-sub">
-        Mochos ergonômicos de alta performance para clínicas, estúdios e consultórios.
-        Soluções sob medida em materiais, acabamentos e acessórios.
-      </p>
+  <section class="company-hero" id="inicio">
+    <div class="company-hero-copy">
+      <div class="company-eyebrow"><span class="eyebrow-dot"></span>Duo Equilibrium <b>·</b> Sobre a marca</div>
+      <h1>Uma empresa para quem acredita que <em>conforto</em> também é estratégia.</h1>
+      <p class="company-hero-lead">A Duo Equilibrium aproxima ergonomia, design e escuta para criar soluções que fazem sentido na vida real — no ritmo de quem trabalha, cuida e transforma.</p>
 
-      <div class="hero-btns">
-        <a href="#modelos" class="btn-primary">
-          Conheça os modelos <span>→</span>
-        </a>
-        <a href="https://wa.me/5521971433650?text=Olá%2C%20quero%20conhecer%20os%20mochos%20Duo%20Equilibrium." class="btn-whatsapp" target="_blank" rel="noopener">
-          &#128172; Falar no WhatsApp
-        </a>
+      <div class="company-hero-actions">
+        <a class="company-button primary" href="#manifesto">Conheça nosso jeito <span aria-hidden="true">↓</span></a>
+        <a class="company-button secondary" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20conversar%20com%20a%20Duo%20Equilibrium." target="_blank" rel="noopener"><span class="button-dot"></span> Conversar com a Duo</a>
       </div>
 
-      <div class="hero-stats">
-        <div>
-          <div class="stat-num">1.000+</div>
-          <div class="stat-label">Combinações sob medida</div>
-        </div>
-        <div>
-          <div class="stat-num">100%</div>
-          <div class="stat-label">Conforto certificado</div>
-        </div>
-        <div>
-          <div class="stat-num">Sob medida</div>
-          <div class="stat-label">Atendimento especializado</div>
-        </div>
+      <div class="company-hero-facts" aria-label="Características da Duo Equilibrium">
+        <div><strong>01</strong><span>Olhar consultivo</span></div>
+        <div><strong>02</strong><span>Escolhas com intenção</span></div>
+        <div><strong>03</strong><span>Presença de ponta a ponta</span></div>
       </div>
     </div>
 
+    <div class="company-hero-art" aria-label="Manifesto visual da Duo Equilibrium">
+      <div class="art-glow"></div>
+      <div class="art-orbit orbit-one"></div>
+      <div class="art-orbit orbit-two"></div>
+      <div class="art-orbit orbit-three"></div>
+      <div class="art-card art-card-top"><span>O que nos move</span><strong>Equilíbrio entre<br><em>ideia e cuidado</em></strong></div>
+      <div class="art-mark"><img src="assets/logo-duo-equilibrium.png" alt=""></div>
+      <div class="art-card art-card-bottom"><span>Uma marca feita de perto</span><strong>Com pessoas<br>no centro.</strong></div>
+      <span class="art-number">02<span>/</span>26</span>
+    </div>
   </section>
 
-  <!-- MODELOS SECTION -->
-  <section class="section-wrap section-modelos" id="modelos">
-    <div class="section-head">
-      <div class="eyebrow">Coleção em Destaque</div>
-      <h2>Modelos Adaptados para sua Rotina</h2>
-      <p>Desenvolvidos para proporcionar suporte postural contínuo e elegância aos mais exigentes ambientes de trabalho.</p>
-    </div>
-
-    <div class="models-carousel reveal" aria-label="Modelos de mochos">
-      <div class="carousel-swiper swiper">
-        <div class="swiper-wrapper">
-      <!-- Card 1 -->
-      <article class="swiper-slide model-card">
-        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-clinico-pro.png" alt="Mocho Clínico Pro azul com encosto"></div>
-        <div>
-          <div class="model-icon">🩺</div>
-          <h3 class="model-title">Mocho Clínico Pro</h3>
-          <p class="model-desc">Projetado especificamente para cirurgiões dentistas, médicos e profissionais da saúde.</p>
-          <ul class="model-specs">
-            <li>Encosto lumbar reclinável ajustável</li>
-            <li>Revestimento lavável e impermeável</li>
-            <li>Elevação pneumática de alta precisão</li>
-          </ul>
-        </div>
-        <div class="model-foot">
-          <a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Clínico%20Pro.">Pedir no WhatsApp</a>
-        </div>
-      </article>
-
-      <!-- Card 2 -->
-      <article class="swiper-slide model-card">
-        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-studio-executivo.png" alt="Mocho Studio Executivo grafite"></div>
-        <div>
-          <div class="model-icon">✨</div>
-          <h3 class="model-title">Mocho Studio Executivo</h3>
-          <p class="model-desc">Sofisticação e fluidez de movimento para estúdios de arquitetura, design e estática.</p>
-          <ul class="model-specs">
-            <li>Acabamento premium em couro ou tecido</li>
-            <li>Base giratória 360° em inox cromado</li>
-            <li>Rodízios silenciosos em silicone</li>
-          </ul>
-        </div>
-        <div class="model-foot">
-          <a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Studio%20Executivo.">Pedir no WhatsApp</a>
-        </div>
-      </article>
-
-      <!-- Card 3 -->
-      <article class="swiper-slide model-card">
-        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-compact-minimal.png" alt="Mocho Compact Minimal em madeira"></div>
-        <div>
-          <div class="model-icon">🌿</div>
-          <h3 class="model-title">Mocho Compact Minimal</h3>
-          <p class="model-desc">Design limpo e estrutura compacta em madeira maciça para ambientes otimizados.</p>
-          <ul class="model-specs">
-            <li>Estrutura leve e ultra resistente</li>
-            <li>Design escandinavo em madeira natural</li>
-            <li>Ideal para recepções e pequenos espaços</li>
-          </ul>
-        </div>
-        <div class="model-foot">
-          <a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Compact%20Minimal.">Pedir no WhatsApp</a>
-        </div>
-      </article>
-      <article class="swiper-slide model-card">
-        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-clinico-pro.png" alt="Mocho Sela Flex azul"></div>
-        <div><div class="model-icon">◒</div><h3 class="model-title">Mocho Sela Flex</h3><p class="model-desc">Assento sela para uma rotina mais ativa, com ajuste pensado para procedimentos de precisão.</p><ul class="model-specs"><li>Formato sela ergonômico</li><li>Pistão com ajuste de altura</li></ul></div>
-        <div class="model-foot"><a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Sela%20Flex.">Pedir no WhatsApp</a></div>
-      </article>
-      <article class="swiper-slide model-card">
-        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-studio-executivo.png" alt="Mocho Estética Balance grafite"></div>
-        <div><div class="model-icon">✦</div><h3 class="model-title">Mocho Estética Balance</h3><p class="model-desc">Perfil minimalista para estética e clínicas, com mobilidade suave e acabamento resistente.</p><ul class="model-specs"><li>Base com rodízios silenciosos</li><li>Espuma de alta densidade</li></ul></div>
-        <div class="model-foot"><a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Estética%20Balance.">Pedir no WhatsApp</a></div>
-      </article>
-      <article class="swiper-slide model-card">
-        <div class="model-image-wrap"><img class="model-image" src="assets/mocho-compact-minimal.png" alt="Mocho Madeira Essencial"></div>
-        <div><div class="model-icon">⌁</div><h3 class="model-title">Mocho Madeira Essencial</h3><p class="model-desc">Uma variação compacta em madeira para compor recepções, ateliês e espaços autorais.</p><ul class="model-specs"><li>Madeira natural selecionada</li><li>Base estável de três apoios</li></ul></div>
-        <div class="model-foot"><a class="btn-card" target="_blank" rel="noopener" href="https://wa.me/5521971433650?text=Olá%2C%20quero%20saber%20mais%20sobre%20o%20Mocho%20Madeira%20Essencial.">Pedir no WhatsApp</a></div>
-      </article>
-        </div>
-      </div>
-      <div class="carousel-controls">
-        <button class="carousel-arrow" type="button" data-carousel="prev" aria-label="Modelo anterior">&#8592;</button>
-        <div class="carousel-status" aria-live="polite">
-          <div class="carousel-piston"><div class="carousel-progress" aria-hidden="true"><span></span></div><input id="carouselHandle" type="range" min="1" max="6" step="1" value="1" aria-label="Selecionar modelo do carrossel"></div>
-        </div>
-        <button class="carousel-arrow" type="button" data-carousel="next" aria-label="Próximo modelo">&#8594;</button>
+  <section class="company-section manifesto" id="manifesto">
+    <div class="section-index">01 <span>/</span> O que nos move</div>
+    <div class="manifesto-grid">
+      <h2>Mais do que uma solução, uma forma de estar presente.</h2>
+      <div class="manifesto-copy">
+        <p>A Duo Equilibrium nasceu para tornar mais humana a relação entre pessoas, espaço e trabalho. Acreditamos que uma boa escolha não deve ser apenas bonita ou funcional: ela precisa conversar com a rotina de quem vai viver com ela.</p>
+        <p>Por isso, a empresa acompanha cada conversa com atenção. Da primeira necessidade ao detalhe final, nosso trabalho é traduzir cuidado em decisões claras, materiais bem escolhidos e experiências que permanecem.</p>
+        <a class="text-link" href="#principios">O que sustenta esse olhar <span aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
 
-  <section class="section-wrap section-sela" id="mocho-sela">
-    <div class="sela-layout reveal">
-      <div class="sela-copy">
-        <div class="eyebrow">Ergonomia que acompanha seu ritmo</div>
-        <h2>Por que escolher um mocho sela?</h2>
-        <p>O assento em formato de sela favorece uma posição de trabalho mais ativa e próxima ao campo de atuação, ajudando o profissional a encontrar conforto em movimentos repetitivos.</p>
-        <div class="sela-points">
-          <div class="sela-point"><div class="sela-point-icon">01</div><div><b>Quadris mais livres</b><span>O desenho do assento permite variar a posição das pernas e aproxima o profissional da bancada sem comprimir o movimento.</span></div></div>
-          <div class="sela-point"><div class="sela-point-icon">02</div><div><b>Postura de trabalho ativa</b><span>A elevação correta e o encaixe do assento ajudam a manter uma posição funcional durante procedimentos longos.</span></div></div>
-          <div class="sela-point"><div class="sela-point-icon">03</div><div><b>Mobilidade precisa</b><span>Base giratória e rodízios adequados permitem reposicionamento fluido no consultório, estúdio ou clínica.</span></div></div>
-        </div>
-      </div>
-      <div class="sela-media-grid" aria-label="Explicações visuais sobre o mocho sela">
-        <figure class="sela-media"><img src="assets/mocho-sela-postura.png" alt="Profissional utilizando um mocho sela em postura de trabalho"><img class="sela-hover-gif" src="assets/mocho-sela-postura.gif" alt="Animação de postura no mocho sela"><figcaption><img class="sela-motion" src="assets/mocho-sela-postura.gif" alt="">Postura em movimento</figcaption></figure>
-        <figure class="sela-media"><img src="assets/mocho-sela-ergonomia.png" alt="Ilustração da posição de quadris e pernas em um mocho sela"><img class="sela-hover-gif" src="assets/mocho-sela-ergonomia.gif" alt="Animação da ergonomia do mocho sela"><figcaption><img class="sela-motion" src="assets/mocho-sela-ergonomia.gif" alt="">Mobilidade e ajuste</figcaption></figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- DIFERENCIAIS SECTION -->
-  <section class="section-wrap section-diferenciais" id="diferenciais">
-    <div class="section-head">
-      <div class="eyebrow">Por que duoequilibrium?</div>
-      <h2>Engenharia a Serviço da sua Postura</h2>
-      <p>Cada detalhe é idealizado para minimizar o desgaste físico em jornadas prolongadas.</p>
-    </div>
-
-    <div class="diff-grid">
-      <div class="diff-card">
-        <div class="diff-num">01</div>
-        <h3 class="diff-title">Ergonomia Certificada</h3>
-        <p class="diff-desc">Projetados para manter a curvatura fisiológica natural da coluna vertebral, reduzindo tensões e dores lombares.</p>
+  <section class="principles" id="principios">
+    <div class="principles-inner">
+      <div class="section-index light">02 <span>/</span> Nosso jeito de fazer</div>
+      <div class="principles-heading">
+        <h2>Equilíbrio é uma prática diária.</h2>
+        <p>O nome Duo Equilibrium traduz uma escolha: olhar para dois lados ao mesmo tempo — o que as pessoas precisam e o que os espaços podem oferecer.</p>
       </div>
 
-      <div class="diff-card">
-        <div class="diff-num">02</div>
-        <h3 class="diff-title">Customização Total</h3>
-        <p class="diff-desc">Escolha livremente entre tamanhos (P a GG), sistemas de encosto, tecidos, cores e acessórios específicos.</p>
-      </div>
-
-      <div class="diff-card">
-        <div class="diff-num">03</div>
-        <h3 class="diff-title">Atendimento Consultivo</h3>
-        <p class="diff-desc">Orientação especializada para escolher medidas, acabamentos e acessórios ideais para sua rotina.</p>
-      </div>
-
-      <div class="diff-card">
-        <div class="diff-num">04</div>
-        <h3 class="diff-title">Durabilidade Garantida</h3>
-        <p class="diff-desc">Chassi reforçado, componentes antioxidantes e espumas de alta densidade desenvolvidas para anos de uso contínuo.</p>
+      <div class="principles-grid">
+        <article class="principle-card">
+          <div class="principle-number">01</div>
+          <h3>Escutar antes de propor</h3>
+          <p>Cada contexto tem um ritmo, uma medida e uma história. A solução começa quando entendemos essas diferenças.</p>
+        </article>
+        <article class="principle-card featured">
+          <div class="principle-number">02</div>
+          <h3>Transformar intenção em detalhe</h3>
+          <p>Design, acabamento e ergonomia deixam de ser escolhas soltas quando passam a servir uma mesma experiência.</p>
+        </article>
+        <article class="principle-card">
+          <div class="principle-number">03</div>
+          <h3>Cuidar de ponta a ponta</h3>
+          <p>Uma relação próxima dá segurança para decidir, ajustar e seguir em frente com clareza.</p>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- DEPOIMENTOS -->
-  <section class="section-wrap section-depoimentos" id="depoimentos">
-    <div class="section-head">
-      <div class="eyebrow">Aprovação Comprovada</div>
-      <h2>O que Dizem Nossos Clientes</h2>
-      <p>Profissionais de saúde e design que transformaram seu conforto de trabalho.</p>
+  <section class="company-section founder" id="fundador">
+    <div class="founder-portrait" aria-label="Espaço institucional para o fundador da Duo Equilibrium">
+      <div class="portrait-grid"></div>
+      <div class="portrait-ring ring-large"></div>
+      <div class="portrait-ring ring-small"></div>
+      <div class="portrait-monogram">DE</div>
+      <div class="portrait-caption"><span>Quem está à frente</span><strong>O fundador da<br>Duo Equilibrium</strong></div>
+      <div class="portrait-note">Uma empresa com rosto,<br>voz e responsabilidade.</div>
     </div>
 
-    <div class="testi-grid">
-      <div class="testi-card">
-        <p class="testi-text">"Trabalho cerca de 9 horas por dia em cirurgias odontológicas. O mocho com apoio lombar pneumático eliminou minhas dores nas costas."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">EV</div>
-          <div class="testi-info">
-            <b>Dr. Eduardo Vasconcelos</b>
-            <span>Cirurgião Dentista</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="testi-card">
-        <p class="testi-text">"O atendimento foi essencial para definir o acabamento e as medidas ideais para a nossa nova clínica."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">CS</div>
-          <div class="testi-info">
-            <b>Dra. Camilla Sampaio</b>
-            <span>Dermatologista & Gestora</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="testi-card">
-        <p class="testi-text">"A harmonia das cores de acabamento em madeira e couro trouxe um toque de luxo surreal para o nosso estúdio de arquitetura."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">RM</div>
-          <div class="testi-info">
-            <b>Rodrigo Mendes</b>
-            <span>Designer de Interiores</span>
-          </div>
-        </div>
-      </div>
+    <div class="founder-copy">
+      <div class="section-index">03 <span>/</span> Quem está à frente</div>
+      <h2>Uma empresa com nome, voz e responsabilidade.</h2>
+      <blockquote>“Toda boa solução começa por prestar atenção.”</blockquote>
+      <p>Na Duo Equilibrium, o dono está próximo do negócio e das pessoas que fazem parte dele. É essa presença que mantém a empresa aberta ao diálogo, cuidadosa nas escolhas e comprometida com a experiência de cada cliente.</p>
+      <p>Mais do que conduzir uma operação, o fundador dá direção ao jeito Duo de fazer: com curiosidade, critério e vontade de construir relações que façam sentido no longo prazo.</p>
+      <div class="founder-signature"><span class="signature-mark">DE</span><span><strong>Duo Equilibrium</strong><small>Ergonomia com presença humana</small></span></div>
     </div>
   </section>
 
+  <section class="company-cta">
+    <div class="cta-kicker">Duo Equilibrium</div>
+    <h2>Quer entender o que podemos construir juntos?</h2>
+    <p>Conte um pouco sobre sua rotina, seu espaço ou sua ideia. A conversa começa por aqui.</p>
+    <div class="cta-actions">
+      <a class="company-button light" href="https://wa.me/5521971433650?text=Olá%2C%20vim%20pela%20página%20da%20Duo%20Equilibrium%20e%20quero%20conversar." target="_blank" rel="noopener">Falar pelo WhatsApp <span aria-hidden="true">→</span></a>
+      <a class="cta-company-link" href="#inicio">Voltar ao início <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
 </main>
 
-<a class="whatsapp-float" href="https://wa.me/5521971433650?text=Olá%2C%20vim%20pelo%20site%20e%20quero%20falar%20sobre%20um%20mocho." target="_blank" rel="noopener" aria-label="Falar com a Duo Equilibrium pelo WhatsApp">&#128172;</a>
-
-<footer>
-  <p style="margin-top:8px; opacity:.7;">© 2026 duoequilibrium. Todos os direitos reservados. | <a href="empresa.html">Sobre a Duo</a> | <a href="pedidos.html">Gerador de Pedidos</a></p>
+<footer class="company-footer">
+  <a class="footer-brand" href="index.html"><img src="assets/logo-duo-equilibrium.png" alt="Duo Equilibrium"></a>
+  <div class="footer-links"><a href="#inicio">Voltar ao início</a><a href="#principios">Princípios</a><a href="#fundador">O fundador</a></div>
+  <p>© 2026 Duo Equilibrium. Todos os direitos reservados.</p>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@11.2.10/swiper-bundle.min.js" integrity="sha384-2UI1PfnXFjVMQ7/ZDEF70CR943oH3v6uZrFQGGqJYlvhh4g6z6uVktxYbOlAczav" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/dist/umd/supabase.min.js" integrity="sha384-1qxdq7qui0E5OGQx7KlSCCpPydLIt8lgUjqM3jGxWLXq9AIGC661VIvU/NPT6BQP" crossorigin="anonymous"></script>
-<script src="supabase-client.js?v=security-20260815"></script>
-<script src="landing.js?v=security-20260815"></script>
-
+<script src="empresa.js?v=20260816"></script>
 </body>
 </html>
