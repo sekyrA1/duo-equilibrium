@@ -1067,6 +1067,7 @@ async function salvarPedido() {
 function mapearPedido(row, itensPorPedido) {
   const customer = row.customers || {};
   const snapshot = row.customer_snapshot || {};
+  const pedidoSnapshot = row.order_snapshot || {};
   const itensPedido = itensPorPedido.get(row.id) || [];
   const item = itensPedido[0] || {};
   const statusCode = row.status || 'draft';
@@ -1087,6 +1088,8 @@ function mapearPedido(row, itensPorPedido) {
     pistao: item.piston || '—',
     sela: item.saddle_model || '—',
     linha: item.saddle_size || '—',
+    corAssento: pedidoSnapshot.corAssento || item.seat_color || '—',
+    corEstrutura: pedidoSnapshot.corEstrutura || item.frame_finish || '—',
     itens: itensPedido.reduce((total, atual) => total + Number(atual.quantity || 0), 0),
     raw: row,
     rawItems: itensPedido
@@ -1305,7 +1308,7 @@ function abrirHistorico(id) {
     ['Código', pedido.id], ['Empresa / clínica', pedido.cliente], ['Nome', pedido.nome], ['Telefone', pedido.telefone], ['E-mail', pedido.email], ['Data', pedido.data], ['Itens', `${pedido.itens} ${pedido.itens === 1 ? 'item' : 'itens'}`]
   ].map(([rotulo, valor]) => `<div class="history-detail"><small>${rotulo}</small><strong>${escapeHtml(valor || '—')}</strong></div>`).join('');
   document.getElementById('historyDialogFabricacao').innerHTML = [
-    ['Espuma', pedido.espuma], ['Pistão', pedido.pistao], ['Modelo sela', pedido.sela], ['Linha de espuma', pedido.linha]
+    ['Espuma', pedido.espuma], ['Pistão', pedido.pistao], ['Modelo sela', pedido.sela], ['Linha de espuma', pedido.linha], ['Cor do assento', pedido.corAssento], ['Cor da estrutura', pedido.corEstrutura]
   ].map(([rotulo, valor]) => `<div class="history-detail"><small>${rotulo}</small><strong>${escapeHtml(valor || '—')}</strong></div>`).join('');
   document.getElementById('historyDialog').showModal();
 }
