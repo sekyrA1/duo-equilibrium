@@ -42,7 +42,7 @@
       <button type="button" data-dashboard-nav="novo"><span>＋</span>Novo pedido</button>
       <button type="button" data-dashboard-nav="historico"><span>◷</span>Pedidos anteriores</button>
     </nav>
-    <div class="dashboard-sidebar-note"><strong>Operação online</strong>Histórico demonstrativo e exportações prontos para consulta.</div>
+    <div class="dashboard-sidebar-note"><strong>Operação online</strong>Pedidos e clientes sincronizados com o banco.</div>
   </aside>
   <div class="dashboard-workspace">
   <section class="dashboard-page" data-dashboard-page="visao" aria-label="Visão geral do painel">
@@ -52,13 +52,13 @@
       <h1>Painel de pedidos</h1>
       <p>Crie, acompanhe e exporte pedidos de fabricação em um só lugar.</p>
     </div>
-    <span class="dashboard-sync">Dados simulados sincronizados</span>
+    <span class="dashboard-sync" id="dashboardSync">Conectando ao banco…</span>
   </section>
   <section class="dashboard-metrics" aria-label="Indicadores dos pedidos">
-    <article class="metric-card"><small>Pedidos no mês</small><strong id="metricPedidos">24</strong><em>+18% vs. mês anterior</em></article>
-    <article class="metric-card"><small>Em produção</small><strong id="metricProducao">06</strong><em>Prazo médio: 7 dias</em></article>
-    <article class="metric-card"><small>Faturamento</small><strong id="metricFaturamento">R$ 18.490</strong><em>Pedidos confirmados</em></article>
-    <article class="metric-card"><small>Ticket médio</small><strong id="metricTicket">R$ 770</strong><em>Base: últimos pedidos</em></article>
+    <article class="metric-card"><small>Pedidos no mês</small><strong id="metricPedidos">—</strong><em id="metricPedidosMeta">Dados reais</em></article>
+    <article class="metric-card"><small>Em produção</small><strong id="metricProducao">—</strong><em id="metricProducaoMeta">Status ativos</em></article>
+    <article class="metric-card"><small>Faturamento</small><strong id="metricFaturamento">—</strong><em id="metricFaturamentoMeta">Pedidos confirmados</em></article>
+    <article class="metric-card"><small>Ticket médio</small><strong id="metricTicket">—</strong><em id="metricTicketMeta">Base real</em></article>
   </section>
   <section class="card dashboard-chart-card" aria-labelledby="graficoPedidosTitulo">
     <div class="card-title" id="graficoPedidosTitulo"><span class="ico">↗</span> Evolução de pedidos</div>
@@ -69,7 +69,7 @@
   <section class="dashboard-page" data-dashboard-page="novo" hidden aria-label="Novo pedido">
   <div class="dashboard-head">
     <div><div class="dashboard-kicker">Novo registro</div><h1>Criar pedido de fábrica</h1><p>Complete os dados, defina a fabricação uma vez e adicione os itens ao pedido.</p></div>
-    <span class="dashboard-sync">Rascunho ativo</span>
+    <span class="dashboard-sync">Rascunho local</span>
   </div>
   <div class="layout">
 
@@ -140,7 +140,7 @@
           <div>
             <div class="eyebrow">Novo item personalizado</div>
             <h2>Configure seu mocho</h2>
-            <p>Selecione dimensões, materiais, acabamentos e acessórios.</p>
+            <p>Revise as especificações de fabricação antes de adicionar o item.</p>
           </div>
           <div class="product-mark" aria-hidden="true"><span></span></div>
         </div>
@@ -221,6 +221,7 @@
 
         <div style="margin-top:18px; display:flex; flex-direction:column; gap:10px;">
           <div class="btn-row pdf-actions">
+            <button class="btn btn-primary" id="btnSalvar" style="flex:1;justify-content:center;">Salvar pedido</button>
             <button class="btn btn-outline" id="btnPdfPreview" style="flex:1;justify-content:center;">Visualizar PDF</button>
             <button class="btn btn-accent btn-add" id="btnPdf" style="flex:1;justify-content:center;">Exportar PDF</button>
           </div>
@@ -237,12 +238,12 @@
 
   <section class="dashboard-page" data-dashboard-page="historico" hidden aria-label="Pedidos anteriores">
     <div class="dashboard-head">
-      <div><div class="dashboard-kicker">Base simulada</div><h1>Pedidos anteriores</h1><p>Consulte dados de pedidos já registrados e gere uma cópia do PDF.</p></div>
-      <span class="dashboard-sync">24 registros na base</span>
+      <div><div class="dashboard-kicker">Dados registrados</div><h1>Pedidos anteriores</h1><p>Consulte pedidos salvos no banco e gere uma cópia do PDF.</p></div>
+      <span class="dashboard-sync" id="historicoSync">Carregando…</span>
     </div>
     <section class="card" aria-labelledby="historicoTitulo">
       <div class="card-title" id="historicoTitulo"><span class="ico">◷</span> Histórico de pedidos</div>
-      <p class="card-sub">Dados demonstrativos prontos para substituir por uma integração de back-end.</p>
+      <p class="card-sub">Pedidos registrados pela equipe no painel.</p>
       <div class="historico-lista" id="historicoPedidos"></div>
     </section>
   </section>
