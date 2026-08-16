@@ -1298,6 +1298,53 @@ function novoPedido() {
   toast('Novo pedido iniciado.');
 }
 
+function escolherTeste(opcoes) {
+  return opcoes[Math.floor(Math.random() * opcoes.length)];
+}
+
+function preencherPedidoTeste() {
+  novoPedido();
+  const agora = Date.now();
+  const cliente = escolherTeste(['Clínica Horizonte', 'Studio Essencial', 'Consultório Central', 'Espaço Vitta', 'Ateliê Equilíbrio']);
+  const cidade = escolherTeste(['São Paulo', 'Campinas', 'Santos', 'Sorocaba', 'Jundiaí']);
+  const numero = String(agora).slice(-6);
+  const valor = Number((680 + Math.random() * 1120).toFixed(2));
+  const parcelas = escolherTeste([1, 2, 3, 4]);
+  const campo = (id, valorCampo) => { const elemento = document.getElementById(id); if (elemento) elemento.value = valorCampo; };
+
+  campo('cliente', cliente);
+  campo('telefone', `(11) 9${String(1000 + Math.floor(Math.random() * 8999))}-${String(1000 + Math.floor(Math.random() * 8999))}`);
+  campo('pedido', `PED-${new Date().getFullYear()}-${numero}`);
+  campo('codigoEvento', `TESTE-${numero}`);
+  campo('email', `teste.${numero}@example.com`);
+  campo('profissao', escolherTeste(['Dentista', 'Fisioterapeuta', 'Esteticista', 'Médica']));
+  campo('rua', escolherTeste(['Rua das Flores', 'Avenida Central', 'Rua do Comércio']));
+  campo('numero', String(10 + Math.floor(Math.random() * 890)));
+  campo('bairro', escolherTeste(['Centro', 'Jardins', 'Vila Nova']));
+  campo('cidade', cidade);
+  campo('uf', 'SP');
+  campo('cep', `0${String(1000 + Math.floor(Math.random() * 8999))}-000`);
+  campo('medidaAltura', escolherTeste(['1,65 m', '1,70 m', '1,75 m', '1,80 m']));
+  campo('peso', escolherTeste(['60 kg', '72 kg', '80 kg', '88 kg']));
+  campo('valorRecebido', valor.toFixed(2));
+  campo('parcelas', parcelas);
+  campo('valorParcela', (valor / parcelas).toFixed(2));
+  campo('desconto', escolherTeste([0, 5, 10]));
+  campo('frete', escolherTeste([0, 39.9, 59.9]));
+  campo('espessura', escolherTeste(['3 cm', '5 cm']));
+  campo('pistao', escolherTeste(['P', 'M']));
+  campo('corAssento', escolherTeste(['Preto', 'Azul Marinho', 'Caramelo', 'Marrom', 'Creme', 'Vermelho', 'Verde Musgo']));
+  campo('linhaSoft', escolherTeste(['', 'Soft', 'Soft Plus']));
+  campo('representante', 'Equipe interna');
+  campo('localAssinatura', cidade);
+  campo('observacoesPedido', 'Pedido de teste gerado automaticamente para validar o salvamento.');
+  campo('observacoes', 'Teste de integração do pedido.');
+  document.getElementById('data').value = new Date().toISOString().split('T')[0];
+  adicionarItemConfigurado();
+  renderTotais();
+  toast('Pedido de teste preenchido. Revise e clique em “Salvar pedido”.', 'loading');
+}
+
 /* ============================================================
    TOAST E INICIALIZAÇÃO
    ============================================================ */
@@ -1347,6 +1394,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnCsv').addEventListener('click', exportarCsv);
   document.getElementById('btnSalvar').addEventListener('click', salvarPedido);
   document.getElementById('btnNovo').addEventListener('click', novoPedido);
+  document.getElementById('btnPreencherTeste').addEventListener('click', preencherPedidoTeste);
   ['desconto', 'frete'].forEach(id => document.getElementById(id).addEventListener('input', renderTotais));
 
   renderTabela();
