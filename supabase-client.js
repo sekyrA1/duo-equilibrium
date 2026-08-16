@@ -17,11 +17,12 @@
     }
   });
 
-  // O convite pode retornar para a landing page. Preserve o hash e leve o usuário
-  // para o fluxo que permite definir a senha, sem expor o token em outra tela.
+  // Convites e recuperações podem retornar para a landing page. Preserve o hash
+  // e leve o usuário para o fluxo correto, sem expor o token em outra tela.
   const isInvite = /(?:^|[#&])type=invite(?:&|$)/.test(window.location.hash);
+  const isRecovery = /(?:^|[#&])type=recovery(?:&|$)/.test(window.location.hash);
   const isAdminPage = /\/admin\.html(?:$|[?#])/.test(window.location.pathname);
-  if (isInvite && !isAdminPage) {
+  if ((isInvite || isRecovery) && !isAdminPage) {
     const target = new URL('admin.html', window.location.href);
     target.searchParams.set('next', 'pedidos.html');
     target.hash = window.location.hash.slice(1);
