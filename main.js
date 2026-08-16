@@ -446,13 +446,16 @@ function renderTabela() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${idx + 1}</td>
-      <td class="desc-item"><b>${item.descricao}</b><br><span class="tag">${item.detalhes}</span></td>
+      <td class="desc-item"><b>${escapeHtml(item.descricao)}</b><br><span class="tag">${escapeHtml(item.detalhes)}</span></td>
       <td style="text-align:center;">${item.qtd}</td>
       <td style="text-align:right;">${fmt(item.unitario)}</td>
       <td style="text-align:right;">${fmt(item.subtotal)}</td>
-      <td><button class="btn btn-danger" style="padding:6px 10px;" onclick="removeItem(${item.id})">✕</button></td>
+      <td><button class="btn btn-danger" style="padding:6px 10px;" type="button" data-remove-item="${item.id}" aria-label="Remover item ${idx + 1}">✕</button></td>
     `;
     tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-remove-item]').forEach(botao => {
+    botao.addEventListener('click', () => removeItem(Number(botao.dataset.removeItem)));
   });
 
   renderTotais();
@@ -821,6 +824,11 @@ function exportarPdfLegadoDesativado() {
 /* ============================================================
    EXPORTAÇÃO XLSX e CSV
    ============================================================ */
+function valorPlanilhaSeguro(valor) {
+  if (typeof valor !== 'string') return valor;
+  return /^[\u0000-\u0020]*[=+\-@]/.test(valor) ? `'${valor}` : valor;
+}
+
 function criarLinhasPlanilha() {
   const p = dadosPedido();
   const linhas = [];
@@ -841,7 +849,7 @@ function criarLinhasPlanilha() {
   linhas.push([`Desconto (${p.descontoPct}%)`, '', '', '', p.desconto.toFixed(2).replace('.', ',')]);
   linhas.push(['Frete', '', '', '', p.frete.toFixed(2).replace('.', ',')]);
   linhas.push(['TOTAL', '', '', '', p.total.toFixed(2).replace('.', ',')]);
-  return linhas;
+  return linhas.map(linha => linha.map(valorPlanilhaSeguro));
 }
 
 function exportarXlsx() {
@@ -1249,7 +1257,7 @@ function renderHistoricoPedidos() {
     lista.innerHTML = '<div class="empty-state">Nenhum pedido registrado ainda.</div>';
     return;
   }
-  const podeExcluir = ['admin', 'sales'].includes(window.currentAuth?.profile?.role);
+  const podeExcluir = window.currentAuth?.profile?.role === 'admin';
   lista.innerHTML = HISTORICO_PEDIDOS.map(pedido => {
     const emProducao = ['in_production', 'quality_check'].includes(pedido.statusCode);
     const botaoExcluir = podeExcluir ? `<button class="btn btn-danger" type="button" data-history-delete="${escapeHtml(pedido.id)}" aria-label="Excluir ${escapeHtml(pedido.id)}">Lixeira</button>` : '';
@@ -1330,7 +1338,7 @@ function abrirHistorico(id) {
   const pedido = HISTORICO_PEDIDOS.find(item => item.id === id);
   if (!pedido) return;
   pedidoHistoricoAtual = pedido;
-  const podeExcluir = ['admin', 'sales'].includes(window.currentAuth?.profile?.role);
+  const podeExcluir = window.currentAuth?.profile?.role === 'admin';
   const botaoExcluir = document.getElementById('historyDialogDelete');
   if (botaoExcluir) botaoExcluir.hidden = !podeExcluir;
   document.getElementById('historyDialogTitle').textContent = `${pedido.id} · ${pedido.cliente}`;
@@ -1380,7 +1388,7 @@ async function excluirPedidoHistorico(id) {
     return;
   }
   if (!removidos?.some(item => item.id === pedido.dbId)) {
-    toast('O pedido não foi excluído. Verifique se seu perfil tem permissão de administrador ou vendas.', 'error');
+    toast('O pedido não foi excluído. Esta ação exige um perfil administrador.', 'error');
     return;
   }
   if (pedidoHistoricoAtual?.id === pedido.id) {

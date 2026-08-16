@@ -3,9 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://skzvmjocbwdboxvqvngc.supabase.co wss://skzvmjocbwdboxvqvngc.supabase.co; frame-src 'self' blob:; worker-src 'self' blob:; form-action 'self'; upgrade-insecure-requests">
+  <meta name="referrer" content="no-referrer">
   <title>Acesso administrativo · Duo Equilibrium</title>
   <link rel="icon" type="image/png" href="assets/logo-duo-equilibrium.png">
-  <link rel="stylesheet" href="auth.css">
+  <link rel="stylesheet" href="auth.css?v=security-20260815">
 </head>
 <body class="auth-page">
   <main class="auth-shell">
@@ -66,8 +68,8 @@
       <a class="auth-back" href="index.html">Voltar para o site público</a>
     </section>
   </main>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/dist/umd/supabase.min.js"></script>
-  <script src="supabase-client.js"></script>
-  <script src="auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/dist/umd/supabase.min.js" integrity="sha384-1qxdq7qui0E5OGQx7KlSCCpPydLIt8lgUjqM3jGxWLXq9AIGC661VIvU/NPT6BQP" crossorigin="anonymous"></script>
+  <script src="supabase-client.js?v=security-20260815"></script>
+  <script src="auth.js?v=security-20260815"></script>
 </body>
 </html>

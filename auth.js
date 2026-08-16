@@ -13,7 +13,17 @@
   const showRecovery = document.getElementById('showRecovery');
   const backToLogin = document.getElementById('backToLogin');
   const params = new URLSearchParams(window.location.search);
-  const next = params.get('next') || 'pedidos.html';
+  const sanitizeNext = value => {
+    try {
+      const target = new URL(value || 'pedidos.html', window.location.href);
+      const page = target.pathname.split('/').pop();
+      if (target.origin !== window.location.origin || page !== 'pedidos.html') return 'pedidos.html';
+      return page;
+    } catch {
+      return 'pedidos.html';
+    }
+  };
+  const next = sanitizeNext(params.get('next'));
   const inviteInHash = /(?:^|[#&])type=invite(?:&|$)/.test(window.location.hash);
   const recoveryInHash = /(?:^|[#&])type=recovery(?:&|$)/.test(window.location.hash);
 

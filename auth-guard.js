@@ -10,13 +10,16 @@
 
   if (!window.appSupabase) return goToLogin('client');
 
+  const { data: { user }, error: userError } = await window.appSupabase.auth.getUser();
+  if (userError || !user) return goToLogin('session');
+
   const { data: { session } } = await window.appSupabase.auth.getSession();
   if (!session) return goToLogin('session');
 
   const { data: profile, error } = await window.appSupabase
     .from('profiles')
     .select('id, display_name, role, active')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .maybeSingle();
 
   if (error || !profile?.active || !allowedRoles.has(profile.role)) {
