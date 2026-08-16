@@ -130,6 +130,8 @@
   .dashboard-menu button.active span { color: #fff; background: var(--accent); }
   .dashboard-sidebar-note { margin-top: 18px; padding: 12px; border-radius: 12px; background: rgba(197,28,42,.1); color: #d9dcef; font-size: .7rem; line-height: 1.5; }
   .dashboard-sidebar-note strong { display: block; color: #fff; margin-bottom: 3px; font-size: .75rem; }
+  .dashboard-logout { width: 100%; margin-top: 10px; justify-content: center; color: #ffd5d8; border-color: rgba(238,94,106,.28); }
+  .dashboard-logout:hover { color: #fff; background: rgba(197,28,42,.2); border-color: rgba(238,94,106,.5); }
   .dashboard-workspace { min-width: 0; }
   .dashboard-page { animation: dashboardPageIn .35s ease both; }
   .dashboard-page[hidden] { display: none; }
@@ -458,6 +460,7 @@
     .dashboard-shell { grid-template-columns: 1fr; }
     .dashboard-sidebar { position: static; display: flex; gap: 12px; align-items: center; overflow-x: auto; }
     .dashboard-sidebar-label, .dashboard-sidebar-note { display: none; }
+    .dashboard-logout { width: auto; flex: 0 0 auto; margin-top: 0; white-space: nowrap; }
     .dashboard-menu { flex-direction: row; min-width: max-content; }
     .layout { grid-template-columns: 1fr; }
     .right-col { position: static; }

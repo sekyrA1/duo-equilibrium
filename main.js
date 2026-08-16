@@ -881,6 +881,38 @@ function userIdAtual() {
   return window.currentAuth?.session?.user?.id || null;
 }
 
+async function sairDaSessao() {
+  const botao = document.getElementById('btnSair');
+  if (botao) {
+    botao.disabled = true;
+    botao.textContent = 'Saindo…';
+  }
+  try {
+    if (window.appSupabase) {
+      const { error } = await window.appSupabase.auth.signOut({ scope: 'local' });
+      if (error) throw error;
+    }
+    // Mantém a limpeza explícita para versões/caches antigos do cliente Supabase.
+    const chavesSessao = ['sb-skzvmjocbwdboxvqvngc-auth-token'];
+    chavesSessao.forEach(chave => {
+      window.localStorage?.removeItem(chave);
+      window.sessionStorage?.removeItem(chave);
+    });
+    window.currentAuth = null;
+    const destino = new URL('admin.html', window.location.href);
+    destino.searchParams.set('reason', 'logout');
+    destino.hash = '';
+    window.location.replace(destino.href);
+  } catch (error) {
+    console.error('Falha ao encerrar sessão:', error);
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = '↪ Sair da sessão';
+    }
+    toast('Não foi possível encerrar a sessão. Tente novamente.', 'error');
+  }
+}
+
 async function obterUserId() {
   const atual = userIdAtual();
   if (atual) return atual;
@@ -1486,6 +1518,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnSalvar').addEventListener('click', salvarPedido);
   document.getElementById('btnNovo').addEventListener('click', novoPedido);
   document.getElementById('btnPreencherTeste').addEventListener('click', preencherPedidoTeste);
+  document.getElementById('btnSair').addEventListener('click', sairDaSessao);
   ['desconto', 'frete'].forEach(id => document.getElementById(id).addEventListener('input', renderTotais));
 
   renderTabela();
